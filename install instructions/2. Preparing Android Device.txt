@@ -1,0 +1,30 @@
+Offical Docs
+
+https://reactnative.dev/docs/environment-setup
+
+Ctrl-f Preparing the Android device
+
+
+You will need an Android device to run your React Native Android app. This can be either a physical Android device, or more commonly, you can use an Android Virtual Device which allows you to emulate an Android device on your 
+computer.
+
+Either way, you will need to prepare the device to run Android apps for development.
+
+
+
+Using a physical device
+
+If you have a physical Android device, you can use it for development in place of an AVD by plugging it in to your computer using a USB cable and following the instructions here.
+Using a virtual device
+
+If you use Android Studio to open ./AwesomeProject/android, you can see the list of available Android Virtual Devices (AVDs) by opening the "AVD Manager" from within Android Studio. Look for an icon that looks like this:
+
+
+
+Android Studio AVD Manager
+
+If you have recently installed Android Studio, you will likely need to create a new AVD. Select "Create Virtual Device...", then pick any Phone from the list and click "Next", then select the UpsideDownCake API Level 34 image.
+
+(If you don't have HAXM installed, click on "Install HAXM" or follow these instructions https://github.com/intel/haxm/wiki/Installation-Instructions-on-Windows to set it up, then go back to the AVD Manager.)
+
+Click "Next" then "Finish" to create your AVD. At this point you should be able to click on the green triangle button next to your AVD to launch it, then proceed to the next step.

@@ -1,0 +1,26 @@
+Running your React Native application
+
+Step 1: Start Metro
+
+Metro is the javascript build tool for React Native. To start the Metro development server, run the following from your project folder:
+
+	npm start
+	
+
+
+
+Step 2: Start your application
+
+Let Metro Bundler run in its own terminal. Open a new terminal inside your React Native project folder. Run the following:
+
+	npm run android
+	
+This is one way to run your app - you can also run it directly from within Android Studio.
+
+
+That's it!
+
+
+
+
+Troubleshooting page: https://reactnative.dev/docs/troubleshooting

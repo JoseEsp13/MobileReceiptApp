@@ -1,14 +1,19 @@
+/**
+ * Navigator.tsx
+ * 
+ * Contains the routes for the app. Also configures the left drawer and the title bar.
+ */
 import React from 'react';
 import * as routes from './routes';
 import {SelectImageScreen} from './screens/SelectImageScreen';
 import {RouteProp} from '@react-navigation/native';
-import { createDrawerNavigator, DrawerNavigationProp, DrawerScreenProps } from '@react-navigation/drawer';
+import { createDrawerNavigator, DrawerScreenProps } from '@react-navigation/drawer';
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import DefineGroupsScreen from './screens/DefineGroupsScreen';
 import { ProcessImageScreen } from './screens/ProcessImageScreen';
 
-
+// Typescript route types
 type RootStackParamList = {
   [routes.HOME_SCREEN]: undefined,
   [routes.SELECT_SCREEN]: undefined;
@@ -19,8 +24,10 @@ type RootStackParamList = {
   [routes.SETTINGS_SCREEN]: undefined
 };
 
+// Instantiates a react-navigation drawer with a title up top
 const Drawer = createDrawerNavigator<RootStackParamList>();
 
+// Typescript prop types
 export type HomeScreenNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.HOME_SCREEN>;
 export type SelectScreenNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.SELECT_SCREEN>;
 export type ProcessImageNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.PROCESS_IMAGE_SCREEN>;

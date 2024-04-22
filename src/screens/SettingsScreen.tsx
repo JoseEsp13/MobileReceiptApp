@@ -1,6 +1,12 @@
+/**
+ * SettingsScreen.tsx
+ * 
+ * Settings component.
+ */
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { SettingsScreenNavigationProps } from '../Navigator';
+
 
 export default function SettingsScreen(props: SettingsScreenNavigationProps) {
   return (

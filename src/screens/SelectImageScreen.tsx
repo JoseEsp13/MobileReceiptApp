@@ -1,22 +1,19 @@
+/**
+ * SelectImageScreen.tsx
+ * 
+ * Displays buttons for capturing an image or selecting one from the gallery.
+ */
 import React from 'react';
-import {
-  View,
-  SafeAreaView,
-  Image,
-  StyleSheet,
-  useWindowDimensions,
-  ScrollView,
-} from 'react-native';
-import {DemoButton, DemoResponse} from '../components/ui';
+import {View, SafeAreaView, Image, StyleSheet, useWindowDimensions, ScrollView} from 'react-native';
+import {DemoButton} from '../components/ui';
 import * as ImagePicker from 'react-native-image-picker';
 import {ImagePickerResponse} from 'react-native-image-picker/src/types';
 import {SelectScreenNavigationProps} from '../Navigator';
-
 import * as routes from '../routes';
 
 
 export const SelectImageScreen = (props: SelectScreenNavigationProps) => {
-  const {height, width} = useWindowDimensions();
+  const {height} = useWindowDimensions();
   const [response, setResponse] = React.useState<ImagePickerResponse | null>(null);
 
   const onButtonPress = React.useCallback((type: any, options: any) => {

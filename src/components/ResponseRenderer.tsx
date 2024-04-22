@@ -1,3 +1,8 @@
+/**
+ * ResponseRenderer.tsx
+ * 
+ * Currently not used
+ */
 import React from 'react';
 import {StyleSheet, View, Text} from 'react-native';
 import {Block, Line, ITextRecognitionResponse} from './mlkit';

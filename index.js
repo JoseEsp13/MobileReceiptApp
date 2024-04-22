@@ -1,5 +1,7 @@
 /**
- * @format
+ * index.js
+ * 
+ * Runs the app
  */
 import 'react-native-gesture-handler';
 import {AppRegistry} from 'react-native';

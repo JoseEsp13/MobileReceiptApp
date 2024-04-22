@@ -1,3 +1,8 @@
+/**
+ * HomeScreen.tsx
+ * 
+ * Home screen component.
+ */
 import { StyleSheet, Text, View } from 'react-native';
 import { HomeScreenNavigationProps } from '../Navigator';
 import { FloatingAction } from "react-native-floating-action";

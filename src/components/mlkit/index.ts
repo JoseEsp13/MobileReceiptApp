@@ -1,3 +1,9 @@
+/**
+ * mlkit index.ts
+ * 
+ * Interface for interacting with the ML Kit native module.
+ */
+
 import {NativeModules} from 'react-native';
 
 const { TextRecognitionModule } = NativeModules;

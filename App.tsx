@@ -1,12 +1,10 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
+ * App.tsx
+ * 
+ * Entry point into the application
  */
 import React, {FC} from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import { createDrawerNavigator } from '@react-navigation/drawer';
 import { Navigator } from './src/Navigator';
 
 

@@ -1,3 +1,8 @@
+/**
+ * DefineGroupsScreen.tsx
+ * 
+ * Allows the user to configure the groups
+ */
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { DefineGroupsNavigationProps } from '../Navigator';

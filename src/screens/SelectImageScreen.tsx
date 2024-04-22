@@ -10,15 +10,12 @@ import {
 import {DemoButton, DemoResponse} from '../components/ui';
 import * as ImagePicker from 'react-native-image-picker';
 import {ImagePickerResponse} from 'react-native-image-picker/src/types';
-import {SelectScreenNavigationProps} from '../navigation/Navigator';
+import {SelectScreenNavigationProps} from '../Navigator';
 
-import * as routes from '../navigation/routes';
+import * as routes from '../routes';
 
-type SelectImageScreenProps = {
-  navigation: SelectScreenNavigationProps;
-};
 
-export const SelectImageScreen = ({navigation}: SelectImageScreenProps) => {
+export const SelectImageScreen = (props: SelectScreenNavigationProps) => {
   const {height, width} = useWindowDimensions();
   const [response, setResponse] = React.useState<ImagePickerResponse | null>(null);
 
@@ -40,7 +37,7 @@ export const SelectImageScreen = ({navigation}: SelectImageScreenProps) => {
 
   const onProcessImage = () => {
     if (response) {
-      navigation.navigate(routes.PROCESS_IMAGE_SCREEN, {
+      props.navigation.navigate(routes.PROCESS_IMAGE_SCREEN, {
         uri: response?.assets?.[0]?.uri!!,
       });
     }

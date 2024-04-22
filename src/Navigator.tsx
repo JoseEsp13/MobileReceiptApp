@@ -6,6 +6,7 @@ import { createDrawerNavigator, DrawerNavigationProp, DrawerScreenProps } from '
 import HomeScreen from './screens/HomeScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import DefineGroupsScreen from './screens/DefineGroupsScreen';
+import { ProcessImageScreen } from './screens/ProcessImageScreen';
 
 
 type RootStackParamList = {
@@ -31,6 +32,7 @@ export const Navigator = () => (
   <Drawer.Navigator>
     <Drawer.Screen name={routes.HOME_SCREEN} component={HomeScreen} />
     <Drawer.Screen name={routes.SELECT_SCREEN} component={SelectImageScreen} />
+    <Drawer.Screen name={routes.PROCESS_IMAGE_SCREEN} component={ProcessImageScreen} options={{drawerItemStyle: {display: "none"}}} />
     <Drawer.Screen name={routes.DEFINE_GROUPS_SCREEN} component={DefineGroupsScreen} />
     <Drawer.Screen name={routes.SETTINGS_SCREEN} component={SettingsScreen} />
   </Drawer.Navigator>

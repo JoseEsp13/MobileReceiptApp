@@ -3,7 +3,7 @@ import {Image, useWindowDimensions, ScrollView} from 'react-native';
 import {
   ProcessImageNavigationProps,
   ProcessImageRouteProps,
-} from '../navigation/Navigator';
+} from '../Navigator';
 import { ITextRecognitionResponse, recognizeImage } from '../components/mlkit';
 import { ResponseRenderer } from '../components/ResponseRenderer';
 
@@ -12,12 +12,12 @@ interface ProcessImageScreenProps {
   route: ProcessImageRouteProps;
 }
 
-export const ProcessImageScreen = ({route}: ProcessImageScreenProps) => {
+export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const {width: windowWidth} = useWindowDimensions();
   const [aspectRatio, setAspectRation] = useState(1);
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
   const [hasProcessed, setHasProcessed] = useState(false);
-  const uri = route.params.uri;
+  const uri = props.route.params.uri;
 
   useEffect(() => {
     if (uri) {

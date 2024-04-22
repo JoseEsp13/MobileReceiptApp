@@ -4,13 +4,13 @@
  *
  * @format
  */
-
 import React, {FC} from 'react';
-import 'react-native-gesture-handler';
 import {NavigationContainer} from '@react-navigation/native';
-import {Navigator} from './src/navigation/Navigator';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import { Navigator } from './src/Navigator';
 
-export const App: FC = () => {
+
+export const App = () => {
   return (
     <NavigationContainer>
       <Navigator />

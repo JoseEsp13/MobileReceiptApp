@@ -9,6 +9,7 @@ import { FloatingAction } from "react-native-floating-action";
 import * as ImagePicker from 'react-native-image-picker';
 import {ImagePickerResponse} from 'react-native-image-picker/src/types';
 import { useState } from 'react';
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
 
 export default function HomeScreen(props: HomeScreenNavigationProps) {
@@ -18,12 +19,7 @@ export default function HomeScreen(props: HomeScreenNavigationProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Home</Text>
-      <FloatingAction onPressMain={() => ImagePicker.launchCamera({
-          saveToPhotos: true,
-          mediaType: 'photo',
-          includeBase64: false,
-        }, setResponse)} 
-      />
+      <FloatingAction position="center" />
     </View>
   );
 }

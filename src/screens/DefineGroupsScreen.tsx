@@ -84,12 +84,15 @@ export default function DefineGroupsScreen (props: DefineGroupsNavigationProps) 
             </TouchableOpacity>
           </View>
         ))}
-        <TouchableOpacity onPress={() => addSubName(columnIndex)} style={styles.addSubNameButton}>
-          <Icon name="add-circle-outline" size={24} color="green" />
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => deleteColumn(columnIndex)} style={styles.deleteColumnButton}>
-          <Icon name="delete" size={24} color="red" />
-        </TouchableOpacity>
+        <View style={styles.btnContainer}>
+          <TouchableOpacity onPress={() => addSubName(columnIndex)} style={styles.addSubNameButton}>
+            <Icon name="add-circle-outline" size={24} color="green" />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => deleteColumn(columnIndex)} style={styles.deleteColumnButton}>
+            <Icon name="delete" size={24} color="red" />
+          </TouchableOpacity>
+        </View>
+        
       </View>
     );
   };
@@ -142,11 +145,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   addSubNameButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
+
   },
   deleteColumnButton: {
-    marginTop: 10,
+
   },
   addColumnButton: {
     flexDirection: 'row',
@@ -159,4 +161,8 @@ const styles = StyleSheet.create({
   addColumnButtonText: {
     marginLeft: 5,
   },
+  btnContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between"
+  }
 });

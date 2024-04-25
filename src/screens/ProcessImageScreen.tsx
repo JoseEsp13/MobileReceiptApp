@@ -119,33 +119,46 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
 };
 
 function getStore(response: ITextRecognitionResponse): string | undefined {
-  // Takes response and returns the first result without whitespace or periods in lowercase for matching
-  var store = response.blocks.at(0)?.lines[0].text.replace(/\s/g, "").toLowerCase();
-  store = store?.replace(/\./g, "")
-  return matchStore(store)
+  // Takes response and returns the first 3 lines without whitespace or periods in lowercase for matching
+  var lines_out = []
+
+  for (var i = 0; i < 3; i++) {
+    for (var j = 0; j < 3; j++) {
+      var store = response.blocks.at(i)?.lines[j]
+      if (store != undefined) {
+        var store_text = store.text.replace(/\s/g, "").toLowerCase();
+        store_text = store_text?.replace(/\./g, "")
+        lines_out.push(store_text)
+      } 
+    }
+  }
+  return matchStore(lines_out)
 };
 
-function matchStore(store_in: string | undefined): string | undefined {
+function matchStore(stores_in: string[]): string | undefined {
   // Takes a string store (obtained from getStore) and returns the matched store
-  if (store_in == undefined) {
+  if (stores_in == undefined) {
     return undefined
   }
   const re_costco = new RegExp(".*costco.*|.*cost.*|.*cos.*|.*ostc.*", "g")
   const re_safeway = new RegExp(".*safeway.*|.*safe.*|.*fewa.*", "g")
   const re_stores = [re_costco, re_safeway]
   const stores = ["costco", "safeway"]
-  var i = 0
-  var store_index = undefined
-  for (var re of re_stores) {
-    if (store_in.match(re)) {
-      store_index = i
+  
+  for (var i in stores_in) {
+    var store = stores_in[i]
+
+    if (store == undefined) {
+      continue
     }
-    i = i + 1
+
+    for (var re of re_stores) {
+      if (store.match(re)) {
+        return stores[i]
+      }
+    }
   }
-  if (store_index == undefined) {
-    return undefined
-  }
-  return stores[store_index]
+  return undefined
 }
 
 function isPrice(price: string): boolean {
@@ -187,23 +200,22 @@ function strClean(str: string): string {
  * @param response 
  * @returns Object
  */
-function parseOutput(response: ITextRecognitionResponse): Object {
+function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
   var store_name = getStore(response)
   if (store_name == "costco") {
     return parseCostco(response)
   }
-  return parseSafeway(response);
   if (store_name == "safeway") {
-    return parseSafeway(response);
+    return pairItemtoPriceSafeway(response);
   }
-  return Object;
+  return undefined;
 };
 
-function parseSafeway(response: ITextRecognitionResponse): Object {
+function parseSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   return pairItemtoPriceSafeway(response);
 };
 
-function parseCostco(response: ITextRecognitionResponse): Object {
+function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {
   const item_dict: {[key: string]: Float} = {};
   var num_prices = -2
   var prices = []
@@ -212,40 +224,80 @@ function parseCostco(response: ITextRecognitionResponse): Object {
   var to_deduct = 0
   var deducted_indices = []
   var wait_flag = false
+  var price_height = []
+
   for (var i = response.blocks.length - 1; i >= 0; i--) {
-    var line_arr = response.blocks.at(i)?.lines
+    var line_arr = response.blocks[i].lines
+    
     if (line_arr != undefined) {
+
       for (var j = line_arr.length - 1; j >= 0; j--) {
+        var block_h = response.blocks[i].lines[j].rect.height
         if (isPrice(line_arr[j].text)) {
           if (num_prices >= 0) {
             prices.push(parseFloat(line_arr[j].text) - to_deduct)
             to_deduct = 0
+            
+            if (block_h !== undefined) {
+              price_height.push(block_h)
+            }
+            
           }
           num_prices++;
+
         } else if (isDiscount(line_arr[j].text)) {
           to_deduct = parseFloat(line_arr[j].text.replace(/!$/, "")) // takes the price to deduct and removes the ending - and casts to float
           deducted_indices.push(num_prices)
+
         } else if (isTotal(line_arr[j].text)) {
           item_dict["TOTAL"] = prices[total_ind];
           total_ind++;
           total_hit = true;
-        } else if (total_ind < num_prices && total_hit) {
+          console.log(price_height)
+
+        } else if (total_ind < num_prices && total_hit && Math.min.apply(Math, price_height) - 20 <= block_h && block_h <= Math.max.apply(Math, price_height) + 20) {
           if (wait_flag) {
             item_dict[strClean(line_arr[j].text)] = prices[total_ind];
-            wait_flag = false
+            wait_flag = false;
             total_ind++;
+
           } else if (deducted_indices.indexOf(total_ind) === -1) { // if the total_ind index is not in the list of deducted_indices 
             item_dict[strClean(line_arr[j].text)] = prices[total_ind];
             total_ind++;
+
           } else { // wait flag is set if it wasn't previously set and the total_ind was in the deducted_indices
             wait_flag = true
           }
         }
+        // console.log(line_arr[j].text)
+        // console.log(block_h)
       }
     }
   }
   return item_dict
 };
+
+function checksum(dict: {[key: string]: number}): boolean {
+  // takes a dict produced from parseOutput and checks to make sure the values add up to the total
+  let prices = []
+  let max = 0
+  let sum = 0
+  for (let key in dict) {
+    var price = dict[key]
+    prices.push(price);
+    if (price > max) {
+      max = price
+    }
+    sum += price;
+  }
+  if (sum/max == 2) {
+    return true
+  }
+  if (sum/max == 1) {
+    return true
+  }
+  return false
+}  
 
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const {width: windowWidth} = useWindowDimensions();
@@ -274,9 +326,13 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
           setAspectRatio(response.height / response.width); // Set the aspect ratio of the returned data 
 
           // TO DO: What else do we want to do with the ML Kit response?
-          console.log(getStore(response))
+          // console.log(getStore(response))
           // console.log(isPrice("4.43"))
-          console.log(parseOutput(response))
+          let dict = parseOutput(response)
+          console.log(dict)
+          if (dict != undefined) {
+            console.log(checksum(dict))
+          }
         }
     } catch (error) {
         console.error(error);

@@ -15,6 +15,109 @@ interface ProcessImageScreenProps {
   route: ProcessImageRouteProps;
 }
 
+/**
+ * ML Kit response parser for Safeway Receipts.
+ * Uses x and y coordinates from items and prices found
+ * in the response to slap together a dictionary.
+ * FlowChart:
+ *  1. split response lines to items and prices.
+ *     Also cleaned up item names and skipped anything
+ *     related to savings.
+ *  2. for every price, find its closest item that is
+ *     not located near according to its x axis
+ *  3. fill a backwards dictionary of prices with their
+ *     closest items
+ *  4. flip the dictionary. Items with multiple prices
+ *     (original and discounted), chooses the discounted
+ *     price.
+ * 
+ * Notes for Safeway Receipts:
+ *  - "Total" is read by the OCR from "Total Savings",
+ *    for membership accounts. So it might be better to
+ *    use "Balance" or "Payment Amount" for the final price.
+ *    Currently anything with the same price as "Balance" is
+ *    removed from the dictionary (line 101-106).
+ *  - Anything related to Savings was skipped(line 61-66).
+ * 
+ * Context for Variebles:
+ *  prices: [price, ycoor, xcoor, width][]
+ *  items:  [item name, ycoor, xcoor][]
+ *  regex:  matches string to a price format
+ *  regex2: used to check if ',' was read for a price. edge case
+ * @param response 
+ * @returns {[key: string]: number}
+ */
+function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
+  let dict: {[key: number]: string[]} = {};
+  const prices: [number, number, number, number][] = [];    
+  const items: [string, number, number][] = [];  
+  const regex = /-?\d+\.\d{1,2}|-?\d+\,\d{1,2}/g;
+  const regex2 = /-?\d+\,\d{1,2}/g;
+  let match;
+  for (let i = 0; i < response.blocks.length; i++) {
+    for (let j = 0; j < response.blocks[i].lines.length; j++) {
+      let checkifNotPrice: boolean = true;
+      let item = response.blocks[i].lines[j];
+      const skipSavings = 
+        ["saving", "total", "member", "mermber", "nenber"];
+      if (skipSavings.some(skip =>
+          item.text.toLowerCase().includes(skip))) {
+        continue;
+      }
+      while ((match = regex.exec(item.text)) !== null) {
+        let str: string = match[0];
+        if (regex2.test(str)) {
+          str = str.replace(/,/g, '.');
+        }
+        prices.push(
+            [Number(str), item.rect.top, item.rect.left, item.rect.width]);
+        checkifNotPrice = false;
+      }
+      if (checkifNotPrice && !(/^\d+$/.test(item.text))) {
+        items.push([item.text.replace(/^\d*[\s*%]*|^\W+/, ''),
+          item.rect.top, item.rect.left]);
+      }
+    }
+  }
+
+  for (let a = 0; a < prices.length; a++) {
+    let minitem = items[0];
+    for (let b = 0; b < items.length; b++) {
+      if (Math.abs(items[b][2] - prices[a][2]) > prices[a][3]) {
+        let newval = Math.abs(prices[a][1] - items[b][1]);
+        if (newval < Math.abs(prices[a][1] - minitem[1])) {
+          minitem = items[b];
+        }
+      }
+    }
+
+    if (prices[a][0] in dict) {
+      dict[prices[a][0]].push(minitem[0]);
+    } else {
+      dict[prices[a][0]] = [minitem[0]];
+    }
+  }
+
+  for (let key in dict) {
+    if (dict[key].includes("BALANCE")) {
+      const arr = ["BALANCE"];
+      dict[key] = arr;
+    }
+  }
+
+  const flipped: {[key: string]: number} = {};
+  for (const k in dict) {
+    dict[k].forEach((v) => {
+      if (v in flipped) {
+        flipped[v] = Math.min(Number(k), flipped[v]);
+      } else {
+        flipped[v] = Number(k);
+      }
+    });
+  }
+  return flipped;
+};
+
 function getStore(response: ITextRecognitionResponse): string | undefined {
   // Takes response and returns the first result without whitespace or periods in lowercase for matching
   var store = response.blocks.at(0)?.lines[0].text.replace(/\s/g, "").toLowerCase();
@@ -76,15 +179,28 @@ function strClean(str: string): string {
   return out.trim()
 }
 
+/**
+ * Receipt images tested for Safeway both had a Ctrl
+ * key pretruding in the frame, messing with getStore().
+ * Right now parseSafeway() executes if receipt
+ * was not determined to be Costco.
+ * @param response 
+ * @returns Object
+ */
 function parseOutput(response: ITextRecognitionResponse): Object {
   var store_name = getStore(response)
   if (store_name == "costco") {
     return parseCostco(response)
   }
-  return Object
+  return parseSafeway(response);
   if (store_name == "safeway") {
-    // return parseSafeway(response)
+    return parseSafeway(response);
   }
+  return Object;
+};
+
+function parseSafeway(response: ITextRecognitionResponse): Object {
+  return pairItemtoPriceSafeway(response);
 };
 
 function parseCostco(response: ITextRecognitionResponse): Object {

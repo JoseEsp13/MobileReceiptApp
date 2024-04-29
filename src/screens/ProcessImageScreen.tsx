@@ -277,6 +277,10 @@ function parseCostco(response: ITextRecognitionResponse): {[key: string]: number
   return item_dict
 };
 
+function roundPrice(price: Float): Float {
+  return Math.floor(price * 100) / 100;
+}
+
 function checksum(dict: {[key: string]: number}): boolean {
   // takes a dict produced from parseOutput and checks to make sure the values add up to the total
   let prices = []
@@ -284,20 +288,28 @@ function checksum(dict: {[key: string]: number}): boolean {
   let sum = 0
   for (let key in dict) {
     var price = dict[key]
+    // console.log(price)
     prices.push(price);
     if (price > max) {
       max = price
     }
     sum += price;
   }
-  if (sum/max == 2) {
+  sum = roundPrice(sum)
+  console.log(sum)
+  console.log(max)
+  let check = Math.trunc(sum/max);
+  if (check == 3) {
     return true
   }
-  if (sum/max == 1) {
+  if (check == 2) {
+    return true
+  }
+  if (check == 1) {
     return true
   }
   return false
-}  
+}
 
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const {width: windowWidth} = useWindowDimensions();

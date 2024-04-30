@@ -23,6 +23,28 @@ interface NumberKeyStringArrayObject {
   [key: number]: string[];
 }
 
+/**
+ * Print Dictionary function
+ * normally meant for {[key: string]: number}
+ * otherwise will try to do {[key: number]: string[]}
+ * @param dict {[key: string]: number} | {[key: number]: string[]}
+ */
+function printDictionary(
+  dict: StringKeyNumberValueObject | 
+        NumberKeyStringArrayObject) {
+  if ("BALANCE" in dict || "TOTAL" in dict) {
+    console.log("dictionary:");
+    for (const key in dict) {
+      console.log(`Key: ${key}, Value: ${dict[key]}`);
+    }
+  } else {
+    console.log("number dictionary:");
+    for (const key in dict) {
+      console.log(`Key: ${key}, Values: ${dict[key].join(', ')}`);
+    }
+  }
+}
+
 function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T, key: keyof T): Omit<T, keyof T> {
   const { [key]: removedKey, ...newDict } = dict;
   return newDict;
@@ -57,6 +79,9 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
  *  regex2: used to check if ',' was read for a price. edge case
  *  regex3: remove any unnecessary items acquired from receipt
  *  regex4: used to remove any unnecessary items: may need to be implemented further
+ * 
+ * THINGS TO WORK ON:
+ *  - misses "BLCK BN TIN 15.52", reads it as price when it should be an item
  * @param response 
  * @returns {[key: string]: number}
  */
@@ -112,6 +137,8 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       dict[prices[a][0]] = [minitem[0]];
     }
   }
+
+  printDictionary(dict);
 
   let flipped: {[key: string]: number} = {};
   for (const k in dict) {

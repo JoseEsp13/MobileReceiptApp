@@ -15,6 +15,19 @@ interface ProcessImageScreenProps {
   route: ProcessImageRouteProps;
 }
 
+interface StringKeyNumberValueObject {
+  [key: string]: number;
+}
+
+interface NumberKeyStringArrayObject {
+  [key: number]: string[];
+}
+
+function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T, key: keyof T): Omit<T, keyof T> {
+  const { [key]: removedKey, ...newDict } = dict;
+  return newDict;
+}
+
 /**
  * ML Kit response parser for Safeway Receipts.
  * Uses x and y coordinates from items and prices found
@@ -32,18 +45,18 @@ interface ProcessImageScreenProps {
  *     price.
  * 
  * Notes for Safeway Receipts:
- *  - "Total" is read by the OCR from "Total Savings",
- *    for membership accounts. So it might be better to
- *    use "Balance" or "Payment Amount" for the final price.
- *    Currently anything with the same price as "Balance" is
- *    removed from the dictionary (line 101-106).
- *  - Anything related to Savings was skipped(line 61-66).
+ *  - Anything related to Savings was skipped(line 96-100).
+ *  - Balance is the total. 
+ *  - Skip unnecessary items(line 149-154)
  * 
  * Context for Variebles:
  *  prices: [price, ycoor, xcoor, width][]
  *  items:  [item name, ycoor, xcoor][]
+ *  widthScale: arbitrary scale value to prevent prices to match: xdist from price to item > widthScale*width
  *  regex:  matches string to a price format
  *  regex2: used to check if ',' was read for a price. edge case
+ *  regex3: remove any unnecessary items acquired from receipt
+ *  regex4: used to remove any unnecessary items: may need to be implemented further
  * @param response 
  * @returns {[key: string]: number}
  */
@@ -58,10 +71,9 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
     for (let j = 0; j < response.blocks[i].lines.length; j++) {
       let checkifNotPrice: boolean = true;
       let item = response.blocks[i].lines[j];
-      const skipSavings = 
-        ["saving", "total", "member", "mermber", "nenber"];
-      if (skipSavings.some(skip =>
-          item.text.toLowerCase().includes(skip))) {
+      const regex3 = 
+        /.*saving.*|.*total.*|.*member.*|.*mermber.*|.*nenber.*/i;
+      if (regex3.test(item.text)) {
         continue;
       }
       while ((match = regex.exec(item.text)) !== null) {
@@ -80,17 +92,20 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
     }
   }
 
+  let widthScale: number = 2.5;
   for (let a = 0; a < prices.length; a++) {
+    if (prices[a][0] <= 0) {
+      continue;
+    }
     let minitem = items[0];
     for (let b = 0; b < items.length; b++) {
-      if (Math.abs(items[b][2] - prices[a][2]) > prices[a][3]) {
+      if (Math.abs(items[b][2] - prices[a][2]) > widthScale*prices[a][3]) {
         let newval = Math.abs(prices[a][1] - items[b][1]);
         if (newval < Math.abs(prices[a][1] - minitem[1])) {
           minitem = items[b];
         }
       }
     }
-
     if (prices[a][0] in dict) {
       dict[prices[a][0]].push(minitem[0]);
     } else {
@@ -98,14 +113,7 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
     }
   }
 
-  for (let key in dict) {
-    if (dict[key].includes("BALANCE")) {
-      const arr = ["BALANCE"];
-      dict[key] = arr;
-    }
-  }
-
-  const flipped: {[key: string]: number} = {};
+  let flipped: {[key: string]: number} = {};
   for (const k in dict) {
     dict[k].forEach((v) => {
       if (v in flipped) {
@@ -115,6 +123,14 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       }
     });
   }
+  
+  const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*/i;
+  for (const ke in flipped) {
+    if (regex4.test(ke)) {
+      flipped = removeKey(flipped, ke);
+    }
+  }
+
   return flipped;
 };
 
@@ -122,8 +138,8 @@ function getStore(response: ITextRecognitionResponse): string | undefined {
   // Takes response and returns the first 3 lines without whitespace or periods in lowercase for matching
   var lines_out = []
 
-  for (var i = 0; i < 3; i++) {
-    for (var j = 0; j < 3; j++) {
+  for (var i = 0; i < 5; i++) {
+    for (var j = 0; j < response.blocks[i].lines.length; j++) {
       var store = response.blocks.at(i)?.lines[j]
       if (store != undefined) {
         var store_text = store.text.replace(/\s/g, "").toLowerCase();
@@ -140,7 +156,7 @@ function matchStore(stores_in: string[]): string | undefined {
   if (stores_in == undefined) {
     return undefined
   }
-  const re_costco = new RegExp(".*costco.*|.*cost.*|.*cos.*|.*ostc.*", "g")
+  const re_costco = new RegExp(".*costco.*|.*cost.*|.*cos.*|.*ostc.*|.*stco.*", "g")
   const re_safeway = new RegExp(".*safeway.*|.*safe.*|.*fewa.*", "g")
   const re_stores = [re_costco, re_safeway]
   const stores = ["costco", "safeway"]
@@ -152,9 +168,9 @@ function matchStore(stores_in: string[]): string | undefined {
       continue
     }
 
-    for (var re of re_stores) {
-      if (store.match(re)) {
-        return stores[i]
+    for (var r in re_stores) {
+      if (store.match(re_stores[r])) {
+        return stores[r]
       }
     }
   }
@@ -192,21 +208,13 @@ function strClean(str: string): string {
   return out.trim()
 }
 
-/**
- * Receipt images tested for Safeway both had a Ctrl
- * key pretruding in the frame, messing with getStore().
- * Right now parseSafeway() executes if receipt
- * was not determined to be Costco.
- * @param response 
- * @returns Object
- */
 function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
   var store_name = getStore(response)
   if (store_name == "costco") {
     return parseCostco(response)
   }
   if (store_name == "safeway") {
-    return pairItemtoPriceSafeway(response);
+    return parseSafeway(response);
   }
   return undefined;
 };

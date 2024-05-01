@@ -7,8 +7,10 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
+    "clearcache": "react-native start -- --reset-cache",
     "test": "jest",
-    "bundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
+    "debug": "react-native bundle --platform android --dev true --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
+    "release": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
     "apk": "cd android && gradlew assembleRelease"
   },
   "dependencies": {
@@ -21,6 +23,7 @@
     "react-native-floating-action": "^1.22.0",
     "react-native-gesture-handler": "^2.16.0",
     "react-native-image-picker": "^7.1.2",
+    "react-native-pager-view": "^6.3.1",
     "react-native-reanimated": "^3.8.1",
     "react-native-safe-area-context": "^4.9.0",
     "react-native-screens": "^3.30.1",

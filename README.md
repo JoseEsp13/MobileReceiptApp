@@ -8,7 +8,7 @@ Development environment setup located in "install instructions" folder
 
 Bundle your app:
 ```
-npm run bundle
+npm run release
 ```
 
 Build the apk:

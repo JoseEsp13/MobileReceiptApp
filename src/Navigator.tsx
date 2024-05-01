@@ -41,7 +41,7 @@ export type SettingsScreenNavigationProps = DrawerScreenProps<RootStackParamList
 export const Navigator = () => (
   <Drawer.Navigator>
     <Drawer.Screen name={routes.HOME_SCREEN} component={HomeScreen} />
-    <Drawer.Screen name={routes.SELECT_SCREEN} component={SelectImageScreen} />
+    <Drawer.Screen name={routes.SELECT_SCREEN} component={SelectImageScreen} options={{drawerItemStyle: {display: "none"}}}/>
     <Drawer.Screen name={routes.PROCESS_IMAGE_SCREEN} component={ProcessImageScreen} options={{drawerItemStyle: {display: "none"}}} />
     <Drawer.Screen name={routes.GROUPS_SCREEN} component={GroupsScreen} />
     <Drawer.Screen name={routes.SETTINGS_SCREEN} component={SettingsScreen} />

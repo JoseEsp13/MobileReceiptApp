@@ -63,12 +63,12 @@ function printDictionary(
  * @returns string
  */
 function isPriceSafeway(price: string): string {
-  const re_price = /^(\d+\.\d{2}).*$/;
-  const re_price2 = /^(\d+\.\d{2}) *[$]* *(\d+\.\d{2}).*$/;
+  const re_price = /^(\d+(\.|\,)\d{2}).*$/;
+  const re_price2 = /^(\d+(\.|\,)\d{2}) *[$]* *(\d+(\.|\,)\d{2}).*$/;
   let match = price.match(re_price2);
   if (match) {
-    console.log("\"" + price + "\"" + " match2:" + match[2]);
-    return match[2];
+    console.log("\"" + price + "\"" + " match2:" + match[3]);
+    return match[3];
   }
   match = price.match(re_price);
   if (match) {
@@ -108,8 +108,6 @@ function isPriceSafeway(price: string): string {
  *  regex3: remove any unnecessary items acquired from receipt
  *  regex4: used to remove any unnecessary items: may need to be implemented further
  * 
- * THINGS TO WORK ON:
- *  - misses "BLCK BN TIN 15.52", reads it as price when it should be an item
  * @param response 
  * @returns {[key: string]: number}
  */
@@ -165,6 +163,8 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
     }
   }
 
+  printDictionary(dict);
+
   let flipped: {[key: string]: number} = {};
   for (const k in dict) {
     dict[k].forEach((v) => {
@@ -182,6 +182,8 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       flipped = removeKey(flipped, ke);
     }
   }
+
+  printDictionary(flipped);
 
   return flipped;
 };

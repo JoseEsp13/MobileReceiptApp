@@ -23,6 +23,11 @@ interface NumberKeyStringArrayObject {
   [key: number]: string[];
 }
 
+function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T, key: keyof T): Omit<T, keyof T> {
+  const { [key]: removedKey, ...newDict } = dict;
+  return newDict;
+}
+
 /**
  * Print Dictionary function
  * normally meant for {[key: string]: number}
@@ -45,10 +50,34 @@ function printDictionary(
   }
 }
 
-function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T, key: keyof T): Omit<T, keyof T> {
-  const { [key]: removedKey, ...newDict } = dict;
-  return newDict;
-}
+/**
+ * checks if inputed string is a price
+ * returns the parsed string of the price
+ * if not "no match"
+ * Context for Variables:
+ *  re_price: used to find price in
+ *            "PRICE+anything_else"
+ *  re_price2: used to find price in
+ *            "not_discount_price+PRICE+anything_else"
+ * @param price 
+ * @returns string
+ */
+function isPriceSafeway(price: string): string {
+  const re_price = /^(\d+\.\d{2}).*$/;
+  const re_price2 = /^(\d+\.\d{2}) *[$]* *(\d+\.\d{2}).*$/;
+  let match = price.match(re_price2);
+  if (match) {
+    console.log("\"" + price + "\"" + " match2:" + match[2]);
+    return match[2];
+  }
+  match = price.match(re_price);
+  if (match) {
+    console.log("\"" + price + "\"" + " match:" + match[1]);
+    return match[1];
+  }
+  console.log("\"" + price + "\"" + " no match");
+  return "no match";
+};
 
 /**
  * ML Kit response parser for Safeway Receipts.
@@ -75,7 +104,6 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
  *  prices: [price, ycoor, xcoor, width][]
  *  items:  [item name, ycoor, xcoor][]
  *  widthScale: arbitrary scale value to prevent prices to match: xdist from price to item > widthScale*width
- *  regex:  matches string to a price format
  *  regex2: used to check if ',' was read for a price. edge case
  *  regex3: remove any unnecessary items acquired from receipt
  *  regex4: used to remove any unnecessary items: may need to be implemented further
@@ -88,8 +116,7 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
 function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   let dict: {[key: number]: string[]} = {};
   const prices: [number, number, number, number][] = [];    
-  const items: [string, number, number][] = [];  
-  const regex = /-?\d+\.\d{1,2}|-?\d+\,\d{1,2}/g;
+  const items: [string, number, number][] = [];
   const regex2 = /-?\d+\,\d{1,2}/g;
   let match;
   for (let i = 0; i < response.blocks.length; i++) {
@@ -101,8 +128,8 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       if (regex3.test(item.text)) {
         continue;
       }
-      while ((match = regex.exec(item.text)) !== null) {
-        let str: string = match[0];
+      let str: string;
+      if ((str = isPriceSafeway(item.text)) != "no match") {
         if (regex2.test(str)) {
           str = str.replace(/,/g, '.');
         }
@@ -137,8 +164,6 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       dict[prices[a][0]] = [minitem[0]];
     }
   }
-
-  printDictionary(dict);
 
   let flipped: {[key: string]: number} = {};
   for (const k in dict) {

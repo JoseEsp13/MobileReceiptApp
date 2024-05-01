@@ -3,12 +3,16 @@
  * 
  * Runs the image through ML Kit. Processes the response.
  */
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Image, useWindowDimensions, ScrollView} from 'react-native';
 import {ProcessImageNavigationProps, ProcessImageRouteProps} from '../Navigator';
 import { ITextRecognitionResponse, recognizeImage } from '../components/mlkit';
 import { ResponseRenderer } from '../components/ResponseRenderer';
 import { Float } from 'react-native/Libraries/Types/CodegenTypes';
+import { TabView, SceneMap } from 'react-native-tab-view';
+import { ViewDictionary } from '../components/ViewDictionary';
+import { ViewReceipt } from '../components/ViewReceipt';
+import { ViewResponse } from '../components/ViewResponse';
 
 interface ProcessImageScreenProps {
   navigation: ProcessImageNavigationProps;
@@ -319,9 +323,24 @@ function checksum(dict: {[key: string]: number}): boolean {
   return false
 }
 
+// Manages the tab routing
+interface RenderSceneRoute {
+  route: {key: string},
+  jumpTo: (tab: string) => void,
+}
+
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
-  const {width: windowWidth} = useWindowDimensions();
+  const windowDimensions = useWindowDimensions();
   const [aspectRatio, setAspectRatio] = useState(1);
+
+  // Tab routing
+  const [tabIndex, setTabIndex] = React.useState(0);
+  const [tabRoutes] = React.useState([
+    { key: 'receipt', title: "Receipt" },
+    { key: 'basic', title: "Basic" },
+    { key: 'dictionary', title: "Dictionary" }
+  ]);
+
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
   const uri = props.route.params.uri;
 
@@ -330,6 +349,18 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       processImage(uri);
     }
   }, [uri]);
+
+  // Tab routing
+  const renderScene = useCallback((params: RenderSceneRoute) => {
+    switch (params.route.key) {
+      case 'receipt':
+        return <ViewReceipt response={response} uri={uri} />
+      case 'response':
+        return <ViewResponse response={response} />
+      case 'dictionary':
+        return <ViewDictionary response={response} />
+    }
+  }, [response, uri]);
 
   // Main logic for reading a receipt is here
   const processImage = async (url: string) => {
@@ -361,17 +392,11 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   };
 
   return (
-    <ScrollView style={{flex: 1}}>
-      {!response && 
-        <Image
-          source={{uri}}
-          style={{width: windowWidth, height: windowWidth * aspectRatio}}
-          resizeMode="cover"
-        />
-      }
-      {
-        !!response && <ResponseRenderer response={response} scale={windowWidth / response.width} windowWidth={windowWidth} aspectRatio={aspectRatio} />
-      }
-    </ScrollView>
+    <TabView
+      navigationState={{index: tabIndex, routes: tabRoutes}}
+      renderScene={renderScene}
+      onIndexChange={setTabIndex}
+      initialLayout={{width: windowDimensions.width}}
+    />
   );
 };

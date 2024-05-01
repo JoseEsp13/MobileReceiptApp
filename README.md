@@ -1,8 +1,10 @@
-# AwesomeReceiptAppRepo
+# Awesome Receipt App
+
+## Initial install instructions
 
 Development environment setup located in "install instructions" folder
 
-## Deploying app on your Android phone
+## Deploying the app on your Android phone
 
 Bundle your app:
 ```

@@ -5,17 +5,17 @@
  */
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
-import { DefineGroupsNavigationProps } from '../Navigator';
+import { GroupsNavigationProps } from '../Navigator';
 import Icon from 'react-native-vector-icons/MaterialIcons'
 
-interface IDefineGroupColumns {
+interface IGroupColumns {
   title: string,
   subNames: string[]
 }
 
 
-export default function DefineGroupsScreen (props: DefineGroupsNavigationProps) {
-  const [columns, setColumns] = useState<IDefineGroupColumns[]>([{ title: 'Column 1', subNames: [] }]); // Initial state with one column
+export default function GroupsScreen (props: GroupsNavigationProps) {
+  const [columns, setColumns] = useState<IGroupColumns[]>([{ title: 'Column 1', subNames: [] }]); // Initial state with one column
 
   const addColumn = () => setColumns([...columns, { title: '', subNames: [] }]);
 
@@ -65,7 +65,7 @@ export default function DefineGroupsScreen (props: DefineGroupsNavigationProps) 
     setColumns(updatedColumns);
   };
 
-  const renderColumn = (column: IDefineGroupColumns, columnIndex: number) => {
+  const renderColumn = (column: IGroupColumns, columnIndex: number) => {
     return (
       <View key={columnIndex} style={styles.columnContainer}>
         <TextInput

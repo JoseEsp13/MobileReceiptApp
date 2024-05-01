@@ -14,7 +14,7 @@ import GroupsScreen from './screens/GroupsScreen';
 import { ProcessImageScreen } from './screens/ProcessImageScreen';
 
 // Typescript route types required by react-navigation
-// Defines the props variable for each screen
+// Defines additional prop variables for each screen.
 type RootStackParamList = {
   [routes.HOME_SCREEN]: undefined,
   [routes.SELECT_SCREEN]: undefined,
@@ -26,10 +26,8 @@ type RootStackParamList = {
   [routes.SETTINGS_SCREEN]: undefined
 };
 
-// Instantiates a react-navigation drawer with a title up top
-const Drawer = createDrawerNavigator<RootStackParamList>();
-
 // Typescript prop types for screens
+// Adds additional methods to the prop variable such as navigate()
 export type HomeScreenNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.HOME_SCREEN>;
 export type SelectScreenNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.SELECT_SCREEN>;
 export type ProcessImageNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.PROCESS_IMAGE_SCREEN>;
@@ -38,10 +36,14 @@ export type GroupsNavigationProps = DrawerScreenProps<RootStackParamList, typeof
 export type FriendsScreenNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.FRIENDS_SCREEN>;
 export type SettingsScreenNavigationProps = DrawerScreenProps<RootStackParamList, typeof routes.SETTINGS_SCREEN>;
 
+// Instantiates a react-navigation drawer with the current route up top
+const Drawer = createDrawerNavigator<RootStackParamList>();
+
+// Defines our routing and the component they route to
 export const Navigator = () => (
   <Drawer.Navigator>
     <Drawer.Screen name={routes.HOME_SCREEN} component={HomeScreen} />
-    <Drawer.Screen name={routes.SELECT_SCREEN} component={SelectImageScreen} options={{drawerItemStyle: {display: "none"}}}/>
+    <Drawer.Screen name={routes.SELECT_SCREEN} component={SelectImageScreen} />
     <Drawer.Screen name={routes.PROCESS_IMAGE_SCREEN} component={ProcessImageScreen} options={{drawerItemStyle: {display: "none"}}} />
     <Drawer.Screen name={routes.GROUPS_SCREEN} component={GroupsScreen} />
     <Drawer.Screen name={routes.SETTINGS_SCREEN} component={SettingsScreen} />

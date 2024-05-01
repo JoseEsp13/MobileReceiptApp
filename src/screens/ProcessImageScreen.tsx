@@ -86,8 +86,6 @@ function isPriceSafeway(price: string): string {
  *  regex3: remove any unnecessary items acquired from receipt
  *  regex4: used to remove any unnecessary items: may need to be implemented further
  * 
- * THINGS TO WORK ON:
- *  - misses "BLCK BN TIN 15.52", reads it as price when it should be an item
  * @param response 
  * @returns {[key: string]: number}
  */

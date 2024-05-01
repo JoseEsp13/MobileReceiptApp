@@ -9,7 +9,7 @@
     "start": "react-native start",
     "test": "jest",
     "bundle": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
-    "generateApk": "cd android && gradlew assembleRelease"
+    "apk": "cd android && gradlew assembleRelease"
   },
   "dependencies": {
     "@react-navigation/drawer": "^6.6.15",

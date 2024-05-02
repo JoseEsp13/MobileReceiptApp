@@ -337,7 +337,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const [tabIndex, setTabIndex] = React.useState(0);
   const [tabRoutes] = React.useState([
     { key: 'receipt', title: "Receipt" },
-    { key: 'basic', title: "Basic" },
+    { key: 'simple', title: "Simple" },
     { key: 'dictionary', title: "Dictionary" }
   ]);
 
@@ -355,7 +355,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
     switch (params.route.key) {
       case 'receipt':
         return <ViewReceipt response={response} uri={uri} />
-      case 'response':
+      case 'simple':
         return <ViewResponse response={response} />
       case 'dictionary':
         return <ViewDictionary response={response} />

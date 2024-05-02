@@ -7,9 +7,10 @@
     "ios": "react-native run-ios",
     "lint": "eslint .",
     "start": "react-native start",
-    "clearcache": "react-native start -- --reset-cache",
+    "start-reset-cache": "react-native start -- --reset-cache",
     "test": "jest",
-    "debug": "react-native bundle --platform android --dev true --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
+    "gradle-clean": "cd android && gradlew clean",
+    "debug": "react-native bundle --platform android --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
     "release": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res/",
     "apk": "cd android && gradlew assembleRelease"
   },

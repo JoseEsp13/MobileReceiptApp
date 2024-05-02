@@ -36,8 +36,3 @@ export const ViewReceipt = (props: IViewReceiptProps) => {
     </ScrollView>
   );
 };
-
-type BlockProps = {
-  block: Block | Line;
-  scale: number;
-};

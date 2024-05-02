@@ -12,6 +12,15 @@ interface IViewResponseProps {
 }
 
 export const ViewResponse = (props: IViewResponseProps) => {
+
+  if (!props.response) {
+    return (
+      <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+        <Text>No dictionary to show</Text>
+      </View>
+    )
+  }
+
   return (
     <>
       {props.response?.blocks.map((block) => {
@@ -22,31 +31,5 @@ export const ViewResponse = (props: IViewResponseProps) => {
         });
       })}
     </>
-  );
-};
-
-type BlockProps = {
-  block: Block | Line;
-  scale: number;
-};
-
-export const BlockComponent = ({block, scale}: BlockProps) => {
-  const rect = {
-    top: block.rect.top * scale,
-    width: block.rect.width * scale,
-    left: block.rect.left * scale,
-    height: block.rect.height * scale,
-  };
-
-  return (
-    <View
-      style={{
-        position: 'absolute',
-        ...rect,
-        borderWidth: 1,
-        borderColor: 'red',
-      }}>
-      <Text style={{color: 'blue'}}>{block.text}</Text>
-    </View>
   );
 };

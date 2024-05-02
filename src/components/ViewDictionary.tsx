@@ -12,6 +12,15 @@ interface IViewDictionaryProps {
 }
 
 export const ViewDictionary = (props: IViewDictionaryProps) => {
+
+  if (!props.response) {
+    return (
+      <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+        <Text>No dictionary to show</Text>
+      </View>
+    )
+  }
+
   return (
     <>
       {props.response?.blocks.map((block) => {

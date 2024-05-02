@@ -7,7 +7,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Image, useWindowDimensions, ScrollView} from 'react-native';
 import {ProcessImageNavigationProps, ProcessImageRouteProps} from '../Navigator';
 import { ITextRecognitionResponse, recognizeImage } from '../components/mlkit';
-import { ResponseRenderer } from '../components/ResponseRenderer';
+import { ViewOverlay } from '../components/ViewOverlay';
 import { Float } from 'react-native/Libraries/Types/CodegenTypes';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { ViewDictionary } from '../components/ViewDictionary';
@@ -323,7 +323,7 @@ function checksum(dict: {[key: string]: number}): boolean {
   return false
 }
 
-// Manages the tab routing
+// Tab routing type
 interface RenderSceneRoute {
   route: {key: string},
   jumpTo: (tab: string) => void,
@@ -337,8 +337,10 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const [tabIndex, setTabIndex] = React.useState(0);
   const [tabRoutes] = React.useState([
     { key: 'receipt', title: "Receipt" },
+    { key: 'overlay', title: "Overlay" },
     { key: 'simple', title: "Simple" },
-    { key: 'dictionary', title: "Dictionary" }
+    { key: 'dictionary', title: "Dict" }
+  
   ]);
 
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
@@ -355,6 +357,8 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
     switch (params.route.key) {
       case 'receipt':
         return <ViewReceipt response={response} uri={uri} />
+      case 'overlay':
+        return <ViewOverlay response={response} uri={uri}/>
       case 'simple':
         return <ViewResponse response={response} />
       case 'dictionary':

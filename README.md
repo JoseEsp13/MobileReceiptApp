@@ -6,6 +6,8 @@ Development environment setup located in "install instructions" folder
 
 ## Deploying the app on your Android phone
 
+Make sure you have this asset directory in your project: android/app/src/main/assets/ (You may need to create the "assets" folder)
+
 Bundle your app:
 ```
 npm run release

@@ -4,7 +4,7 @@
  * Currently not used
  */
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
+import {StyleSheet, View, Text, ScrollView} from 'react-native';
 import {Block, Line, ITextRecognitionResponse} from './mlkit';
 
 interface IViewResponseProps {
@@ -22,7 +22,7 @@ export const ViewResponse = (props: IViewResponseProps) => {
   }
 
   return (
-    <>
+    <ScrollView style={{flex: 1}}>
       {props.response?.blocks.map((block) => {
         return block.lines.map((line, index) => {
           return (
@@ -30,6 +30,6 @@ export const ViewResponse = (props: IViewResponseProps) => {
           );
         });
       })}
-    </>
+    </ScrollView>
   );
 };

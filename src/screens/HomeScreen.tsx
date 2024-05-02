@@ -42,23 +42,12 @@ export default function HomeScreen(props: HomeScreenNavigationProps) {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Home</Text>
-      <DemoButton key="Process Image" onPress={ () => scanDocument()}>
-          {'Process Image'}
+    <View style={{flex: 1}}>
+      <View style={{height: 48}}>
+        <DemoButton onPress={() => scanDocument()}>
+          {'Take Picture'}
         </DemoButton>
+      </View>
     </View>
   );
 }
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-  },
-});
-

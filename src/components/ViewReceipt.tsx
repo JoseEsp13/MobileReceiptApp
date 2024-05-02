@@ -20,19 +20,19 @@ export const ViewReceipt = (props: IViewReceiptProps) => {
   
   if (!props.uri) {
     return (
-        <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-            <Text>No image found</Text>
-        </View>
+      <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+        <Text>No image found</Text>
+      </View>
     )
   }
 
   return (
     <ScrollView style={{flex: 1}}>
-        <Image
-            source={{uri: props.uri}}
-            style={{width: wd.width, height: wd.width * aspectRatio}}
-            resizeMode="cover"
-        />
+      <Image
+        source={{uri: props.uri}}
+        style={{width: wd.width, height: wd.width * aspectRatio}}
+        resizeMode="cover"
+      />
     </ScrollView>
   );
 };

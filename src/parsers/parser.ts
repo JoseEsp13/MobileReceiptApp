@@ -143,7 +143,7 @@ export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[ke
     });
   }
 
-  const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*/i;
+  const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*/i;
   for (const ke in flipped) {
       if (regex4.test(ke)) {
       flipped = removeKey(flipped, ke);

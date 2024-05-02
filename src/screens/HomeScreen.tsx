@@ -40,13 +40,17 @@ export default function HomeScreen(props: HomeScreenNavigationProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home</Text>
-      <DemoButton key="Process Image" onPress={() => scanDocument()}>
-        {'Process Image'}
-      </DemoButton>
-      <DemoButton key="Choose Group" onPress={chooseGroup}>
-        {'Choose Group'}
-      </DemoButton>
+      <View style={{height: 48}}>
+        <DemoButton key="Process Image" onPress={() => scanDocument()}>
+          {'Process Image'}
+        </DemoButton>
+      </View>
+      <View style={{height: 48}}>
+        <DemoButton key="Choose Group" onPress={chooseGroup}>
+          {'Choose Group'}
+        </DemoButton>
+      </View>
+      
     </View>
   );
 }

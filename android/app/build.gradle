@@ -89,6 +89,12 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            storeFile file('AwesomeReceiptApp.keystore')
+            storePassword 'AwesomeUCSCReceipt2024'
+            keyAlias 'appKey'
+            keyPassword 'AwesomeUCSCReceipt2024'
+        }
     }
     buildTypes {
         debug {

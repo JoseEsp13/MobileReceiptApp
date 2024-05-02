@@ -44,38 +44,38 @@ function isPriceSafeway(price: string): string {
 };
 
 /**
- * ML Kit response parser for Safeway Receipts.
- * Uses x and y coordinates from items and prices found
- * in the response to slap together a dictionary.
- * FlowChart:
- *  1. split response lines to items and prices.
- *     Also cleaned up item names and skipped anything
- *     related to savings.
- *  2. for every price, find its closest item that is
- *     not located near according to its x axis
- *  3. fill a backwards dictionary of prices with their
- *     closest items
- *  4. flip the dictionary. Items with multiple prices
- *     (original and discounted), chooses the discounted
- *     price.
- * 
- * Notes for Safeway Receipts:
- *  - Anything related to Savings was skipped(line 96-100).
- *  - Balance is the total. 
- *  - Skip unnecessary items(line 149-154)
- * 
- * Context for Variebles:
- *  prices: [price, ycoor, xcoor, width][]
- *  items:  [item name, ycoor, xcoor][]
- *  widthScale: arbitrary scale value to prevent prices to match: xdist from price to item > widthScale*width
- *  regex2: used to check if ',' was read for a price. edge case
- *  regex3: remove any unnecessary items acquired from receipt
- *  regex4: used to remove any unnecessary items: may need to be implemented further
- * 
- * @param response 
- * @returns {[key: string]: number}
- */
-function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
+* ML Kit response parser for Safeway Receipts.
+* Uses x and y coordinates from items and prices found
+* in the response to slap together a dictionary.
+* FlowChart:
+*  1. split response lines to items and prices.
+*     Also cleaned up item names and skipped anything
+*     related to savings.
+*  2. for every price, find its closest item that is
+*     not located near according to its x axis
+*  3. fill a backwards dictionary of prices with their
+*     closest items
+*  4. flip the dictionary. Items with multiple prices
+*     (original and discounted), chooses the discounted
+*     price.
+* 
+* Notes for Safeway Receipts:
+*  - Anything related to Savings was skipped(line 88-92).
+*  - Balance is the total. 
+*  - Skip unnecessary items(line 146-151)
+* 
+* Context for Variebles:
+*  prices: [price, ycoor, xcoor, width][]
+*  items:  [item name, ycoor, xcoor][]
+*  widthScale: arbitrary scale value to prevent prices to match: xdist from price to item > widthScale*width
+*  regex2: used to check if ',' was read for a price. edge case
+*  regex3: remove any unnecessary items acquired from receipt
+*  regex4: used to remove any unnecessary items: may need to be implemented further
+* 
+* @param response 
+* @returns {[key: string]: number}
+*/
+export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   let dict: {[key: number]: string[]} = {};
   const prices: [number, number, number, number][] = [];    
   const items: [string, number, number][] = [];
@@ -93,15 +93,15 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       let str: string;
       if ((str = isPriceSafeway(item.text)) != "no match") {
         if (regex2.test(str)) {
-          str = str.replace(/,/g, '.');
+        str = str.replace(/,/g, '.');
         }
         prices.push(
-            [Number(str), item.rect.top, item.rect.left, item.rect.width]);
+          [Number(str), item.rect.top, item.rect.left, item.rect.width]);
         checkifNotPrice = false;
       }
       if (checkifNotPrice && !(/^\d+$/.test(item.text))) {
         items.push([item.text.replace(/^\d*[\s*%]*|^\W+/, ''),
-          item.rect.top, item.rect.left]);
+        item.rect.top, item.rect.left]);
       }
     }
   }
@@ -121,9 +121,14 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       }
     }
     if (prices[a][0] in dict) {
-      dict[prices[a][0]].push(minitem[0]);
+        if (minitem[0] in dict[prices[a][0]]) {
+            dict[prices[a][0]].push(minitem[0] + 
+                dict[prices[a][0]].filter(x => x === minitem[0]).length);
+        } else {
+            dict[prices[a][0]].push(minitem[0]);
+        }
     } else {
-      dict[prices[a][0]] = [minitem[0]];
+        dict[prices[a][0]] = [minitem[0]];
     }
   }
 
@@ -131,18 +136,18 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
   for (const k in dict) {
     dict[k].forEach((v) => {
       if (v in flipped) {
-        flipped[v] = Math.min(Number(k), flipped[v]);
+          flipped[v] = Math.min(Number(k), flipped[v]);
       } else {
-        flipped[v] = Number(k);
+          flipped[v] = Number(k);
       }
     });
   }
-  
+
   const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*/i;
   for (const ke in flipped) {
-    if (regex4.test(ke)) {
+      if (regex4.test(ke)) {
       flipped = removeKey(flipped, ke);
-    }
+      }
   }
 
   return flipped;

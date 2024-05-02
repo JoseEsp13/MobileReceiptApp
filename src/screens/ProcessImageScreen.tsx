@@ -14,16 +14,17 @@ import { ViewReceipt } from '../components/ViewReceipt';
 import { ViewResponse } from '../components/ViewResponse';
 import parser from '../parsers/parser';
 
-interface ProcessImageScreenProps {
-  navigation: ProcessImageNavigationProps;
-  route: ProcessImageRouteProps;
-}
-
 // Tab routing type
 interface RenderSceneRoute {
   route: {key: string},
   jumpTo: (tab: string) => void,
 }
+
+interface ProcessImageScreenProps {
+  navigation: ProcessImageNavigationProps;
+  route: ProcessImageRouteProps;
+}
+
 
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const windowDimensions = useWindowDimensions();

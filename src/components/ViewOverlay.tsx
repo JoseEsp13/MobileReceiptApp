@@ -59,7 +59,7 @@ type BlockProps = {
   scale: number;
 };
 
-export const BlockComponent = ({line, scale}: BlockProps) => {
+const BlockComponent = ({line, scale}: BlockProps) => {
   const rect = {
     top: line.rect.top * scale,
     width: line.rect.width * scale,

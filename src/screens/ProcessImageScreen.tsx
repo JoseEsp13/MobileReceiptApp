@@ -29,6 +29,28 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
 }
 
 /**
+ * Print Dictionary function
+ * normally meant for {[key: string]: number}
+ * otherwise will try to do {[key: number]: string[]}
+ * @param dict {[key: string]: number} | {[key: number]: string[]}
+ */
+function printDictionary(
+  dict: StringKeyNumberValueObject | 
+        NumberKeyStringArrayObject) {
+  if ("BALANCE" in dict || "TOTAL" in dict) {
+    console.log("dictionary:");
+    for (const key in dict) {
+      console.log(`Key: ${key}, Value: ${dict[key]}`);
+    }
+  } else {
+    console.log("number dictionary:");
+    for (const key in dict) {
+      console.log(`Key: ${key}, Values: ${dict[key].join(', ')}`);
+    }
+  }
+}
+
+/**
  * checks if inputed string is a price
  * returns the parsed string of the price
  * if not "no match"
@@ -86,12 +108,14 @@ function isPriceSafeway(price: string): string {
  *  regex3: remove any unnecessary items acquired from receipt
  *  regex4: used to remove any unnecessary items: may need to be implemented further
  * 
+ * 
  * @param response 
  * @returns {[key: string]: number}
  */
 function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   let dict: {[key: number]: string[]} = {};
   const prices: [number, number, number, number][] = [];    
+  const items: [string, number, number][] = [];
   const items: [string, number, number][] = [];
   const regex2 = /-?\d+\,\d{1,2}/g;
   let match;
@@ -104,6 +128,8 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       if (regex3.test(item.text)) {
         continue;
       }
+      let str: string;
+      if ((str = isPriceSafeway(item.text)) != "no match") {
       let str: string;
       if ((str = isPriceSafeway(item.text)) != "no match") {
         if (regex2.test(str)) {
@@ -141,6 +167,8 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
     }
   }
 
+  printDictionary(dict);
+
   let flipped: {[key: string]: number} = {};
   for (const k in dict) {
     dict[k].forEach((v) => {
@@ -158,6 +186,8 @@ function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: stri
       flipped = removeKey(flipped, ke);
     }
   }
+
+  printDictionary(flipped);
 
   return flipped;
 };
@@ -207,7 +237,7 @@ function matchStore(stores_in: string[]): string | undefined {
 
 function isPrice(price: string): boolean {
   // checks if a string matches to a price with a decimal and two digits
-  const re_price = /^\d+\.\d{2}$/;
+  const re_price = /^\d+\.\d{2}$|^\d+\.\d{2} .$/;
   return re_price.test(price);
 };
 
@@ -217,9 +247,15 @@ function isDiscount(price: string): boolean {
   return re_discount.test(price);
 }
 
+function isStringDiscount(name: string): boolean {
+  // checks if a string matches the name of a costco discount, generally of form "032456 /52345243" or similar
+  const re_discount = /\d+ \/\d+|\d+ \/ \d+/;
+  return re_discount.test(name)
+}
+
 function isTotal(str: string): boolean {
   // checks if a string matches **** Total
-  const re_total = /^\*+ TOTAL$/;
+  const re_total = /^\*+ TOTAL$|^\*\*+/;
   return re_total.test(str);
 };
 
@@ -251,62 +287,81 @@ function parseSafeway(response: ITextRecognitionResponse): {[key: string]: numbe
   return pairItemtoPriceSafeway(response);
 };
 
-function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {
-  const item_dict: {[key: string]: Float} = {};
-  var num_prices = -2
-  var prices = []
-  var total_ind = 0
-  var total_hit = false
-  var to_deduct = 0
-  var deducted_indices = []
-  var wait_flag = false
-  var price_height = []
+function isSubtotal(name: string): boolean {
+  const re_subtotal = /SUBTOTAL|S.*TOTAL|.*UBTOTAL.*|UBTOT/;
+  return re_subtotal.test(name)
+}
+
+function grabPrices(response: ITextRecognitionResponse): Float[] {
+  // Iterate through output bottom to top to grab all prices, return array of Floats in order from bottom to top. Also deducts discounts from apropriate items.
+
+  let prices = []
+  let to_deduct = 0
+  let total = 0
 
   for (var i = response.blocks.length - 1; i >= 0; i--) {
     var line_arr = response.blocks[i].lines
-    
     if (line_arr != undefined) {
-
       for (var j = line_arr.length - 1; j >= 0; j--) {
-        var block_h = response.blocks[i].lines[j].rect.height
         if (isPrice(line_arr[j].text)) {
-          if (num_prices >= 0) {
-            prices.push(parseFloat(line_arr[j].text) - to_deduct)
-            to_deduct = 0
-            
-            if (block_h !== undefined) {
-              price_height.push(block_h)
-            }
-            
-          }
-          num_prices++;
-
-        } else if (isDiscount(line_arr[j].text)) {
-          to_deduct = parseFloat(line_arr[j].text.replace(/!$/, "")) // takes the price to deduct and removes the ending - and casts to float
-          deducted_indices.push(num_prices)
-
-        } else if (isTotal(line_arr[j].text)) {
-          item_dict["TOTAL"] = prices[total_ind];
-          total_ind++;
-          total_hit = true;
-          console.log(price_height)
-
-        } else if (total_ind < num_prices && total_hit && Math.min.apply(Math, price_height) - 20 <= block_h && block_h <= Math.max.apply(Math, price_height) + 20) {
-          if (wait_flag) {
-            item_dict[strClean(line_arr[j].text)] = prices[total_ind];
-            wait_flag = false;
-            total_ind++;
-
-          } else if (deducted_indices.indexOf(total_ind) === -1) { // if the total_ind index is not in the list of deducted_indices 
-            item_dict[strClean(line_arr[j].text)] = prices[total_ind];
-            total_ind++;
-
-          } else { // wait flag is set if it wasn't previously set and the total_ind was in the deducted_indices
-            wait_flag = true
+          let current_price = parseFloat(line_arr[j].text) - to_deduct
+          prices.push(current_price)
+          to_deduct = 0
+          if (current_price > total) {
+            total = current_price
           }
         }
-        // console.log(line_arr[j].text)
-        // console.log(block_h)
+        if (isDiscount(line_arr[j].text)) {
+          to_deduct = parseFloat(line_arr[j].text.replace(/!$/, ""))
+        }
+      }
+    }
+  }
+
+  let prices_out = []
+  let total_hit = false
+  let taxes = 0
+  console.log(prices)
+  for (var ind in prices) { // removes all prices that appear before total
+    if (prices[ind] == total && !total_hit) {
+      total_hit = true
+      taxes = prices[Number(ind) + 1]
+    } else if (!total_hit || (roundPrice(prices[ind] + taxes) == total) || prices[ind] == total) {
+      continue
+    }
+    prices_out.push(prices[ind])
+  }
+  return prices_out
+};
+
+function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {
+  let prices = grabPrices(response)
+  let num_items = prices.length
+  let item_count = 0
+  let total_hit = false
+  const item_dict: {[key: string]: Float} = {};
+
+  console.log(prices)
+  for (var i = response.blocks.length - 1; i >= 0; i--) {
+    var line_arr = response.blocks[i].lines
+    if (line_arr != undefined) {
+      for (var j = line_arr.length - 1; j >= 0; j--) {
+        let current = line_arr[j].text
+        if (total_hit && item_count < num_items && !isSubtotal(current) && !isStringDiscount(current)) {
+          let clean_item = strClean(current)
+          if (clean_item in item_dict) {
+            item_dict[clean_item + String(item_count)] = prices[item_count]
+            item_count++;
+          } else {
+            item_dict[clean_item] = prices[item_count]
+            item_count++;
+          }
+        }
+        else if (isTotal(current)) {
+          item_dict["TOTAL"] = prices[item_count]
+          item_count++;
+          total_hit = true
+        }
       }
     }
   }
@@ -332,8 +387,6 @@ function checksum(dict: {[key: string]: number}): boolean {
     sum += price;
   }
   sum = roundPrice(sum)
-  console.log(sum)
-  console.log(max)
   let check = Math.trunc(sum/max);
   if (check == 3) {
     return true
@@ -376,6 +429,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
           // TO DO: What else do we want to do with the ML Kit response?
           // console.log(getStore(response))
           // console.log(isPrice("4.43"))
+          console.log(getStore(response))
           let dict = parseOutput(response)
           console.log(dict)
           if (dict != undefined) {

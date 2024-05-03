@@ -47,7 +47,7 @@ function matchStore(stores_in: string[]): string | undefined {
 
 function isPrice(price: string): boolean {
   // checks if a string matches to a price with a decimal and two digits
-  const re_price = /^\d+\.\d{2}$/;
+  const re_price = /^\d+\.\d{2}$|^\d+\.\d{2} .$/;
   return re_price.test(price);
 };
 
@@ -59,7 +59,7 @@ function isDiscount(price: string): boolean {
 
 function isTotal(str: string): boolean {
   // checks if a string matches **** Total
-  const re_total = /^\*+ TOTAL$/;
+  const re_total = /^\*+ TOTAL$|^\*\*+/;
   return re_total.test(str);
 };
 
@@ -74,6 +74,17 @@ function strClean(str: string): string {
     }
   }
   return out.trim()
+};
+
+function isStringDiscount(name: string): boolean {
+  // checks if a string matches the name of a costco discount, generally of form "032456 /52345243" or similar
+  const re_discount = /\d+ \/\d+|\d+ \/ \d+/;
+  return re_discount.test(name)
+}
+
+function isSubtotal(name: string): boolean {
+  const re_subtotal = /SUBTOTAL|S.*TOTAL|.*UBTOTAL.*|UBTOT/;
+  return re_subtotal.test(name)
 }
 
 function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {

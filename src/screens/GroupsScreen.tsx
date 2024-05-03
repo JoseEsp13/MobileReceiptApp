@@ -4,115 +4,69 @@
  * Allows the user to configure the groups
  */
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
-import { GroupsNavigationProps } from '../Navigator';
-import Icon from 'react-native-vector-icons/MaterialIcons'
+import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+
+export const groupNames: string[] = [];
 
 interface IGroupColumns {
-  title: string,
-  subNames: string[]
+  title: string;
+  subNames: string[];
 }
 
+export default function GroupsScreen() {
+  const [columns, setColumns] = useState<IGroupColumns[]>([{ title: 'Group 1', subNames: [] }]);
 
-export default function GroupsScreen (props: GroupsNavigationProps) {
-  const [columns, setColumns] = useState<IGroupColumns[]>([{ title: 'Column 1', subNames: [] }]); // Initial state with one column
+  const setParentGroupNames = (newGroupNames: string[]) => {
+    groupNames.splice(0, groupNames.length, ...newGroupNames);
+  };
 
-  const addColumn = () => setColumns([...columns, { title: '', subNames: [] }]);
+  const addColumn = () => {
+    const newGroupName = `Group ${groupNames.length + 1}`;
+    groupNames.push(newGroupName);
+    setColumns([...columns, { title: newGroupName, subNames: [] }]);
+  };
 
   const deleteColumn = (index: number) => {
-    Alert.alert(
-      'Delete Column',
-      `Are you sure you want to delete '${columns[index].title}'?`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          onPress: () => {
-            const updatedColumns = [...columns];
-            updatedColumns.splice(index, 1);
-            setColumns(updatedColumns);
-          },
-          style: 'destructive',
-        },
-      ]
-    );
-  };
-
-  const addSubName = (index: number) => {
     const updatedColumns = [...columns];
-    updatedColumns[index].subNames.push('');
+    const deletedGroupName = updatedColumns[index].title; // Get the name of the group to be deleted
+    updatedColumns.splice(index, 1);
     setColumns(updatedColumns);
+    // Remove the deleted group name from groupNames array
+    const groupIndex = groupNames.indexOf(deletedGroupName);
+    if (groupIndex !== -1) {
+      groupNames.splice(groupIndex, 1);
+    }
   };
 
-  const deleteSubName = (columnIndex: number, subNameIndex: number) => {
+  const handleGroupNameChange = (index: number, name: string) => {
     const updatedColumns = [...columns];
-    updatedColumns[columnIndex].subNames.splice(subNameIndex, 1);
+    updatedColumns[index].title = name;
     setColumns(updatedColumns);
-  };
-
-  const handleTitleChange = (index: number, title: string) => {
-    const updatedColumns = [...columns];
-    updatedColumns[index].title = title;
-    setColumns(updatedColumns);
-  };
-
-  const handleSubNameChange = (columnIndex: number, subNameIndex: number, value: string) => {
-    const updatedColumns = [...columns];
-    updatedColumns[columnIndex].subNames[subNameIndex] = value;
-    setColumns(updatedColumns);
-  };
-
-  const renderColumn = (column: IGroupColumns, columnIndex: number) => {
-    return (
-      <View key={columnIndex} style={styles.columnContainer}>
-        <TextInput
-          style={styles.columnTitleInput}
-          value={column.title}
-          placeholder="Column title"
-          onChangeText={(text) => handleTitleChange(columnIndex, text)}
-        />
-        {column.subNames.map((subName: string, subNameIndex: number) => (
-          <View key={subNameIndex} style={styles.subNameContainer}>
-            <TextInput
-              style={styles.subNameInput}
-              value={subName}
-              placeholder="Sub-name"
-              onChangeText={(text) => handleSubNameChange(columnIndex, subNameIndex, text)}
-            />
-            <TouchableOpacity
-              onPress={() => deleteSubName(columnIndex, subNameIndex)}
-              style={styles.deleteSubNameButton}>
-              <Icon name="highlight-off" size={20} color="red" />
-            </TouchableOpacity>
-          </View>
-        ))}
-        <View style={styles.btnContainer}>
-          <TouchableOpacity onPress={() => addSubName(columnIndex)} style={styles.addSubNameButton}>
-            <Icon name="add-circle-outline" size={24} color="green" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={() => deleteColumn(columnIndex)} style={styles.deleteColumnButton}>
-            <Icon name="delete" size={24} color="red" />
-          </TouchableOpacity>
-        </View>
-        
-      </View>
-    );
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Define Groups Screen</Text>
-      {columns.map((column, index) => renderColumn(column, index))}
+      {columns.map((column, index) => (
+        <View key={index} style={styles.columnContainer}>
+          <TextInput
+            style={styles.columnTitleInput}
+            value={column.title}
+            onChangeText={(text) => handleGroupNameChange(index, text)}
+          />
+          <TouchableOpacity onPress={() => deleteColumn(index)} style={styles.deleteColumnButton}>
+            <Icon name="delete" size={24} color="red" />
+          </TouchableOpacity>
+        </View>
+      ))}
       <TouchableOpacity onPress={addColumn} style={styles.addColumnButton}>
         <Icon name="add" size={24} color="black" />
-        <Text style={styles.addColumnButtonText}>Add Column</Text>
+        <Text style={styles.addColumnButtonText}>Add Group</Text>
       </TouchableOpacity>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -125,35 +79,24 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   columnContainer: {
-    marginBottom: 20,
-  },
-  columnTitleInput: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-  },
-  subNameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 10,
   },
-  subNameInput: {
+  columnTitleInput: {
     flex: 1,
     height: 40,
     borderColor: 'gray',
     borderWidth: 1,
     paddingHorizontal: 10,
-  },
-  deleteSubNameButton: {
-    marginLeft: 10,
-  },
-  addSubNameButton: {
-
+    marginRight: 10,
   },
   deleteColumnButton: {
-
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'red',
+    borderRadius: 5,
+    padding: 10,
   },
   addColumnButton: {
     flexDirection: 'row',
@@ -166,8 +109,4 @@ const styles = StyleSheet.create({
   addColumnButtonText: {
     marginLeft: 5,
   },
-  btnContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between"
-  }
 });

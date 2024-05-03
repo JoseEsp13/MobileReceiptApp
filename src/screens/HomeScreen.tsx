@@ -3,35 +3,27 @@
  * 
  * Home screen component.
  */
-import { StyleSheet, Text, View, Image } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { HomeScreenNavigationProps } from '../Navigator';
-import { FloatingAction } from "react-native-floating-action";
-import * as ImagePicker from 'react-native-image-picker';
-import {ImagePickerResponse} from 'react-native-image-picker/src/types';
 import { useEffect, useState } from 'react';
-import Icon from 'react-native-vector-icons/MaterialIcons'
-import DocumentScanner from 'react-native-document-scanner-plugin'
-import { useNavigation } from '@react-navigation/native';
+import DocumentScanner from 'react-native-document-scanner-plugin';
 import { DemoButton } from '../components/ui/DemoButton';
 import * as routes from '../routes';
+import { groupNames } from './GroupsScreen'; // Importing groups from defineGroups
 
 export default function HomeScreen(props: HomeScreenNavigationProps) {
   const [scannedImage, setScannedImage] = useState<string | undefined>();
 
   const scanDocument = async () => {
-    // start the document scanner
-    const { scannedImages }= await DocumentScanner.scanDocument()
+    const { scannedImages } = await DocumentScanner.scanDocument();
     
-    // get back an array with scanned image file paths
     if (scannedImages && scannedImages.length > 0) {
-      // set the img src, so we can view the first scanned image
-      setScannedImage(scannedImages[0])
-      onProcessImage(scannedImages[0])
+      setScannedImage(scannedImages[0]);
+      onProcessImage(scannedImages[0]);
+    } else {
+      setScannedImage(undefined);
     }
-    else {
-      setScannedImage(undefined)
-    }
-  }
+  };
 
   const onProcessImage = (uri: string | undefined) => {
     if (uri) {
@@ -41,15 +33,28 @@ export default function HomeScreen(props: HomeScreenNavigationProps) {
     }
   };
 
+  const chooseGroup = () => {
+    // Displaying group names
+    console.log('Groups:', groupNames);
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home</Text>
-      <DemoButton key="Process Image" onPress={ () => scanDocument()}>
+      <View style={{height: 48}}>
+        <DemoButton key="Process Image" onPress={() => scanDocument()}>
           {'Process Image'}
         </DemoButton>
+      </View>
+      <View style={{height: 48}}>
+        <DemoButton key="Choose Group" onPress={chooseGroup}>
+          {'Choose Group'}
+        </DemoButton>
+      </View>
+      
     </View>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -61,4 +66,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-

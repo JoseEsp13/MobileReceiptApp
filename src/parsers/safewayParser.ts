@@ -15,28 +15,6 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
 }
 
 /**
- * Print Dictionary function
- * normally meant for {[key: string]: number}
- * otherwise will try to do {[key: number]: string[]}
- * @param dict {[key: string]: number} | {[key: number]: string[]}
- */
-function printDictionary(
-dict: StringKeyNumberValueObject | 
-        NumberKeyStringArrayObject) {
-    if ("BALANCE" in dict || "TOTAL" in dict) {
-        console.log("dictionary:");
-        for (const key in dict) {
-            console.log(`Key: ${key}, Value: ${dict[key]}`);
-        }
-    } else {
-        console.log("number dictionary:");
-        for (const key in dict) {
-            console.log(`Key: ${key}, Values: ${dict[key].join(', ')}`);
-        }
-    }
-}
-
-/**
  * checks if inputed string is a price
  * returns the parsed string of the price
  * if not "no match"
@@ -154,8 +132,6 @@ for (let i = 0; i < response.blocks.length; i++) {
         }
     }
 
-    printDictionary(dict);
-
     let flipped: {[key: string]: number} = {};
     for (const k in dict) {
         dict[k].forEach((v) => {
@@ -173,8 +149,6 @@ for (let i = 0; i < response.blocks.length; i++) {
         flipped = removeKey(flipped, ke);
         }
     }
-
-    printDictionary(flipped);
 
     return flipped;
 };

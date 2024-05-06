@@ -358,4 +358,4 @@ const parser: IParser = {
     checksum
 }
 
-export { parser };
+export default parser;

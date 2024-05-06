@@ -12,7 +12,7 @@ import { TabView, SceneMap } from 'react-native-tab-view';
 import { ViewDictionary } from '../components/ViewDictionary';
 import { ViewReceipt } from '../components/ViewReceipt';
 import { ViewResponse } from '../components/ViewResponse';
-import { parser } from '../parsers/parser';
+import parser from '../parsers/parser';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -24,7 +24,6 @@ interface ProcessImageScreenProps {
   navigation: ProcessImageNavigationProps;
   route: ProcessImageRouteProps;
 }
-export let uri: string;
 
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const windowDimensions = useWindowDimensions();
@@ -42,7 +41,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
 
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
 
-  uri = props.route.params.uri
+  const uri = props.route.params.uri
 
   useEffect(() => {
     if (uri) {

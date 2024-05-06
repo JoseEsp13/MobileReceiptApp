@@ -12,6 +12,8 @@ import { TabView, SceneMap } from 'react-native-tab-view';
 import { ViewDictionary } from '../components/ViewDictionary';
 import { ViewReceipt } from '../components/ViewReceipt';
 import { ViewResponse } from '../components/ViewResponse';
+import ViewGroups from "../components/ViewGroups";
+import { groupNames } from './GroupsScreen';
 import parser from '../parsers/parser';
 
 // Tab routing type
@@ -36,8 +38,8 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
     { key: 'receipt', title: "Receipt" },
     { key: 'overlay', title: "Overlay" },
     { key: 'simple', title: "Simple" },
-    { key: 'dictionary', title: "Dict" }
-  
+    { key: 'dictionary', title: "Dict" },
+    { key: 'Groups', title: "Groups"}
   ]);
 
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
@@ -60,6 +62,8 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
         return <ViewResponse response={response} />
       case 'dictionary':
         return <ViewDictionary response={response} />
+      case 'Groups':
+        return <ViewGroups groupNames={groupNames}/>
     }
   }, [response, uri]);
 

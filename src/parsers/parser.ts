@@ -1,5 +1,7 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
 import { IParser } from "./IParser";
+import { parseGeneric } from "./GenericParser";
+import { GestureDetector } from "react-native-gesture-handler";
 
 interface StringKeyNumberValueObject {
   [key: string]: number;
@@ -64,7 +66,7 @@ function isPriceSafeway(price: string): string {
 *  - Balance is the total. 
 *  - Skip unnecessary items(line 146-151)
 * 
-* Context for Variebles:
+* Context for Variables:
 *  prices: [price, ycoor, xcoor, width][]
 *  items:  [item name, ycoor, xcoor][]
 *  widthScale: arbitrary scale value to prevent prices to match: xdist from price to item > widthScale*width
@@ -196,7 +198,7 @@ function matchStore(stores_in: string[]): string | undefined {
   return undefined
 }
 
-function isPrice(price: string): boolean {
+export function isPrice(price: string): boolean {
   // checks if a string matches to a price with a decimal and two digits
   const re_price = /^\d+\.\d{2}$/;
   return re_price.test(price);
@@ -228,6 +230,15 @@ function strClean(str: string): string {
 }
 
 function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
+  let store_name = getStore(response)
+  if (1 == 1) {
+    return parseGeneric(response)
+  }
+  return undefined
+}
+
+/* Working Code uncomment after
+function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
   var store_name = getStore(response)
   if (store_name == "costco") {
     return parseCostco(response)
@@ -235,8 +246,12 @@ function parseOutput(response: ITextRecognitionResponse): {[key: string]: number
   if (store_name == "safeway") {
     return parseSafeway(response);
   }
+  else {
+    return parseGeneric(response);
+  }
   return undefined;
 };
+*/
 
 function parseSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   return pairItemtoPriceSafeway(response);
@@ -343,4 +358,4 @@ const parser: IParser = {
     checksum
 }
 
-export default parser;
+export { parser };

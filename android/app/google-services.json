@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "328182415701",
+    "project_id": "awesome-receipt-app",
+    "storage_bucket": "awesome-receipt-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:328182415701:android:dc36b60bb0d8e7d41aafdc",
+        "android_client_info": {
+          "package_name": "com.receiptmobileapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcISMvfvTpa4hYjxRa2Zol1T3scxgoePg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

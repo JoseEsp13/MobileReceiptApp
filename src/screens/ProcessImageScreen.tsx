@@ -6,7 +6,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Image, useWindowDimensions, ScrollView} from 'react-native';
 import {ProcessImageNavigationProps, ProcessImageRouteProps} from '../Navigator';
-import { ITextRecognitionResponse, recognizeImage } from '../components/mlkit';
+import MLKit, { ITextRecognitionResponse } from '../components/mlkit';
 import { ViewOverlay } from '../components/ViewOverlay';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { ViewDictionary } from '../components/ViewDictionary';
@@ -28,7 +28,6 @@ interface ProcessImageScreenProps {
 
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const windowDimensions = useWindowDimensions();
-  const [aspectRatio, setAspectRatio] = useState(1);
 
   // Tab routing
   const [tabIndex, setTabIndex] = React.useState(0);
@@ -68,15 +67,16 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
     if (url) {
       try {
         // Send a request to Google's ML Kit
-        const response = await recognizeImage(url);
+        const response = await MLKit.recognizeImage(url);
 
         // If the response contains data
         if (response?.blocks?.length > 0) {
 
-          // Process response here
-          setResponse(response);                            // Save the response
-          setAspectRatio(response.height / response.width); // Set the aspect ratio of the returned data 
+          // Save the response
+          // This will make React re-render the UI with the new data
+          setResponse(response);                            
 
+          // Process response here
           // TO DO: What else do we want to do with the ML Kit response?
           // console.log(getStore(response))
           // console.log(isPrice("4.43"))

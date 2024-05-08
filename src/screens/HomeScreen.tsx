@@ -4,14 +4,15 @@
  * Home screen component.
  */
 import { StyleSheet, Text, View } from 'react-native';
-import { HomeScreenNavigationProps } from '../Navigator';
 import { useEffect, useState } from 'react';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import { DemoButton } from '../components/ui/DemoButton';
 import * as routes from '../routes';
 import { groupNames } from './GroupsScreen'; // Importing groups from defineGroups
+import { HomeScreenNavigationProps } from '../Navigator';
 
 export default function HomeScreen(props: HomeScreenNavigationProps) {
+  
   const [scannedImage, setScannedImage] = useState<string | undefined>();
 
   const scanDocument = async () => {

@@ -27,7 +27,6 @@ interface ProcessImageScreenProps {
   route: ProcessImageRouteProps;
 }
 
-
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const windowDimensions = useWindowDimensions();
   const [aspectRatio, setAspectRatio] = useState(1);
@@ -43,10 +42,12 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   ]);
 
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
-  const uri = props.route.params.uri;
+
+  const uri = props.route.params.uri
 
   useEffect(() => {
     if (uri) {
+      console.log()
       processImage(uri);
     }
   }, [uri]);
@@ -72,30 +73,33 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
     if (url) {
       try {
         // Send a request to Google's ML Kit
-        const response = await recognizeImage(url);
+        let response_img;
+        if (!response) {
+          response_img = await recognizeImage(url);
+          // If the response contains data
+          if (response_img?.blocks?.length > 0) {
 
-        // If the response contains data
-        if (response?.blocks?.length > 0) {
+            // Process response here
+            setResponse(response_img);                            // Save the response
+            setAspectRatio(response_img.height / response_img.width); // Set the aspect ratio of the returned data 
 
-          // Process response here
-          setResponse(response);                            // Save the response
-          setAspectRatio(response.height / response.width); // Set the aspect ratio of the returned data 
-
-          // TO DO: What else do we want to do with the ML Kit response?
-          // console.log(getStore(response))
-          // console.log(isPrice("4.43"))
-          let dict = parser.parseOutput(response)
-          console.log(dict)
-          if (dict != undefined) {
-            console.log(parser.checksum(dict))
+            // TO DO: What else do we want to do with the ML Kit response?
+            // console.log(getStore(response))
+            // console.log(isPrice("4.43"))
+            let dict = parser.parseOutput(response_img, setResponse)
+            // console.log(dict)
+            if (dict != undefined) {
+              console.log(parser.checksum(dict))
+            }
           }
         }
+        
     } catch (error) {
         console.error(error);
       }
     }
   };
-
+  
   return (
     <TabView
       navigationState={{index: tabIndex, routes: tabRoutes}}

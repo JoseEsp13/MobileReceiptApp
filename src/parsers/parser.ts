@@ -1,6 +1,9 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
+import { parseGeneric } from "./GenericParser";
 import { IParser } from "./IParser";
 import safewayParser from './safewayParser';
+import DocumentScanner from 'react-native-document-scanner-plugin';
+import { useEffect, useState } from 'react';
 
 function getStore(response: ITextRecognitionResponse): string | undefined {
   // Takes response and returns the first 3 lines without whitespace or periods in lowercase for matching
@@ -87,15 +90,15 @@ function isSubtotal(name: string): boolean {
   return re_subtotal.test(name)
 }
 
-function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
+function parseOutput(response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): {[key: string]: number} | undefined {
   var store_name = getStore(response)
-  if (store_name == "costco") {
-    return parseCostco(response)
-  }
-  if (store_name == "safeway") {
+  if (store_name === "costco") {
+    return parseCostco(response);
+  } else if (store_name === "safeway") {
     return parseSafeway(response);
+  } else {
+    parseGeneric(setResponse);
   }
-  return undefined;
 };
 
 function parseSafeway(response: ITextRecognitionResponse): {[key: string]: number} {

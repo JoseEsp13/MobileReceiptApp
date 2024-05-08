@@ -1,6 +1,9 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
+import { parseGeneric } from "./GenericParser";
 import { IParser } from "./IParser";
 import safewayParser from './safewayParser';
+import DocumentScanner from 'react-native-document-scanner-plugin';
+import { useEffect, useState } from 'react';
 
 function getStore(response: ITextRecognitionResponse): string | undefined {
   // Takes response and returns the first 3 lines without whitespace or periods in lowercase for matching
@@ -45,7 +48,7 @@ function matchStore(stores_in: string[]): string | undefined {
   return undefined
 }
 
-export function isPrice(price: string): boolean {
+function isPrice(price: string): boolean {
   // checks if a string matches to a price with a decimal and two digits
   const re_price = /^\d+\.\d{2}$|^\d+\.\d{2} .$/;
   return re_price.test(price);
@@ -74,31 +77,29 @@ function strClean(str: string): string {
     }
   }
   return out.trim()
-}
-
-function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
-  let store_name = getStore(response)
-  if (1 == 1) {
-    return parseGeneric(response)
-  }
-  return undefined
-}
-
-/* Working Code uncomment after
-function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
-  var store_name = getStore(response)
-  if (store_name == "costco") {
-    return parseCostco(response)
-  }
-  if (store_name == "safeway") {
-    return parseSafeway(response);
-  }
-  else {
-    return parseGeneric(response);
-  }
-  return undefined;
 };
-*/
+
+function isStringDiscount(name: string): boolean {
+  // checks if a string matches the name of a costco discount, generally of form "032456 /52345243" or similar
+  const re_discount = /\d+ \/\d+|\d+ \/ \d+/;
+  return re_discount.test(name)
+}
+
+function isSubtotal(name: string): boolean {
+  const re_subtotal = /SUBTOTAL|S.*TOTAL|.*UBTOTAL.*|UBTOT/;
+  return re_subtotal.test(name)
+}
+
+function parseOutput(response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): {[key: string]: number} | undefined {
+  var store_name = getStore(response)
+  if (store_name === "costco") {
+    return parseCostco(response);
+  } else if (store_name === "safeway") {
+    return parseSafeway(response);
+  } else {
+    parseGeneric(setResponse);
+  }
+};
 
 function parseSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   return safewayParser.pairItemtoPriceSafeway(response);

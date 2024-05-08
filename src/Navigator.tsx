@@ -58,19 +58,20 @@ export const Navigator = () => {
     <Drawer.Navigator>
       {ctx.user == null ? (
           <>
-            <Drawer.Screen name={routes.LOGIN_SCREEN} component={LoginScreen} options={{drawerItemStyle: {display: "none"}}} />
-            <Drawer.Screen name={routes.SIGNUP_SCREEN} component={SignUpScreen} options={{drawerItemStyle: {display: "none"}}} />
+            <Drawer.Screen name={routes.LOGIN_SCREEN} component={LoginScreen} />
+            <Drawer.Screen name={routes.SIGNUP_SCREEN} component={SignUpScreen} />
+            <Drawer.Screen name={routes.LOGOUT_SCREEN} component={LogoutScreen} options={{drawerItemStyle: {display: "none"}}}/>
           </>
         ) : 
         (
           <>
             <Drawer.Screen name={routes.HOME_SCREEN} component={HomeScreen} />
             <Drawer.Screen name={routes.SELECT_SCREEN} component={SelectImageScreen} />
-            <Drawer.Screen name={routes.PROCESS_IMAGE_SCREEN} component={ProcessImageScreen} options={{drawerItemStyle: {display: "none"}}} />
-            
-            <Drawer.Screen name={routes.LOGOUT_SCREEN} component={LogoutScreen} options={{drawerItemStyle: {display: "none"}}} />
             <Drawer.Screen name={routes.GROUPS_SCREEN} component={GroupsScreen} />
             <Drawer.Screen name={routes.SETTINGS_SCREEN} component={SettingsScreen} />
+            <Drawer.Screen name={routes.LOGOUT_SCREEN} component={LogoutScreen} />
+
+            <Drawer.Screen name={routes.PROCESS_IMAGE_SCREEN} component={ProcessImageScreen} options={{drawerItemStyle: {display: "none"}}} />
           </>
         )}
     </Drawer.Navigator>

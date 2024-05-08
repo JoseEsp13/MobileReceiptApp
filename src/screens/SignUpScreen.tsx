@@ -1,29 +1,16 @@
 import { useState } from "react";
 import { Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
 import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import useAppContext from "../components/hooks/useAppContext";
 
 export default function SignUpScreen() {
 
+  const ctx = useAppContext();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const handleSignUpClick = () => {
-    auth()
-      .createUserWithEmailAndPassword(username, password)
-      .then(() => {
-        console.log('User account created & signed in!');
-      })
-      .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
-        }
     
-        if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
-        }
-    
-        console.error(error);
-      });
   }
 
   return (

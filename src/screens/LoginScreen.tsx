@@ -1,17 +1,38 @@
 import React, { useState } from 'react'
 import { Alert, Button, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import logo from "../assets/logo.png"
+import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import * as routes from '../routes'
+import { useNavigation } from '@react-navigation/native';
+import { LoginScreenNavigationProps, RootDrawerParamList } from '../Navigator';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
+import useAppNavigation from '../components/hooks/useAppNavigation';
 
 
-interface ILoginScreen {
-  
-}
-
-export default function LoginScreen(props: ILoginScreen) {
+export default function LoginScreen(props: LoginScreenNavigationProps) {
 
   const [click, setClick] = useState(false);
   const [username, setUsername] =  useState("");
   const [password, setPassword] =  useState("");
+
+  const handleLoginClick = () => {
+    auth()
+      .signInWithEmailAndPassword(username, password)
+      .then(() => {
+        console.log('User signed in!');
+      })
+      .catch(error => {
+        if (error.code === 'auth/email-already-in-use') {
+          console.log('That email address is already in use!');
+        }
+    
+        if (error.code === 'auth/invalid-email') {
+          console.log('That email address is invalid!');
+        }
+    
+        console.error(error);
+      })
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -38,7 +59,7 @@ export default function LoginScreen(props: ILoginScreen) {
       </View>
       <View style={styles.rememberView}>
         <View style={styles.switch}>
-          <Switch  value={click} onValueChange={setClick} trackColor={{true : "green" , false : "gray"}} />
+          <Switch value={click} onValueChange={setClick} trackColor={{true : "green" , false : "gray"}} />
           <Text style={styles.rememberText}>Remember Me</Text>
         </View>
         <View>
@@ -49,12 +70,16 @@ export default function LoginScreen(props: ILoginScreen) {
       </View>
 
       <View style={styles.buttonView}>
-        <Pressable style={styles.button} onPress={() => Alert.alert("Login Successfuly!","Oh you no broke everything!")}>
+        <Pressable style={styles.button} onPress={handleLoginClick}>
           <Text style={styles.buttonText}>LOGIN</Text>
         </Pressable>
       </View>
 
-      <Text style={styles.footerText}>Don't Have Account?<Text style={styles.signup}>  Sign Up</Text></Text>  
+      <Text style={styles.footerText}>Don't Have Account?
+        <Pressable>
+          <Text style={styles.signup} onPress={() => props.navigation.navigate(routes.SIGNUP_SCREEN)}>  Sign Up</Text>
+        </Pressable>
+      </Text>  
     </SafeAreaView>
   )
 }
@@ -145,6 +170,7 @@ const styles = StyleSheet.create({
   },
   footerText : {
     textAlign: "center",
+    marginTop: 15,
     color : "gray",
   },
   signup : {

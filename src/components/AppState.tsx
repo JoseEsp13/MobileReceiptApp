@@ -31,7 +31,7 @@ export interface IGroup {
 
 export type IAppContext = {
   user: FirebaseAuthTypes.User | null,
-  createNewUser: (newUser: INewUser) => void,
+  createUser: (newUser: INewUser) => void,
   activeGroupId: number | null,
   setActiveGroupId: React.Dispatch<React.SetStateAction<number | null>>,
   groups: IGroup[],
@@ -42,7 +42,7 @@ export type IAppContext = {
 
 export const AppContext = createContext<IAppContext>({
     user: null,
-    createNewUser: () => {},
+    createUser: () => {},
     activeGroupId: null,
     setActiveGroupId: () => {},
     groups: [],
@@ -73,27 +73,23 @@ export default function AppState(props: IAppState) {
     return subscriber; // unsubscribe on unmount
   }, []);
 
-  const createUserJson = async () => {
+  /*const createUserJson = async () => {
     if (user?.uid) {
       const newUserObject: IUser = {
         uid: user.uid,
         name: "Come",
         email: "on"
       };
-      const url = `/users/${user.uid}/user.json`;
-      console.log(`Url: ${url}`)
-      const reference = storage().ref(url);
+      const reference = storage().ref(`/users/${user.uid}/user.json`);
       const result = await reference.putString(JSON.stringify(newUserObject));
       
       console.log(result.state)
     }
   }
 
-  createUserJson();
- 
+  createUserJson();*/
 
-
-  const createNewUser = async (newUser: INewUser) => {
+  const createUser = async (newUser: INewUser) => {
     auth()
     .createUserWithEmailAndPassword(newUser.username, newUser.password)
     .then(credential => {
@@ -102,7 +98,7 @@ export default function AppState(props: IAppState) {
         uid: credential.user.uid,
         ...newUser
       };
-      const reference = storage().ref(`/users/${user}/user.json`);
+      const reference = storage().ref(`/users/${credential.user.uid}/user.json`);
       reference.put(JSON.parse(JSON.stringify(newUserObject)));
     })
     .catch(error => {
@@ -118,10 +114,20 @@ export default function AppState(props: IAppState) {
     });
   }
 
+  const createGroup = (groupName: string) => {
+
+
+
+    if (user) {
+      const reference = storage().ref(`/users/${user.uid}/groups/`);
+    }
+    
+  }
+
   return (
     <AppContext.Provider value={{
       user: user,
-      createNewUser: createNewUser,
+      createUser: createUser,
       activeGroupId: activeGroupId,
       setActiveGroupId: setActiveGroupdId,
       groups: groups,

@@ -15,7 +15,11 @@ interface IGroupColumns {
 }
 
 export default function GroupsScreen() {
-  const [columns, setColumns] = useState<IGroupColumns[]>([]);
+  const [columns, setColumns] = useState<IGroupColumns[]>([{ title: 'Group 1', subNames: [] }]);
+
+  const setParentGroupNames = (newGroupNames: string[]) => {
+    groupNames.splice(0, groupNames.length, ...newGroupNames);
+  };
 
   const addColumn = () => {
     const newGroupName = `Group ${groupNames.length + 1}`;

@@ -13,6 +13,7 @@ import { ViewDictionary } from '../components/ViewDictionary';
 import { ViewReceipt } from '../components/ViewReceipt';
 import { ViewResponse } from '../components/ViewResponse';
 import parser from '../parsers/parser';
+import { testChecksum } from '../parsers/ctests';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -80,6 +81,9 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
           // TO DO: What else do we want to do with the ML Kit response?
           // console.log(getStore(response))
           // console.log(isPrice("4.43"))
+
+          testChecksum(10)
+
           let dict = parser.parseOutput(response)
           console.log(dict)
           if (dict != undefined) {

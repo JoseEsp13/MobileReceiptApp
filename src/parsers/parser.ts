@@ -110,16 +110,16 @@ function parseSafeway(response: ITextRecognitionResponse): {[key: string]: numbe
   return safewayParser.pairItemtoPriceSafeway(response);
 };
 
-function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {
-  const item_dict: {[key: string]: number} = {};
-  var num_prices = -2
-  var prices = []
-  var total_ind = 0
-  var total_hit = false
-  var to_deduct = 0
-  var deducted_indices = []
-  var wait_flag = false
-  var price_height = []
+function parseTraderJoe(response: ITextRecognitionResponse): {[key: string]: number} {
+  return traderJoeParser.pairItemtoPriceTraderJoe(response);
+};
+
+function grabPrices(response: ITextRecognitionResponse): number[] {
+  // Iterate through output bottom to top to grab all prices, return array of Floats in order from bottom to top. Also deducts discounts from apropriate items.
+
+  let prices = []
+  let to_deduct = 0
+  let total = 0
 
   for (var i = response.blocks.length - 1; i >= 0; i--) {
     var line_arr = response.blocks[i].lines

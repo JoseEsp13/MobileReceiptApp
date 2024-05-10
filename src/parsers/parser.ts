@@ -1,12 +1,13 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
 import { IParser } from "./IParser";
 import safewayParser from './safewayParser';
+import traderJoeParser from "./traderJoeParser";
 
 function getStore(response: ITextRecognitionResponse): string | undefined {
   // Takes response and returns the first 3 lines without whitespace or periods in lowercase for matching
   var lines_out = []
 
-  for (var i = 0; i < 5; i++) {
+  for (var i = 0; i < response.blocks.length; i++) {
     for (var j = 0; j < response.blocks[i].lines.length; j++) {
       var store = response.blocks.at(i)?.lines[j]
       if (store != undefined) {
@@ -95,11 +96,18 @@ function parseOutput(response: ITextRecognitionResponse): {[key: string]: number
   if (store_name == "safeway") {
     return parseSafeway(response);
   }
+  if (store_name == "trader joe's") {
+    return parseTraderJoe(response);
+  }
   return undefined;
 };
 
 function parseSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   return safewayParser.pairItemtoPriceSafeway(response);
+};
+
+function parseTraderJoe(response: ITextRecognitionResponse): {[key: string]: number} {
+  return traderJoeParser.pairItemtoPriceTraderJoe(response);
 };
 
 function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {

@@ -8,3 +8,7 @@ export interface IParser {
 export interface ISafeway {
     pairItemtoPriceSafeway: (reponse: ITextRecognitionResponse) => {[key: string]: number}
 }
+
+export interface ITraderJoe {
+    pairItemtoPriceTraderJoe: (reponse: ITextRecognitionResponse) => {[key: string]: number}
+}

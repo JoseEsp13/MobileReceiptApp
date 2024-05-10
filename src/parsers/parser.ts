@@ -1,7 +1,10 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
+import { parseGeneric } from "./GenericParser";
 import { IParser } from "./IParser";
 import safewayParser from './safewayParser';
 import traderJoeParser from "./traderJoeParser";
+import DocumentScanner from 'react-native-document-scanner-plugin';
+import { useEffect, useState } from 'react';
 
 function getStore(response: ITextRecognitionResponse): string | undefined {
   // Takes response and returns the first 3 lines without whitespace or periods in lowercase for matching
@@ -89,26 +92,22 @@ function isSubtotal(name: string): boolean {
   return re_subtotal.test(name)
 }
 
-function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
+function parseOutput(response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): {[key: string]: number} | undefined {
   var store_name = getStore(response)
-  if (store_name == "costco") {
-    return parseCostco(response)
-  }
-  if (store_name == "safeway") {
+  if (store_name === "costco") {
+    return parseCostco(response);
+  } else if (store_name === "safeway") {
     return parseSafeway(response);
-  }
-  if (store_name == "trader joe") {
+  } else if (store_name === "trader joe") {
     return parseTraderJoe(response);
+  } else {
+    parseGeneric(setResponse);
   }
   return undefined;
 };
 
 function parseSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
   return safewayParser.pairItemtoPriceSafeway(response);
-};
-
-function parseTraderJoe(response: ITextRecognitionResponse): {[key: string]: number} {
-  return traderJoeParser.pairItemtoPriceTraderJoe(response);
 };
 
 function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {
@@ -124,60 +123,78 @@ function parseCostco(response: ITextRecognitionResponse): {[key: string]: number
 
   for (var i = response.blocks.length - 1; i >= 0; i--) {
     var line_arr = response.blocks[i].lines
-    
     if (line_arr != undefined) {
-
       for (var j = line_arr.length - 1; j >= 0; j--) {
-        var block_h = response.blocks[i].lines[j].rect.height
         if (isPrice(line_arr[j].text)) {
-          if (num_prices >= 0) {
-            prices.push(parseFloat(line_arr[j].text) - to_deduct)
-            to_deduct = 0
-            
-            if (block_h !== undefined) {
-              price_height.push(block_h)
-            }
-            
-          }
-          num_prices++;
-
-        } else if (isDiscount(line_arr[j].text)) {
-          to_deduct = parseFloat(line_arr[j].text.replace(/!$/, "")) // takes the price to deduct and removes the ending - and casts to float
-          deducted_indices.push(num_prices)
-
-        } else if (isTotal(line_arr[j].text)) {
-          item_dict["TOTAL"] = prices[total_ind];
-          total_ind++;
-          total_hit = true;
-          console.log(price_height)
-
-        } else if (total_ind < num_prices && total_hit && Math.min.apply(Math, price_height) - 20 <= block_h && block_h <= Math.max.apply(Math, price_height) + 20) {
-          if (wait_flag) {
-            item_dict[strClean(line_arr[j].text)] = prices[total_ind];
-            wait_flag = false;
-            total_ind++;
-
-          } else if (deducted_indices.indexOf(total_ind) === -1) { // if the total_ind index is not in the list of deducted_indices 
-            item_dict[strClean(line_arr[j].text)] = prices[total_ind];
-            total_ind++;
-
-          } else { // wait flag is set if it wasn't previously set and the total_ind was in the deducted_indices
-            wait_flag = true
+          let current_price = parseFloat(line_arr[j].text) - to_deduct
+          prices.push(current_price)
+          to_deduct = 0
+          if (current_price > total) {
+            total = current_price
           }
         }
-        // console.log(line_arr[j].text)
-        // console.log(block_h)
+        if (isDiscount(line_arr[j].text)) {
+          to_deduct = parseFloat(line_arr[j].text.replace(/!$/, ""))
+        }
+      }
+    }
+  }
+
+  let prices_out = []
+  let total_hit = false
+  let taxes = 0
+  console.log(prices)
+  for (var ind in prices) { // removes all prices that appear before total
+    if (prices[ind] == total && !total_hit) {
+      total_hit = true
+      taxes = prices[Number(ind) + 1]
+    } else if (!total_hit || (roundPrice(prices[ind] + taxes) == total) || prices[ind] == total) {
+      continue
+    }
+    prices_out.push(prices[ind])
+  }
+  return prices_out
+};
+
+function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {
+  let prices = grabPrices(response)
+  let num_items = prices.length
+  let item_count = 0
+  let total_hit = false
+  const item_dict: {[key: string]: number} = {};
+
+  console.log(prices)
+  for (var i = response.blocks.length - 1; i >= 0; i--) {
+    var line_arr = response.blocks[i].lines
+    if (line_arr != undefined) {
+      for (var j = line_arr.length - 1; j >= 0; j--) {
+        let current = line_arr[j].text
+        if (total_hit && item_count < num_items && !isSubtotal(current) && !isStringDiscount(current)) {
+          let clean_item = strClean(current)
+          if (clean_item in item_dict) {
+            item_dict[clean_item + String(item_count)] = prices[item_count]
+            item_count++;
+          } else {
+            item_dict[clean_item] = prices[item_count]
+            item_count++;
+          }
+        }
+        else if (isTotal(current)) {
+          item_dict["TOTAL"] = prices[item_count]
+          item_count++;
+          total_hit = true
+        }
       }
     }
   }
   return item_dict
 };
 
-function roundPrice(price: number): number {
+export function roundPrice(price: number): number {
   return Math.floor(price * 100) / 100;
 }
 
-function checksum(dict: {[key: string]: number}): boolean {
+export function checksum(dict: {[key: string]: number}): boolean {
   // takes a dict produced from parseOutput and checks to make sure the values add up to the total
   let prices = []
   let max = 0

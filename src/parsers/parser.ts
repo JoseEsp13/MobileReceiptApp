@@ -27,8 +27,9 @@ function matchStore(stores_in: string[]): string | undefined {
   }
   const re_costco = new RegExp(".*costco.*|.*cost.*|.*cos.*|.*ostc.*|.*stco.*", "g")
   const re_safeway = new RegExp(".*safeway.*|.*safe.*|.*fewa.*", "g")
-  const re_stores = [re_costco, re_safeway]
-  const stores = ["costco", "safeway"]
+  const re_traderjoe = new RegExp(".*trader joe.*|.*traderjoe.*", "g");
+  const re_stores = [re_costco, re_safeway, re_traderjoe]
+  const stores = ["costco", "safeway", "trader joe"]
   
   for (var i in stores_in) {
     var store = stores_in[i]
@@ -96,7 +97,7 @@ function parseOutput(response: ITextRecognitionResponse): {[key: string]: number
   if (store_name == "safeway") {
     return parseSafeway(response);
   }
-  if (store_name == "trader joe's") {
+  if (store_name == "trader joe") {
     return parseTraderJoe(response);
   }
   return undefined;

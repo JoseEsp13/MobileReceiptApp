@@ -85,8 +85,6 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
             setAspectRatio(response_img.height / response_img.width); // Set the aspect ratio of the returned data 
 
             // TO DO: What else do we want to do with the ML Kit response?
-            // console.log(getStore(response))
-            // console.log(isPrice("4.43"))
             let dict = parser.parseOutput(response_img, setResponse)
             // console.log(dict)
             if (dict != undefined) {

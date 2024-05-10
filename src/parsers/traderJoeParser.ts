@@ -170,8 +170,8 @@ export function pairItemtoPriceTraderJoe(response: ITextRecognitionResponse): {[
 
     console.log("pre dict:");
     printDict(flipped);
-
-    const regex4 = /.*change.*|.*points.*|.*price.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*/i;
+    
+    const regex4 = /.*change.*|.*points.*|.*price.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*/i;
     for (const ke in flipped) {
         if (regex4.test(ke)) {
         flipped = removeKey(flipped, ke);

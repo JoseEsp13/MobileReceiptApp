@@ -56,10 +56,11 @@ export const Navigator = () => {
 
   return (
     <Drawer.Navigator>
-      {ctx.user == null ? (
+      {ctx.authUser == null ? (
           <>
             <Drawer.Screen name={routes.LOGIN_SCREEN} component={LoginScreen} />
             <Drawer.Screen name={routes.SIGNUP_SCREEN} component={SignUpScreen} />
+            
             <Drawer.Screen name={routes.LOGOUT_SCREEN} component={LogoutScreen} options={{drawerItemStyle: {display: "none"}}}/>
           </>
         ) : 

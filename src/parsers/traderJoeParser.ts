@@ -1,6 +1,5 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
 import { ITraderJoe } from "./IParser";
-import * as Fuzzy from 'fuzzy';
 
 interface StringKeyNumberValueObject {
     [key: string]: number;

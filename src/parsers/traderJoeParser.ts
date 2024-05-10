@@ -29,7 +29,7 @@ function printDict<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
     for (const key in dict) {
       if (isNumberKey(key)) {
         const values: string[] = dict[key];
-        console.log(`Key: ${key}, Values: ${values.join(', ')}`);
+        console.log(`Key: ${key}, Values: ${values.join(', ')}\n`);
       } else {
         console.log(`Key: ${key}, Value: ${dict[key]}`);
       }
@@ -143,9 +143,10 @@ export function pairItemtoPriceTraderJoe(response: ITextRecognitionResponse): {[
             }
         }
         if (prices[a][0] in dict) {
-            if (minitem[0] in dict[prices[a][0]]) {
+            if (dict[prices[a][0]].includes(minitem[0])) {
+                console.log("found:" + String(dict[prices[a][0]].filter(x => x === minitem[0]).length));
                 dict[prices[a][0]].push(minitem[0] + 
-                    dict[prices[a][0]].filter(x => x === minitem[0]).length);
+                    String(dict[prices[a][0]].filter(x => x === minitem[0]).length));
             } else {
                 dict[prices[a][0]].push(minitem[0]);
             }

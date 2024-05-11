@@ -143,9 +143,8 @@ export function pairItemtoPriceTraderJoe(response: ITextRecognitionResponse): {[
         }
         if (prices[a][0] in dict) {
             if (dict[prices[a][0]].includes(minitem[0])) {
-                console.log("found:" + String(dict[prices[a][0]].filter(x => x === minitem[0]).length));
                 dict[prices[a][0]].push(minitem[0] + 
-                    String(dict[prices[a][0]].filter(x => x === minitem[0]).length));
+                    String(dict[prices[a][0]].filter(x => x === minitem[0]).length + 1));
             } else {
                 dict[prices[a][0]].push(minitem[0]);
             }

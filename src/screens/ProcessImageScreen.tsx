@@ -75,7 +75,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       try {
         // Send a request to Google's ML Kit
         let response_img;
-        if (!response) {
+        if (response) {
           response_img = await recognizeImage(url);
           // If the response contains data
           if (response_img?.blocks?.length > 0) {

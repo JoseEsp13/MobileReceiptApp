@@ -15,6 +15,27 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
 }
 
 /**
+ * Print Dictionary function
+ * normally meant for {[key: string]: number}
+ * otherwise will try to do {[key: number]: string[]}
+ * @param dict {[key: string]: number} | {[key: number]: string[]}
+ */
+function isNumberKey(key: string | number): key is number {
+    return typeof key === 'number';
+}
+  
+function printDict<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T) {
+    for (const key in dict) {
+      if (isNumberKey(key)) {
+        const values: string[] = dict[key];
+        console.log(`Key: ${key}, Values: ${values.join(', ')}\n`);
+      } else {
+        console.log(`Key: ${key}, Value: ${dict[key]}`);
+      }
+    }
+  }
+
+/**
  * checks if inputed string is a price
  * returns the parsed string of the price
  * if not "no match"
@@ -27,7 +48,7 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
  * @returns string
  */
 function isPriceSafeway(price: string): string {
-    const re_price = /^(\d+(\.|\,)\d{2}).*$/;
+    const re_price = /^(\d+(\.|\,)\d{2}).{0,3}$/;
     const re_price2 = /^(\d+(\.|\,)\d{2}) *[$]* *(\d+(\.|\,)\d{2}).*$/;
     let match = price.match(re_price2);
     if (match) {
@@ -76,35 +97,36 @@ function isPriceSafeway(price: string): string {
  * @returns {[key: string]: number}
  */
 export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
-let dict: {[key: number]: string[]} = {};
-const prices: [number, number, number, number][] = [];    
-const items: [string, number, number][] = [];
-const regex2 = /-?\d+\,\d{1,2}/g;
-let match;
-for (let i = 0; i < response.blocks.length; i++) {
-    for (let j = 0; j < response.blocks[i].lines.length; j++) {
-        let checkifNotPrice: boolean = true;
-        let item = response.blocks[i].lines[j];
-        const regex3 = 
-            /.*saving.*|.*total.*|.*member.*|.*mermber.*|.*nenber.*/i;
-        if (regex3.test(item.text)) {
-            continue;
-        }
-        let str: string;
-        if ((str = isPriceSafeway(item.text)) != "no match") {
-            if (regex2.test(str)) {
-                str = str.replace(/,/g, '.');
+    let dict: NumberKeyStringArrayObject = {};
+    const prices: [number, number, number, number][] = [];    
+    const items: [string, number, number][] = [];
+    const regex2 = /-?\d+\,\d{1,2}/g;
+    let match;
+    for (let i = 0; i < response.blocks.length; i++) {
+        for (let j = 0; j < response.blocks[i].lines.length; j++) {
+            let checkifNotPrice: boolean = true;
+            let item = response.blocks[i].lines[j];
+            console.log("line:"+item.text+" y:"+item.rect.top+" x:"+item.rect.left);
+            const regex3 = 
+                /.*saving.*|.*total.*|.*member.*|.*mermber.*|.*nenber.*/i;
+            if (regex3.test(item.text)) {
+                continue;
             }
-            prices.push(
-                [Number(str), item.rect.top, item.rect.left, item.rect.width]);
-            checkifNotPrice = false;
-        }
-        if (checkifNotPrice && !(/^\d+$/.test(item.text))) {
-            items.push([item.text.replace(/^\d*[\s*%]*|^\W+/, ''),
-                item.rect.top, item.rect.left]);
+            let str: string;
+            if ((str = isPriceSafeway(item.text)) != "no match") {
+                if (regex2.test(str)) {
+                    str = str.replace(/,/g, '.');
+                }
+                prices.push(
+                    [Number(str), item.rect.top, item.rect.left, item.rect.width]);
+                checkifNotPrice = false;
+            }
+            if (checkifNotPrice && !(/^\d+$/.test(item.text))) {
+                items.push([item.text.replace(/^\d*[\s*%]*|^\W+/, ''),
+                    item.rect.top, item.rect.left]);
+            }
         }
     }
-}
 
     let widthScale: number = 2.5;
     for (let a = 0; a < prices.length; a++) {
@@ -121,18 +143,16 @@ for (let i = 0; i < response.blocks.length; i++) {
             }
         }
         if (prices[a][0] in dict) {
-            if (minitem[0] in dict[prices[a][0]]) {
-                dict[prices[a][0]].push(minitem[0] + 
-                    dict[prices[a][0]].filter(x => x === minitem[0]).length);
-            } else {
-                dict[prices[a][0]].push(minitem[0]);
-            }
+            dict[prices[a][0]].push(minitem[0]);
         } else {
             dict[prices[a][0]] = [minitem[0]];
         }
     }
+    
+    console.log("number dictionary");
+    printDict(dict);
 
-    let flipped: {[key: string]: number} = {};
+    let flipped: StringKeyNumberValueObject = {};
     for (const k in dict) {
         dict[k].forEach((v) => {
             if (v in flipped) {
@@ -143,12 +163,19 @@ for (let i = 0; i < response.blocks.length; i++) {
         });
     }
 
+    console.log("pre dict");
+    printDict(flipped);
+
     const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*/i;
     for (const ke in flipped) {
         if (regex4.test(ke)) {
-        flipped = removeKey(flipped, ke);
+            console.log(ke+" removed");
+            flipped = removeKey(flipped, ke);
         }
     }
+
+    console.log("final dict");
+    printDict(flipped);
 
     return flipped;
 };

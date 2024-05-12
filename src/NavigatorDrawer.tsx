@@ -18,7 +18,7 @@ import LogoutScreen from './screens/LogoutScreen';
 import SignUpScreen from './screens/SignUpScreen';
 
 
-// Instantiates a react-navigation drawer with the current route up top
+// Instantiates a react-navigation drawer
 const Drawer = createDrawerNavigator<IRootParamList>();
 
 // Defines our routing and the component they route to
@@ -26,9 +26,12 @@ export default function NavigatorDrawer() {
 
   const ctx = useAppContext();
 
+  // If you want to turn off login authentication, set this to true
+  const isAuthenticated = ctx.authenticated;
+
   return (
     <Drawer.Navigator>
-      {ctx.authenticated == null ? (
+      {!isAuthenticated ? (
           <>
             <Drawer.Screen name={routes.LOGIN_SCREEN} component={LoginScreen} />
             <Drawer.Screen name={routes.SIGNUP_SCREEN} component={SignUpScreen} />

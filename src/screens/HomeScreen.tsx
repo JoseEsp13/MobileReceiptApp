@@ -16,7 +16,6 @@ export default function HomeScreen(props: IHomeScreenDrawerProps) {
   
   const ctx = useAppContext();
   const [scannedImage, setScannedImage] = useState<string | undefined>();
-  const [showGroupsModal, setShowGroupsModal] = useState(false);
 
   const scanDocument = async () => {
     const { scannedImages } = await DocumentScanner.scanDocument();
@@ -38,51 +37,23 @@ export default function HomeScreen(props: IHomeScreenDrawerProps) {
   };
 
   const chooseGroup = () => {
-    setShowGroupsModal(true);
-  };
-
-  const closeGroupsModal = () => {
-    setShowGroupsModal(false);
+    // Displaying group names
+    console.log('Groups:', groupNames);
   };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Home</Text>
-      <DemoButton key="Process Image" onPress={() => scanDocument()}>
-        {'Process Image'}
-      </DemoButton>
-      <DemoButton key="Choose Group" onPress={chooseGroup}>
-        {'Choose Group'}
-      </DemoButton>
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={showGroupsModal}
-        onRequestClose={() => setShowGroupsModal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Groups</Text>
-              <TouchableOpacity onPress={closeGroupsModal}>
-                <Text style={styles.closeButton}>Close</Text>
-              </TouchableOpacity>
-            </View>
-            {groupNames.map((groupName, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={() => {
-                  // Handle selection logic
-                  console.log('Selected Group:', groupName);
-                  setShowGroupsModal(false);
-                }}
-              >
-                <Text style={styles.groupName}>{groupName}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-      </Modal>
+      <View style={{height: 48}}>
+        <DemoButton key="Process Image" onPress={() => scanDocument()}>
+          {'Process Image'}
+        </DemoButton>
+      </View>
+      <View style={{height: 48}}>
+        <DemoButton key="Choose Group" onPress={chooseGroup}>
+          {'Choose Group'}
+        </DemoButton>
+      </View>
+      
     </View>
   );
 }
@@ -96,35 +67,5 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    padding: 20,
-    borderRadius: 10,
-    elevation: 5,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  closeButton: {
-    fontSize: 16,
-    color: 'blue',
-  },
-  groupName: {
-    fontSize: 16,
-    marginBottom: 5,
   },
 });

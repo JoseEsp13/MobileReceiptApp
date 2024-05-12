@@ -30,6 +30,7 @@ interface ProcessImageScreenProps {
   route: IProcessImageRouteProps;
 }
 
+
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const windowDimensions = useWindowDimensions();
 
@@ -88,13 +89,12 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
             }
           }
         }
-        
     } catch (error) {
         console.error(error);
       }
     }
   };
-  
+
   return (
     <TabView
       navigationState={{index: tabIndex, routes: tabRoutes}}

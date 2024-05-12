@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from "react-native";
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import { Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
 import useAppContext from "../components/hooks/useAppContext";
 
 export default function SignUpScreen() {
 
   const ctx = useAppContext();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
 
   const handleSignUpClick = () => {
-    
+    ctx.createAuthenticatedUserAsync(email, password, name);
   }
 
   return (
@@ -19,11 +19,14 @@ export default function SignUpScreen() {
       <View style={styles.inputView}>
         <TextInput 
           style={styles.input} 
-          placeholder='EMAIL OR USERNAME' 
-          value={username} 
-          onChangeText={setUsername} 
+          placeholder='EMAIL' 
+          value={email} 
+          onChangeText={setEmail} 
           autoCorrect={false}
-          autoCapitalize='none' 
+          autoCapitalize='none'
+          inputMode="email"
+          keyboardType="email-address"
+          textContentType="emailAddress"
         />
         <TextInput 
           style={styles.input} 
@@ -33,9 +36,17 @@ export default function SignUpScreen() {
           onChangeText={setPassword} 
           autoCorrect={false}
           autoCapitalize='none'
+          textContentType="newPassword"
+        />
+        <TextInput 
+          style={styles.input} 
+          placeholder='YOUR NAME' 
+          value={name} 
+          onChangeText={setName} 
+          autoCorrect={false}
+          autoCapitalize='none'
         />
       </View>
-
       <View style={styles.buttonView}>
         <Pressable style={styles.button} onPress={handleSignUpClick}>
           <Text style={styles.buttonText}>LOGIN</Text>
@@ -108,6 +119,7 @@ const styles = StyleSheet.create({
   }, 
   buttonView :{
     width :"100%",
+    marginTop: 30,
     paddingHorizontal : 50
   },
   optionsText : {

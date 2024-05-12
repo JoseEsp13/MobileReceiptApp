@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { Text, View } from "react-native";
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
+import { ILogoutScreenDrawerProps } from "../routes";
 
-export default function LogoutScreen() {
+export default function LogoutScreen(props: ILogoutScreenDrawerProps) {
 
   useEffect(() => {
     auth().signOut();

@@ -1,15 +1,11 @@
 import React, { useState } from 'react'
-import { Alert, Button, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { Alert, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
 import logo from "../assets/logo.png"
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
-import * as routes from '../routes'
-import { useNavigation } from '@react-navigation/native';
-import { LoginScreenNavigationProps, RootDrawerParamList } from '../Navigator';
-import { DrawerNavigationProp } from '@react-navigation/drawer';
-import useAppNavigation from '../components/hooks/useAppNavigation';
+import auth from '@react-native-firebase/auth';
+import routes, { ILoginScreenDrawerProps } from '../routes'
 
 
-export default function LoginScreen(props: LoginScreenNavigationProps) {
+export default function LoginScreen(props: ILoginScreenDrawerProps) {
 
   const [click, setClick] = useState(false);
   const [username, setUsername] =  useState("");
@@ -41,11 +37,14 @@ export default function LoginScreen(props: LoginScreenNavigationProps) {
       <View style={styles.inputView}>
         <TextInput 
           style={styles.input} 
-          placeholder='EMAIL OR USERNAME' 
+          placeholder='EMAIL' 
           value={username} 
           onChangeText={setUsername} 
           autoCorrect={false}
-          autoCapitalize='none' 
+          autoCapitalize='none'
+          inputMode="email"
+          keyboardType="email-address"
+          textContentType="emailAddress"
         />
         <TextInput 
           style={styles.input} 
@@ -55,6 +54,7 @@ export default function LoginScreen(props: LoginScreenNavigationProps) {
           onChangeText={setPassword} 
           autoCorrect={false}
           autoCapitalize='none'
+          textContentType="newPassword"
         />
       </View>
       <View style={styles.rememberView}>
@@ -75,11 +75,13 @@ export default function LoginScreen(props: LoginScreenNavigationProps) {
         </Pressable>
       </View>
 
-      <Text style={styles.footerText}>Don't Have Account?
+      <View style={styles.footerText}>
+        <Text style={{marginRight: 5}}>Don't Have Account?</Text>
         <Pressable>
-          <Text style={styles.signup} onPress={() => props.navigation.navigate(routes.SIGNUP_SCREEN)}>  Sign Up</Text>
-        </Pressable>
-      </Text>  
+          <Text onPress={() => props.navigation.navigate(routes.SIGNUP_SCREEN)}>Sign Up</Text>
+        </Pressable> 
+      </View>
+      
     </SafeAreaView>
   )
 }
@@ -119,7 +121,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems : "center",
     flexDirection : "row",
-    marginBottom : 8
+    marginBottom : 8,
+    marginTop: 10
   },
   switch :{
     flexDirection : "row",
@@ -148,7 +151,8 @@ const styles = StyleSheet.create({
   }, 
   buttonView :{
     width :"100%",
-    paddingHorizontal : 50
+    paddingHorizontal : 50,
+    marginTop: 30
   },
   optionsText : {
     textAlign : "center",
@@ -169,11 +173,9 @@ const styles = StyleSheet.create({
     height: 40,
   },
   footerText : {
-    textAlign: "center",
-    marginTop: 15,
+    display: "flex",
+    flexDirection: "row",
+    marginTop: 25,  
     color : "gray",
-  },
-  signup : {
-    fontSize : 13
   }
 })

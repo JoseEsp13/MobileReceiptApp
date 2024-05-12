@@ -8,11 +8,11 @@ import {View, SafeAreaView, Image, StyleSheet, useWindowDimensions, ScrollView, 
 import {DemoButton} from '../components/ui';
 import * as ImagePicker from 'react-native-image-picker';
 import {ImagePickerResponse} from 'react-native-image-picker/src/types';
-import {SelectScreenNavigationProps} from '../Navigator';
-import * as routes from '../routes';
+import routes from '../routes';
+import { ISelectScreenDrawerProps } from '../routes';
 
 
-export const SelectImageScreen = (props: SelectScreenNavigationProps) => {
+export const SelectImageScreen = (props: ISelectScreenDrawerProps) => {
   const {height} = useWindowDimensions();
   const [response, setResponse] = React.useState<ImagePickerResponse | null>(null);
 

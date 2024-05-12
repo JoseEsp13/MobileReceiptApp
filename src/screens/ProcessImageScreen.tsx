@@ -5,7 +5,6 @@
  */
 import React, {useCallback, useEffect, useState} from 'react';
 import {Image, useWindowDimensions, ScrollView} from 'react-native';
-import {ProcessImageNavigationProps, ProcessImageRouteProps} from '../Navigator';
 import MLKit, { ITextRecognitionResponse } from '../components/mlkit';
 import { ViewOverlay } from '../components/ViewOverlay';
 import { TabView, SceneMap } from 'react-native-tab-view';
@@ -13,6 +12,7 @@ import { ViewDictionary } from '../components/ViewDictionary';
 import { ViewReceipt } from '../components/ViewReceipt';
 import { ViewResponse } from '../components/ViewResponse';
 import parser from '../parsers/parser';
+import { IProcessImageDrawerProps, IProcessImageRouteProps } from '../routes';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -21,8 +21,8 @@ interface RenderSceneRoute {
 }
 
 interface ProcessImageScreenProps {
-  navigation: ProcessImageNavigationProps;
-  route: ProcessImageRouteProps;
+  navigation: IProcessImageDrawerProps;
+  route: IProcessImageRouteProps;
 }
 
 

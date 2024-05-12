@@ -9,9 +9,10 @@ import * as ImagePicker from 'react-native-image-picker';
 import {ImagePickerResponse} from 'react-native-image-picker/src/types';
 import { useState } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons'
+import { IContactsScreenDrawerProps } from '../routes';
 
 
-export default function ContactsScreen() {
+export default function ContactsScreen(props: IContactsScreenDrawerProps) {
 
   return (
     <View style={{flex: 1}}>

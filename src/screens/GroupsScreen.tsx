@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   deleteColumnButton: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: 'red',
+    color: 'red',
     borderRadius: 5,
     padding: 10,
   },

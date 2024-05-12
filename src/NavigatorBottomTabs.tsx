@@ -1,3 +1,6 @@
+
+// Not being used at the moment
+
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import useAppContext from './components/hooks/useAppContext';
 import routes, { IRootParamList } from './routes';

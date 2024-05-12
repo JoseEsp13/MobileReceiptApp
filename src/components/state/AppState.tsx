@@ -13,7 +13,9 @@ export type IAppContext = {
   addGroup: (name: string) => void,
   saveToCloud: () => Promise<Boolean>,
   createAuthenticatedUserAsync: (email: string, password: string, name: string,) => Promise<Boolean>,
-  fetchUserCloudData: () => void
+  fetchUserCloudData: () => void,
+  login: (email: string, password: string) => Promise<void>,
+  logout: () => Promise<void>
 }
 
 export const AppContext = createContext<IAppContext>({
@@ -22,7 +24,9 @@ export const AppContext = createContext<IAppContext>({
   addGroup: () => {},
   saveToCloud: async () => false,
   createAuthenticatedUserAsync: async () => false,
-  fetchUserCloudData: () => {}
+  fetchUserCloudData: () => {},
+  login: async () => {},
+  logout: async () => {}
 });
 
 interface IAppState {
@@ -122,6 +126,14 @@ export default function AppState(props: IAppState) {
     return await firebase.saveUserAsync(user)
   }
 
+  const login = async (email: string, password: string) => {
+    await firebase.loginAsync(email, password)
+  }
+
+  const logout = async () => {
+    await firebase.logoutAsync()
+  }
+
   return (
     <AppContext.Provider value={{
       authenticated: authenticated,
@@ -129,7 +141,9 @@ export default function AppState(props: IAppState) {
       addGroup,
       saveToCloud,
       createAuthenticatedUserAsync,
-      fetchUserCloudData
+      fetchUserCloudData,
+      login,
+      logout
     }}>
       {props.children}
     </AppContext.Provider>

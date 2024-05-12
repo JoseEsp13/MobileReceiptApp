@@ -4,6 +4,30 @@ import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firest
 import { IUser } from './IFirebaseDocument';
 import utility from '../util/utility';
 
+const loginAsync = async (email: string, password: string) => {
+  auth()
+    .signInWithEmailAndPassword(email, password)
+    .then(() => {
+      console.log('User signed in!');
+    })
+    .catch(error => {
+      if (error.code === 'auth/email-already-in-use') {
+        console.log('That email address is already in use!');
+      }
+
+      if (error.code === 'auth/invalid-email') {
+        console.log('That email address is invalid!');
+      }
+
+      console.error(error);
+    });
+}
+
+const logoutAsync = async () => {
+  await auth().signOut();
+}
+
+
 // Create a new authenticated login
 const createAuthenticatedAsync = async (email: string, password: string, name: string) => {
   return await auth()
@@ -114,6 +138,8 @@ const deleteReceiptAsync = async (uid: string, fileName: string) => {
 }
 
 export interface IFirebase {
+  loginAsync: (email: string, password: string) => Promise<void>,
+  logoutAsync: () => Promise<void>,
   createAuthenticatedAsync: (email: string, password: string, name: string) => Promise<IUser | null>,
   addReceiptAsync: (uid: string, path: string, newFileName: string) => Promise<FirebaseStorageTypes.TaskSnapshot>,
   listReceiptsAsync: (uid: string) => Promise<string[]>,
@@ -125,6 +151,8 @@ export interface IFirebase {
 }
 
 const firebase: IFirebase = {
+  loginAsync,
+  logoutAsync,
   createAuthenticatedAsync,
   addReceiptAsync,
   listReceiptsAsync,

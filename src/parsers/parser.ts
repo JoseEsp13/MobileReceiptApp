@@ -83,8 +83,13 @@ function isStringDiscount(name: string): boolean {
 }
 
 function isSubtotal(name: string): boolean {
-  const re_subtotal = /SUBTOTAL|S.*TOTAL|.*UBTOTAL.*|UBTOT/;
+  const re_subtotal = /SUBTOTAL|S.*TOTAL|.*UBTOTAL.*|UBTOT|.*SUB.*TAL/;
   return re_subtotal.test(name)
+}
+
+function isChar(name: string): boolean {
+  const re_char = /^.$/;
+  return re_char.test(name)
 }
 
 function parseOutput(response: ITextRecognitionResponse): {[key: string]: number} | undefined {
@@ -102,84 +107,153 @@ function parseSafeway(response: ITextRecognitionResponse): {[key: string]: numbe
   return safewayParser.pairItemtoPriceSafeway(response);
 };
 
-function grabPrices(response: ITextRecognitionResponse): number[] {
+function grabPrices(items: string[]): number[] {
   // Iterate through output bottom to top to grab all prices, return array of Floats in order from bottom to top. Also deducts discounts from apropriate items.
 
   let prices = []
   let to_deduct = 0
-  let total = 0
+  let total_hit = false
+  
+  for (var j = items.length - 1; j >= 0; j--) {
+    if (isPrice(items[j]) && total_hit) {
+      let current_price = parseFloat(items[j]) - to_deduct
+      prices.push(roundPrice(current_price))
+      to_deduct = 0
+    }
+    if (isPrice(items[j]) && isTotal(items[j-1]) || isTotal(items[j+1]) && !total_hit) {
+      prices.push(roundPrice(parseFloat(items[j])))
+      total_hit = true
+    }
+    
+    if (isDiscount(items[j])) {
+      to_deduct = parseFloat(items[j].replace(/!$/, ""))
+    }
+  }
+  
+  prices.splice(2, 1);
+  
+  // console.log(prices)
+  return prices
+};
 
-  for (var i = response.blocks.length - 1; i >= 0; i--) {
+function merge(arr: [number, string][], l: number, m: number, r: number) {
+  // Merge for mergesort SOURCE: https://www.geeksforgeeks.org/merge-sort/
+  var n1 = m - l + 1;
+  var n2 = r -m;
+
+  let L = []
+  let R = []
+
+  for (var i=0; i < n1; i++) {
+    L[i] = arr[l+i];
+  }
+  for (var j=0; j < n2; j++) {
+    R[j] = arr[m+1+j];
+  }
+  var i = 0;
+  var j = 0;
+  var k = l;
+  while (i < n1 && j < n2) {
+    if (L[i][0] <= R[j][0]) {
+      arr[k] = L[i];
+      i++;
+    }
+    else {
+      arr[k] = R[j];
+      j++;
+    }
+    k++;
+  }
+
+  while (i < n1) {
+    arr[k] = L[i];
+    i++;
+    k++;
+  }
+
+  while (j < n2) {
+    arr[k] = R[j];
+    j++;
+    k++;
+  }
+}
+
+function mergeSort(arr: [number, string][], l: number, r: number) {
+  // MergeSort for mergesort SOURCE: https://www.geeksforgeeks.org/merge-sort/
+  if (l>=r) {
+    return;
+  }
+  var m = l + Math.trunc((r-l)/2);
+  mergeSort(arr, l, m)
+  mergeSort(arr, m+1, r)
+  merge(arr, l, m, r)
+}
+
+function genList(response: ITextRecognitionResponse): string[] {
+  // Sorts the OCR output by rect.top values and returns items as list
+  let items: [number, string][]
+  items = []
+  for (var i = 0; i < response.blocks.length; i++) {
     var line_arr = response.blocks[i].lines
     if (line_arr != undefined) {
-      for (var j = line_arr.length - 1; j >= 0; j--) {
-        if (isPrice(line_arr[j].text)) {
-          let current_price = parseFloat(line_arr[j].text) - to_deduct
-          prices.push(current_price)
-          to_deduct = 0
-          if (current_price > total) {
-            total = current_price
-          }
-        }
-        if (isDiscount(line_arr[j].text)) {
-          to_deduct = parseFloat(line_arr[j].text.replace(/!$/, ""))
-        }
+      for (var j = 0; j < line_arr.length; j++) {
+        let current = line_arr[j]
+        // console.log(current.rect.top)
+        // console.log(current.text)
+        let pair: [number, string]
+        pair = [current.rect.top, current.text]
+        items.push(pair)
       }
     }
   }
-
-  let prices_out = []
-  let total_hit = false
-  let taxes = 0
-  console.log(prices)
-  for (var ind in prices) { // removes all prices that appear before total
-    if (prices[ind] == total && !total_hit) {
-      total_hit = true
-      taxes = prices[Number(ind) + 1]
-    } else if (!total_hit || (roundPrice(prices[ind] + taxes) == total) || prices[ind] == total) {
-      continue
-    }
-    prices_out.push(prices[ind])
+  mergeSort(items, 0, items.length - 1);
+  let items_out = []
+  for (var i= 0; i < items.length; i++) {
+    let s = items[i][1]
+    if (typeof(s) == "string") {
+      items_out.push(s)
+    } 
   }
-  return prices_out
-};
+  // console.log(items)
+  // console.log(items_out)
+  return items_out
+}
 
 function parseCostco(response: ITextRecognitionResponse): {[key: string]: number} {
-  let prices = grabPrices(response)
+  let items = genList(response)
+  let prices = grabPrices(items)
   let num_items = prices.length
   let item_count = 0
   let total_hit = false
   const item_dict: {[key: string]: number} = {};
-
-  console.log(prices)
-  for (var i = response.blocks.length - 1; i >= 0; i--) {
-    var line_arr = response.blocks[i].lines
-    if (line_arr != undefined) {
-      for (var j = line_arr.length - 1; j >= 0; j--) {
-        let current = line_arr[j].text
-        if (total_hit && item_count < num_items && !isSubtotal(current) && !isStringDiscount(current)) {
-          let clean_item = strClean(current)
-          if (clean_item in item_dict) {
-            item_dict[clean_item + String(item_count)] = prices[item_count]
-            item_count++;
-          } else {
-            item_dict[clean_item] = prices[item_count]
-            item_count++;
-          }
-        }
-        else if (isTotal(current)) {
-          item_dict["TOTAL"] = prices[item_count]
-          item_count++;
-          total_hit = true
-        }
+  // console.log(items)
+  // console.log(prices)
+  for (var i = items.length - 1; i >= 0; i--) {
+    let current = items[i]
+    if (total_hit && item_count < num_items && !isSubtotal(current) && !isStringDiscount(current) && !isPrice(current) && !isDiscount(current) && !isChar(current)) {
+      let clean_item = strClean(current)
+      if (clean_item in item_dict) {
+        item_dict[clean_item + String(item_count)] = prices[item_count]
+        item_count++;
+      } else {
+        // console.log("APPENDING NEW ITEM=" + String(current))
+        item_dict[clean_item] = prices[item_count]
+        item_count++;
       }
+    }
+    else if (isTotal(current)) {
+      // console.log("TOTAL HIT=" + String(current))
+      item_dict["TOTAL"] = prices[item_count]
+      item_count++;
+      total_hit = true
     }
   }
   return item_dict
 };
 
 export function roundPrice(price: number): number {
-  return Math.floor(price * 100) / 100;
+
+  return Number(price.toFixed(2));
 }
 
 export function checksum(dict: {[key: string]: number}): boolean {
@@ -195,18 +269,11 @@ export function checksum(dict: {[key: string]: number}): boolean {
       max = price
     }
     sum += price;
+    sum = roundPrice(sum)
   }
   sum = roundPrice(sum)
-  console.log(sum)
-  console.log(max)
-  let check = Math.trunc(sum/max);
-  if (check == 3) {
-    return true
-  }
-  if (check == 2) {
-    return true
-  }
-  if (check == 1) {
+  let check = sum % max;
+  if (check == 0) {
     return true
   }
   return false

@@ -29,8 +29,6 @@ export default function LogoutScreen(props: ILogoutScreenDrawerProps) {
         </View>
         
       }
-      
-      
     </View>
   )
 }
@@ -54,6 +52,5 @@ const styles = StyleSheet.create({
     paddingHorizontal : 50,
     display: "flex",
     justifyContent: "center",
-    marginTop: 30
   }
 })

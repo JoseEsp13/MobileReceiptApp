@@ -16,6 +16,7 @@ import { groupNames } from './GroupsScreen';
 import parser from '../parsers/parser';
 import { testChecksum } from '../parsers/ctests';
 import { IProcessImageDrawerProps, IProcessImageRouteProps } from '../routes';
+import { IParserResult } from '../parsers/IParser';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -36,20 +37,17 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const [tabRoutes] = React.useState([
     { key: 'receipt', title: "Receipt" },
     { key: 'overlay', title: "Overlay" },
-    { key: 'simple', title: "Simple" },
     { key: 'dictionary', title: "Dict" },
     { key: 'Groups', title: "Groups"}
   ]);
 
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
+  const [parserResult, setParserResult] = useState<IParserResult | undefined>();
 
   const uri = props.route.params.uri
 
   useEffect(() => {
-    if (uri) {
-      console.log()
-      processImage(uri);
-    }
+    if (uri) processImage(uri);
   }, [uri]);
 
   // Tab routing
@@ -59,8 +57,6 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
         return <ViewReceipt response={response} uri={uri} />
       case 'overlay':
         return <ViewOverlay response={response} uri={uri}/>
-      case 'simple':
-        return <ViewResponse response={response} />
       case 'dictionary':
         return <ViewDictionary response={response} />
       case 'Groups':
@@ -74,19 +70,20 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       try {
         // Send a request to Google's ML Kit
         let response_img;
-        if (response) {
+        if (!response) {
           response_img = await MLKit.recognizeImage(url);
           // If the response contains data
           if (response_img?.blocks?.length > 0) {
 
             // Process response here
-            setResponse(response_img);                            // Save the response
+            setResponse(response_img);
 
             // TO DO: What else do we want to do with the ML Kit response?
-            let dict = parser.parseOutput(response_img, setResponse)
+            const dict = await parser.parseOutput(response_img, setResponse)
             // console.log(dict)
             if (dict != undefined) {
               console.log(parser.checksum(dict))
+              setParserResult(dict);
             }
           }
         }

@@ -3,31 +3,17 @@ import { Alert, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextIn
 import logo from "../assets/logo.png"
 import auth from '@react-native-firebase/auth';
 import routes, { ILoginScreenDrawerProps } from '../routes'
+import useAppContext from '../components/hooks/useAppContext';
 
 
 export default function LoginScreen(props: ILoginScreenDrawerProps) {
 
-  const [click, setClick] = useState(false);
-  const [username, setUsername] =  useState("");
+  const ctx = useAppContext();
+  const [email, setEmail] =  useState("");
   const [password, setPassword] =  useState("");
 
   const handleLoginClick = () => {
-    auth()
-      .signInWithEmailAndPassword(username, password)
-      .then(() => {
-        console.log('User signed in!');
-      })
-      .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
-        }
-    
-        if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
-        }
-    
-        console.error(error);
-      })
+    ctx.login(email, password);
   }
 
   return (
@@ -38,8 +24,8 @@ export default function LoginScreen(props: ILoginScreenDrawerProps) {
         <TextInput 
           style={styles.input} 
           placeholder='EMAIL' 
-          value={username} 
-          onChangeText={setUsername} 
+          value={email} 
+          onChangeText={setEmail} 
           autoCorrect={false}
           autoCapitalize='none'
           inputMode="email"
@@ -58,10 +44,6 @@ export default function LoginScreen(props: ILoginScreenDrawerProps) {
         />
       </View>
       <View style={styles.rememberView}>
-        <View style={styles.switch}>
-          <Switch value={click} onValueChange={setClick} trackColor={{true : "green" , false : "gray"}} />
-          <Text style={styles.rememberText}>Remember Me</Text>
-        </View>
         <View>
           <Pressable onPress={() => Alert.alert("Forget Password!")}>
             <Text style={styles.forgetText}>Forgot Password?</Text>
@@ -118,7 +100,7 @@ const styles = StyleSheet.create({
   rememberView : {
     width : "100%",
     paddingHorizontal : 50,
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
     alignItems : "center",
     flexDirection : "row",
     marginBottom : 8,

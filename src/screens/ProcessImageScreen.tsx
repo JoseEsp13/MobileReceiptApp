@@ -5,8 +5,7 @@
  */
 import React, {useCallback, useEffect, useState} from 'react';
 import {Image, useWindowDimensions, ScrollView} from 'react-native';
-import {ProcessImageNavigationProps, ProcessImageRouteProps} from '../Navigator';
-import { ITextRecognitionResponse, recognizeImage } from '../components/mlkit';
+import MLKit, { ITextRecognitionResponse } from '../components/mlkit';
 import { ViewOverlay } from '../components/ViewOverlay';
 import { TabView, SceneMap } from 'react-native-tab-view';
 import { ViewDictionary } from '../components/ViewDictionary';
@@ -16,6 +15,7 @@ import ViewGroups from "../components/ViewGroups";
 import { groupNames } from './GroupsScreen';
 import parser from '../parsers/parser';
 import { testChecksum } from '../parsers/ctests';
+import { IProcessImageDrawerProps, IProcessImageRouteProps } from '../routes';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -24,13 +24,12 @@ interface RenderSceneRoute {
 }
 
 interface ProcessImageScreenProps {
-  navigation: ProcessImageNavigationProps;
-  route: ProcessImageRouteProps;
+  navigation: IProcessImageDrawerProps;
+  route: IProcessImageRouteProps;
 }
 
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const windowDimensions = useWindowDimensions();
-  const [aspectRatio, setAspectRatio] = useState(1);
 
   // Tab routing
   const [tabIndex, setTabIndex] = React.useState(0);
@@ -76,13 +75,12 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
         // Send a request to Google's ML Kit
         let response_img;
         if (response) {
-          response_img = await recognizeImage(url);
+          response_img = await MLKit.recognizeImage(url);
           // If the response contains data
           if (response_img?.blocks?.length > 0) {
 
             // Process response here
             setResponse(response_img);                            // Save the response
-            setAspectRatio(response_img.height / response_img.width); // Set the aspect ratio of the returned data 
 
             // TO DO: What else do we want to do with the ML Kit response?
             let dict = parser.parseOutput(response_img, setResponse)

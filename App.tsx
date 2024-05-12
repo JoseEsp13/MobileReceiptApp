@@ -5,14 +5,18 @@
  */
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import { Navigator } from './src/Navigator';
+import NavigatorBottomTabs from './src/NavigatorBottomTabs';
+import AppState from './src/components/state/AppState';
+import NavigatorDrawer from './src/NavigatorDrawer';
 
 
 export default function App() {
   
   return (
     <NavigationContainer>
-      <Navigator />
+      <AppState>
+        <NavigatorDrawer />
+      </AppState>
     </NavigationContainer>
   );
 };

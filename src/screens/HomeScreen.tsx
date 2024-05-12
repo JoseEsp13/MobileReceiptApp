@@ -3,18 +3,21 @@
  * 
  * Home screen component.
  */
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Modal, TouchableOpacity } from 'react-native';
-import { HomeScreenNavigationProps } from '../Navigator';
-import { useEffect } from 'react';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import { DemoButton } from '../components/ui/DemoButton';
-import * as routes from '../routes';
+import routes, { IHomeScreenDrawerProps } from '../routes';
 import { groupNames } from './GroupsScreen'; // Importing groups from defineGroups
+import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
+import firebase from '../components/state/firebaseStorage';
+import useAppContext from '../components/hooks/useAppContext';
+import utility from '../components/util/utility';
 
-// Existing imports and code...
 
-export default function HomeScreen(props: HomeScreenNavigationProps) {
+export default function HomeScreen(props: IHomeScreenDrawerProps) {
+  
+  const ctx = useAppContext();
   const [scannedImage, setScannedImage] = useState<string | undefined>();
   const [showGroupsModal, setShowGroupsModal] = useState(false);
 

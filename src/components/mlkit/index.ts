@@ -32,6 +32,16 @@ export type Line = {
     rect: Rect
 }
 
-export const recognizeImage = (url: string): Promise<ITextRecognitionResponse> => {
+const recognizeImage = (url: string): Promise<ITextRecognitionResponse> => {
     return TextRecognitionModule.recognizeImage(url);
 }
+
+export interface IMLKit {
+    recognizeImage: (url: string) => Promise<ITextRecognitionResponse>
+}
+
+const mlkit: IMLKit = {
+    recognizeImage
+}
+
+export default mlkit;

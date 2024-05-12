@@ -5,10 +5,10 @@
  */
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { SettingsScreenNavigationProps } from '../Navigator';
+import { ISettingsScreenDrawerProps } from '../routes';
 
 
-export default function SettingsScreen(props: SettingsScreenNavigationProps) {
+export default function SettingsScreen(props: ISettingsScreenDrawerProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Settings Screen</Text>

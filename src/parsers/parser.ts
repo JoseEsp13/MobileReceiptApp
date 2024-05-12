@@ -1,5 +1,5 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
-import { parseGeneric } from "./genericParser";
+import { parseGeneric } from "./GenericParser";
 import { IParser, IParserResult } from "./IParser";
 import safewayParser from './safewayParser';
 import traderJoeParser from "./traderJoeParser";

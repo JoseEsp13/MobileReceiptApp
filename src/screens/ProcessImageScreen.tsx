@@ -12,6 +12,7 @@ import { ViewDictionary } from '../components/ViewDictionary';
 import { ViewReceipt } from '../components/ViewReceipt';
 import { ViewResponse } from '../components/ViewResponse';
 import ViewGroups from "../components/ViewGroups";
+import ViewParserResult from '../components/ViewParserResult';
 import { groupNames } from './GroupsScreen';
 import parser from '../parsers/parser';
 import { testChecksum } from '../parsers/ctests';
@@ -35,9 +36,9 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   // Tab routing
   const [tabIndex, setTabIndex] = React.useState(0);
   const [tabRoutes] = React.useState([
-    { key: 'receipt', title: "Receipt" },
     { key: 'overlay', title: "Overlay" },
-    { key: 'dictionary', title: "Dict" },
+    { key: 'dict', title: "Dict" },
+    { key: 'parser', title: "Parser" },
     { key: 'Groups', title: "Groups"}
   ]);
 
@@ -53,12 +54,12 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   // Tab routing
   const renderScene = useCallback((params: RenderSceneRoute) => {
     switch (params.route.key) {
-      case 'receipt':
-        return <ViewReceipt response={response} uri={uri} />
       case 'overlay':
         return <ViewOverlay response={response} uri={uri}/>
       case 'dictionary':
         return <ViewDictionary response={response} />
+      case 'parser':
+        return <ViewParserResult parserResult={parserResult} />
       case 'Groups':
         return <ViewGroups groupNames={groupNames}/>
     }

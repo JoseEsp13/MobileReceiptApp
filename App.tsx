@@ -5,8 +5,9 @@
  */
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
-import { Navigator } from './src/Navigator';
-import AppState from './src/components/AppState';
+import NavigatorBottomTabs from './src/NavigatorBottomTabs';
+import AppState from './src/components/state/AppState';
+import NavigatorDrawer from './src/NavigatorDrawer';
 
 
 export default function App() {
@@ -14,7 +15,7 @@ export default function App() {
   return (
     <NavigationContainer>
       <AppState>
-        <Navigator />
+        <NavigatorDrawer />
       </AppState>
     </NavigationContainer>
   );

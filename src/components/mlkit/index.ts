@@ -40,8 +40,8 @@ export interface IMLKit {
     recognizeImage: (url: string) => Promise<ITextRecognitionResponse>
 }
 
-const mlkit: IMLKit = {
+const MLKit: IMLKit = {
     recognizeImage
 }
 
-export default mlkit;
+export default MLKit;

@@ -1,6 +1,6 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
-import { parseGeneric } from "./GenericParser";
-import { IParser } from "./IParser";
+import { parseGeneric } from "./genericParser";
+import { IParser, IParserResult } from "./IParser";
 import safewayParser from './safewayParser';
 import traderJoeParser from "./traderJoeParser";
 import DocumentScanner from 'react-native-document-scanner-plugin';
@@ -92,7 +92,7 @@ function isSubtotal(name: string): boolean {
   return re_subtotal.test(name)
 }
 
-function parseOutput(response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): {[key: string]: number} | undefined {
+async function parseOutput(response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): Promise<IParserResult | undefined> {
   var store_name = getStore(response)
   if (store_name === "costco") {
     return parseCostco(response);
@@ -100,17 +100,17 @@ function parseOutput(response: ITextRecognitionResponse, setResponse: React.Disp
     return parseSafeway(response);
   } else if (store_name === "trader joe") {
     return parseTraderJoe(response);
-  } else {
-    parseGeneric(setResponse);
   }
-  return undefined;
+    
+  return await parseGeneric(setResponse);
+
 };
 
-function parseSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
+function parseSafeway(response: ITextRecognitionResponse): IParserResult {
   return safewayParser.pairItemtoPriceSafeway(response);
 };
 
-function parseTraderJoe(response: ITextRecognitionResponse): {[key: string]: number} {
+function parseTraderJoe(response: ITextRecognitionResponse): IParserResult {
   return traderJoeParser.pairItemtoPriceTraderJoe(response);
 };
 

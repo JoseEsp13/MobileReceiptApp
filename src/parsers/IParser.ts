@@ -1,14 +1,18 @@
 import { ITextRecognitionResponse } from "../components/mlkit"
 
+export interface IParserResult {
+    [key: string]: number
+}
+
 export interface IParser {
-    parseOutput: (response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>) => {[key: string]: number} | undefined,
-    checksum: (dict: {[key: string]: number}) => boolean
+    parseOutput: (response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>) => Promise<IParserResult | undefined>,
+    checksum: (dict: IParserResult) => boolean
 }
 
 export interface ISafeway {
-    pairItemtoPriceSafeway: (reponse: ITextRecognitionResponse) => {[key: string]: number}
+    pairItemtoPriceSafeway: (reponse: ITextRecognitionResponse) => IParserResult
 }
 
 export interface ITraderJoe {
-    pairItemtoPriceTraderJoe: (reponse: ITextRecognitionResponse) => {[key: string]: number}
+    pairItemtoPriceTraderJoe: (reponse: ITextRecognitionResponse) => IParserResult
 }

@@ -76,7 +76,6 @@ const createUserAsync = async (user: IUser) => {
 }
 
 const getUserAsync = async (uid: string) => {
-  console.log(`Uid: ${uid}`)
   return firestore().collection('users').doc(uid).get()
     .then(result => {
       return utility.mapDocumentDataToUser(result.data());

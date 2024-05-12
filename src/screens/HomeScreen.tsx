@@ -9,10 +9,7 @@ import DocumentScanner from 'react-native-document-scanner-plugin';
 import { DemoButton } from '../components/ui/DemoButton';
 import routes, { IHomeScreenDrawerProps } from '../routes';
 import { groupNames } from './GroupsScreen'; // Importing groups from defineGroups
-import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import firebase from '../components/state/firebaseStorage';
 import useAppContext from '../components/hooks/useAppContext';
-import utility from '../components/util/utility';
 
 
 export default function HomeScreen(props: IHomeScreenDrawerProps) {

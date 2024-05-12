@@ -1,6 +1,4 @@
-import { useEffect } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import auth from '@react-native-firebase/auth';
 import routes, { ILogoutScreenDrawerProps } from "../routes";
 import useAppContext from "../components/hooks/useAppContext";
 

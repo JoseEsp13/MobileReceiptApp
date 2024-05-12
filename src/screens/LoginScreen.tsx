@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
-import { Alert, Image, Pressable, SafeAreaView, StyleSheet, Switch, Text, TextInput, View } from 'react-native'
+import { Alert, Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native'
 import logo from "../assets/logo.png"
-import auth from '@react-native-firebase/auth';
 import routes, { ILoginScreenDrawerProps } from '../routes'
 import useAppContext from '../components/hooks/useAppContext';
 

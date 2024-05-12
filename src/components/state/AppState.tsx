@@ -43,9 +43,10 @@ export default function AppState(props: IAppState) {
   useEffect(() => {
     const subscriber = auth().onAuthStateChanged(async authState => {
       setAuthenticated(authState);
-      /*if (authState !== null) {
-        await firebase.getUserAsync(authState.uid)
-      }*/
+      if (authState !== null) {
+        const cloudData = await firebase.getUserAsync(authState.uid)
+        setUser(cloudData);
+      }
       if (initializing) setInitializing(false);
     });
     return subscriber; // unsubscribe on unmount

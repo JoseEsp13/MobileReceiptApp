@@ -4,8 +4,8 @@
  * Currently not used
  */
 import React from 'react';
-import {StyleSheet, View, Text} from 'react-native';
-import {Block, Line, ITextRecognitionResponse, Rect} from './mlkit';
+import {View, Text} from 'react-native';
+import {Line, ITextRecognitionResponse, Rect} from './mlkit';
 import { ScrollView } from 'react-native-gesture-handler';
 
 interface IViewDictionaryProps {

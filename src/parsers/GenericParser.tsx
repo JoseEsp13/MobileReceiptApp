@@ -1,13 +1,13 @@
-import { ITextRecognitionResponse, recognizeImage } from "../components/mlkit";
-import { IParser } from "./IParser";
+import MLKit, {ITextRecognitionResponse} from "../components/mlkit";
+import { IParser, IParserResult } from "./IParser";
 import { ToastAndroid, Alert, Button } from 'react-native';
 import { ColorSpace } from "react-native-reanimated";
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import { useEffect, useState } from 'react';
-import * as routes from '../routes';
+import routes from '../routes';
 import { completeHandlerIOS } from "react-native-fs";
 
-export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>) {
+export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): Promise<IParserResult> {
 
   let item_dict:  {[key: string]: number} = {};
 
@@ -69,7 +69,7 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
   const { scannedImages } = await DocumentScanner.scanDocument();
   
   if (scannedImages && scannedImages.length > 0) {
-    const response = await recognizeImage(scannedImages[0]);
+    const response = await MLKit.recognizeImage(scannedImages[0]);
     console.log(scannedImages[0])
     setResponse(response);
     console.log("before post");
@@ -78,5 +78,5 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
     console.log("after_post");
   }
   
-  return item_dict;
+  return item_dict as IParserResult;
 }

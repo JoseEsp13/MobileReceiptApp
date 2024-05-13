@@ -6,7 +6,7 @@ import DocumentScanner from 'react-native-document-scanner-plugin';
 
 interface Item {
     text: string;
-    xcord: number;
+    ycord: number;
 }
 
 /* parseGeneric(setResponse)
@@ -36,16 +36,18 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
     ToastAndroid.LONG,
     ToastAndroid.TOP
   );
-
+  /* pairItems()
+  * Returns an [Item, Item] array where and Item contains an item and the xcord
+  */
   function pairItems(items: Item[]): Array<[Item, Item]> {
     // Sort items by number
-    items.sort((a, b) => a.xcord - b.xcord);
+    items.sort((a, b) => a.ycord - b.ycord);
 
     // Calculate the mean
-    let mean = items.reduce((sum, item) => sum + item.xcord, 0) / items.length;
+    let mean = items.reduce((sum, item) => sum + item.ycord, 0) / items.length;
 
     // Calculate the standard deviation
-    let stdDev = Math.sqrt(items.reduce((sum, item) => sum + Math.pow(item.xcord - mean, 2), 0) / items.length);
+    let stdDev = Math.sqrt(items.reduce((sum, item) => sum + Math.pow(item.ycord - mean, 2), 0) / items.length);
 
     let pairs: Array<[Item, Item]> = [];
     let usedItems: Set<Item> = new Set();
@@ -55,7 +57,7 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
         if (usedItems.has(items[i])) continue;
 
         // Calculate the difference between the current number and the next one
-        let diff = items[i + 1].xcord - items[i].xcord;
+        let diff = items[i + 1].ycord - items[i].ycord;
 
         // If the difference is less than or equal to the standard deviation, pair the items
         if (diff <= stdDev) {
@@ -77,20 +79,9 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
 
   const postProcess = (response: ITextRecognitionResponse): string[] | undefined => {
     let items: Item[] = [];
-    let misc: string[] = [];
-    let related: string[] = [];
     let item_names: string[] = [];
-    let item_prices: string[] = [];
-    let quantity: string[] = [];
-    let saving: string[] = [];
     let dict: { [key: string]: string } = {};
-
-    const IsSavings = /member|saving/;
-    const IsPriceRegex = /^\$?\d+\.\d+\s?[a-zA-Z]?$/;
-    const ItemId = /^\d{2,}$/;
-    const Quantity = /^\d|\d+.d+ x \d+$/;
-    const RelatedButNotItem = /total|tax|amt|balance|subtotal/;
-    const Price = /\d+(\.\d+)?\s?[a-zA-Z]?/
+    const Price = /^\d+(\.\d+)?\s?[a-zA-Z]?$/
     let adict: { [key: string]: number } = {}; // Fix: Specify key as string and value as any
     for (let i = response.blocks.length - 1; i >= 0; i--) {
       for (let j = response.blocks[i].lines.length - 1; j >= 0; j--) {
@@ -101,17 +92,27 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
         let width = item.rect.width;
         // console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);
         // adict[text] = ycord;
-        items.push({ text, xcord: ycord });
+        items.push({ text, ycord: ycord });
       }
     }
 
     let pairs = pairItems(items);
+    // Assigns the dictionary values, if the first value of pair[i], i.e [Item, Item] where pair[0] is a price, it swaps basically.
     for (let pair of pairs) {
       if (Price.test(pair[0].text)) {
-        // console.log("match");
+        dict[pair[1].text] = pair[0].text;
       }
-      console.log(`${pair[0].text.padEnd(30)} ${pair[0].xcord.toString().padStart(10)} : ${pair[1].text.padEnd(30)} ${pair[1].xcord.toString().padStart(10)}`);
-}
+      else {
+        dict[pair[0].text] = pair[1].text;
+      }
+    }
+    // This will loop and convert any "," which look like periods in prices into a "."
+    // for (let key in dict) {
+    //   if (dict[key]) {
+      
+    //   }
+
+    // }
       // console.log(`pairs[0]: ${pair[0]} pairs[1]: ${pair[1]} pairs: ${pair}`);
       
 

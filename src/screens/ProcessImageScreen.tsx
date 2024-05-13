@@ -62,7 +62,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       case 'parser':
         return <ViewParserResult parserResult={parserResult} />
       case 'Groups':
-        return <ViewGroups groupNames={groupNames}/>
+        return parserResult ? <ViewGroups groupNames={groupNames} dict={parserResult} /> : null;
     }
   }, [response, uri]);
 
@@ -82,7 +82,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
 
             // TO DO: What else do we want to do with the ML Kit response?
             const dict = await parser.parseOutput(response_img, setResponse)
-            // console.log(dict)
+             //console.log(dict)
             if (dict != undefined) {
               console.log(parser.checksum(dict))
               setParserResult(dict);

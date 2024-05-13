@@ -106,7 +106,7 @@ export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[ke
         for (let j = 0; j < response.blocks[i].lines.length; j++) {
             let checkifNotPrice: boolean = true;
             let item = response.blocks[i].lines[j];
-            console.log("line:"+item.text+" y:"+item.rect.top+" x:"+item.rect.left);
+            // console.log("line:"+item.text+" y:"+item.rect.top+" x:"+item.rect.left);
             const regex3 = 
                 /.*saving.*|.*total.*|.*member.*|.*mermber.*|.*nenber.*/i;
             if (regex3.test(item.text)) {

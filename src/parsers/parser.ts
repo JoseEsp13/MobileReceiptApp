@@ -3,6 +3,7 @@ import { parseGeneric } from "./GenericParser";
 import { IParser, IParserResult } from "./IParser";
 import safewayParser from './safewayParser';
 import traderJoeParser from "./traderJoeParser";
+import mcDonaldsParser from "./mcDonaldsParser"
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import { useEffect, useState } from 'react';
 
@@ -31,8 +32,9 @@ function matchStore(stores_in: string[]): string | undefined {
   const re_costco = new RegExp(".*costco.*|.*cost.*|.*cos.*|.*ostc.*|.*stco.*", "g")
   const re_safeway = new RegExp(".*safeway.*|.*safe.*|.*fewa.*", "g")
   const re_traderjoe = new RegExp(".*trader joe.*|.*traderjoe.*", "g");
-  const re_stores = [re_costco, re_safeway, re_traderjoe]
-  const stores = ["costco", "safeway", "trader joe"]
+  const re_mcdonalds = new RegExp(".*mcdonald.*|.*mcdon.*|.*donald's.*|.*mcdonal.*")
+  const re_stores = [re_costco, re_safeway, re_traderjoe, re_mcdonalds]
+  const stores = ["costco", "safeway", "trader joe", "mcdonalds"]
   
   for (var i in stores_in) {
     var store = stores_in[i]
@@ -106,6 +108,8 @@ async function parseOutput(response: ITextRecognitionResponse, setResponse: Reac
     return parseSafeway(response);
   } else if (store_name === "trader joe") {
     return parseTraderJoe(response);
+  } else if (store_name == "mcdonalds") {
+    return parseMcDonalds(response);
   }
     
   return await parseGeneric(setResponse);
@@ -119,6 +123,10 @@ function parseSafeway(response: ITextRecognitionResponse): IParserResult {
 
 function parseTraderJoe(response: ITextRecognitionResponse): IParserResult {
   return traderJoeParser.pairItemtoPriceTraderJoe(response);
+};
+
+function parseMcDonalds(response: ITextRecognitionResponse): IParserResult {
+  return mcDonaldsParser.pairItemtoPriceMcDonalds(response);
 };
 
 function grabPrices(items: string[]): number[] {
@@ -298,4 +306,17 @@ const parser: IParser = {
     checksum
 }
 
-export default parser;
+const parseTools = {
+  roundPrice,
+  grabPrices,
+  genList,
+  isChar,
+  isDiscount,
+  isPrice,
+  isStringDiscount,
+  isSubtotal,
+  isTotal,
+  strClean
+}
+
+export default parseTools;

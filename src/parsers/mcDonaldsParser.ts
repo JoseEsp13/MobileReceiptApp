@@ -1,5 +1,5 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
-import parseTools from "./parser.ts";
+import parseTools from "./parser";
 import { IMcDonalds } from "./IParser";
 
 export function pairItemtoPriceMcDonalds(response: ITextRecognitionResponse): {[key: string]: number} {

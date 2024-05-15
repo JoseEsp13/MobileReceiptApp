@@ -9,11 +9,10 @@ import {DemoButton} from '../components/ui';
 import * as ImagePicker from 'react-native-image-picker';
 import {ImagePickerResponse} from 'react-native-image-picker/src/types';
 import routes from '../routes';
-import { ISelectScreenDrawerProps } from '../routes';
 
 
-export const SelectImageScreen = (props: ISelectScreenDrawerProps) => {
-  const {height} = useWindowDimensions();
+export const SelectImageScreen = () => {
+  /*const {height} = useWindowDimensions();
   const [response, setResponse] = React.useState<ImagePickerResponse | null>(null);
 
   const onButtonPress = React.useCallback((type: any, options: any) => {
@@ -22,7 +21,7 @@ export const SelectImageScreen = (props: ISelectScreenDrawerProps) => {
     } else {
       ImagePicker.launchImageLibrary(options, setResponse);
     }
-  }, []);
+  }, []);*/
   //
   // React.useEffect(() => {
   //   if (response) {
@@ -32,7 +31,7 @@ export const SelectImageScreen = (props: ISelectScreenDrawerProps) => {
   //   }
   // }, [response, navigation]);
 
-  const onProcessImage = () => {
+  /*const onProcessImage = () => {
     if (response) {
       props.navigation.navigate(routes.PROCESS_IMAGE_SCREEN, {
         uri: response?.assets?.[0]?.uri!!,
@@ -45,13 +44,14 @@ export const SelectImageScreen = (props: ISelectScreenDrawerProps) => {
       return response.assets[0].width / response.assets[0].height
     }
     return undefined;
-  }, [response]);
+  }, [response]);*/
 
   return (
+    <View></View>
+  )
+
+  /*return (
     <SafeAreaView style={{flex: 1, flexDirection: 'column'}}>
-      {/*<View style={{paddingHorizontal: 8}}>
-        <DemoResponse>{response}</DemoResponse>
-        </View>*/}
       {response?.assets ?
         <ScrollView style={{flex: 1}}>
           {response.assets[0] &&   
@@ -98,5 +98,5 @@ export const SelectImageScreen = (props: ISelectScreenDrawerProps) => {
         </DemoButton>
       </View>
     </SafeAreaView>
-  );
+  );*/
 };

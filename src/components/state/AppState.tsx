@@ -15,7 +15,10 @@ export type IAppContext = {
   createAuthenticatedUserAsync: (email: string, password: string, name: string,) => Promise<Boolean>,
   fetchUserCloudData: () => void,
   login: (email: string, password: string) => Promise<void>,
-  logout: () => Promise<void>
+  logout: () => Promise<void>,
+  addContact: (contact: IContact) => void,
+  editContact: (contact: IContact) => void,
+  deleteContact: (contact: IContact) => void
 }
 
 export const AppContext = createContext<IAppContext>({
@@ -26,7 +29,10 @@ export const AppContext = createContext<IAppContext>({
   createAuthenticatedUserAsync: async () => false,
   fetchUserCloudData: () => {},
   login: async () => {},
-  logout: async () => {}
+  logout: async () => {},
+  addContact: () => {},
+  editContact: () => {},
+  deleteContact: () => {}
 });
 
 interface IAppState {
@@ -52,9 +58,15 @@ export default function AppState(props: IAppState) {
     return subscriber; // unsubscribe on unmount
   }, []);
 
-  const getNextGroupId = () => Math.max(...user.groups.map(x => x.id)) + 1
+  const getNextGroupId = () => {
+    if (user.groups.length == 0) return 1;
+    return Math.max(...user.groups.map(x => x.id)) + 1
+  }
 
-  const getNextContactId = () => Math.max(...user.contacts.map(x => x.id)) + 1
+  const getNextContactId = () => {
+    if (user.contacts.length == 0) return 1;
+    return Math.max(...user.contacts.map(x => x.id)) + 1
+  }
 
   const fetchUserCloudData = async () => {
     const response = await firebase.getUserAsync(authenticated?.uid ?? "");
@@ -106,13 +118,32 @@ export default function AppState(props: IAppState) {
     return true;
   }
 
-  const addContact = useCallback((name: string, email: string) => {
-    const newContact: IContact = {id: getNextContactId(), name, email}
+  const addContact = useCallback((contact: IContact) => {
+    const newContact: IContact = {
+      ...contact,
+      id: getNextContactId()
+    }
+    
     setUser(prevState => ({
       ...prevState,
       contacts: [...prevState.contacts, newContact]
     }))
-  }, [setUser])
+  }, [setUser, getNextContactId])
+
+  const editContact = (contact: IContact) => {
+    if (contact.id === 0) console.error("Cannot edit empty contact");
+    setUser(prevState => ({
+      ...prevState,
+      contacts: prevState.contacts.map(x => x.id === contact.id ? contact : x)
+    }));
+  }
+
+  const deleteContact = (contact: IContact) => {
+    setUser(prevState => ({
+      ...prevState,
+      contacts: prevState.contacts.filter(x => x.id !== contact.id)
+    }));
+  }
 
   const createAuthenticatedUserAsync = async (email: string, password: string, name: string) => {
     const user = await firebase.createAuthenticatedAsync(email, password, name);
@@ -124,7 +155,13 @@ export default function AppState(props: IAppState) {
   }
 
   const saveToCloud = async () => {
-    return await firebase.saveUserAsync(user)
+    const result = await firebase.saveUserAsync(user);
+    if (result) {
+      console.log("Saved to Firebase successfully.");
+    } else {
+      console.error("Failed to save to Firebase");
+    }
+    return result;
   }
 
   const login = async (email: string, password: string) => {
@@ -144,7 +181,10 @@ export default function AppState(props: IAppState) {
       createAuthenticatedUserAsync,
       fetchUserCloudData,
       login,
-      logout
+      logout,
+      addContact,
+      editContact,
+      deleteContact
     }}>
       {props.children}
     </AppContext.Provider>

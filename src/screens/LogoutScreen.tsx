@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import routes, { ILogoutScreenDrawerProps } from "../routes";
+import routes, { ILogoutStackScreenProps } from "../routes";
 import useAppContext from "../components/hooks/useAppContext";
 
-export default function LogoutScreen(props: ILogoutScreenDrawerProps) {
+export default function LogoutScreen(props: ILogoutStackScreenProps) {
 
   const ctx = useAppContext()
 

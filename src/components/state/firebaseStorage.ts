@@ -10,23 +10,12 @@ const loginAsync = async (email: string, password: string) => {
     .then(() => {
       console.log('User signed in!');
     })
-    .catch(error => {
-      if (error.code === 'auth/email-already-in-use') {
-        console.log('That email address is already in use!');
-      }
-
-      if (error.code === 'auth/invalid-email') {
-        console.log('That email address is invalid!');
-      }
-
-      console.error(error);
-    });
+    .catch(error => {console.error(error);});
 }
 
 const logoutAsync = async () => {
   await auth().signOut();
 }
-
 
 // Create a new authenticated login
 const createAuthenticatedAsync = async (email: string, password: string, name: string) => {
@@ -67,10 +56,10 @@ const createUserAsync = async (user: IUser) => {
       .collection('users')
       .doc(user.uid)
       .set(user);
-    console.log(`User ${user.name} datastore created`);
+    console.log(`User: ${user.name} datastore created`);
     return true;
   } catch {
-    console.log(`Failed to create datstore for ${user.name}`);
+    console.log(`Failed to create datastore for ${user.name}`);
     return false;
   }
 }
@@ -91,15 +80,12 @@ const saveUserAsync = async (user: IUser) => {
     firestore()
       .collection('users')
       .doc(user.uid)
-      .update({
-        ...user
-      })
+      .set(user)
     return true;
   } catch {
     return false;
   }
 }
-
 
 /*
   The returned Promise<task> can be used to measure upload progress, pause, and resume

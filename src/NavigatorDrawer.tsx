@@ -16,10 +16,15 @@ import LoginScreen from './screens/LoginScreen';
 import useAppContext from './components/hooks/useAppContext';
 import LogoutScreen from './screens/LogoutScreen';
 import SignUpScreen from './screens/SignUpScreen';
+import { View } from 'react-native';
 
+
+export default function NavigatorDrawer() {
+  return (<View></View>)
+}
 
 // Instantiates a react-navigation drawer
-const Drawer = createDrawerNavigator<IRootParamList>();
+/*const Drawer = createDrawerNavigator<IRootParamList>();
 
 // Defines our routing and the component they route to
 export default function NavigatorDrawer() {
@@ -53,3 +58,4 @@ export default function NavigatorDrawer() {
     </Drawer.Navigator>
   )
 }
+*/

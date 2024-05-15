@@ -1,9 +1,9 @@
-import { ITextRecognitionResponse } from "../components/mlkit";
+import { ITextRecognitionResponse } from "../components/mlkit/index.ts";
 import MLkit from "../components/mlkit/index.ts"
-import { IParser } from "./IParser";
+import { IParser } from "./IParser.ts";
 import { ToastAndroid, Alert, Button } from 'react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
-import * as parseFunctions from "./parser";
+import * as parseFunctions from "./parser.ts";
 interface Item {
     text: string;
     xcord: number;

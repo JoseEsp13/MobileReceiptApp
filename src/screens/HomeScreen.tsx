@@ -49,11 +49,11 @@ export default function HomeScreen(props: IHomeScreenTabProps) {
           {'Choose Group'}
         </DemoButton>
       </View>
-      {/*<View style={{height: 48}}>
-        <DemoButton key="Select Image" onPress={() => props.navigation.navigate(routes.SELECT_SCREEN)}>
-          {'Select Image'}
+      <View style={{height: 48}}>
+        <DemoButton key="Dev Logout" onPress={() => props.navigation.navigate(routes.LOGOUT_SCREEN)}>
+          {'Dev Logout'}
         </DemoButton>
-      </View>*/}
+      </View>
     </View>
   );
 }

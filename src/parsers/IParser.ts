@@ -16,3 +16,7 @@ export interface ISafeway {
 export interface ITraderJoe {
     pairItemtoPriceTraderJoe: (reponse: ITextRecognitionResponse) => IParserResult
 }
+
+export interface IMcDonalds {
+    pairItemtoPriceMcDonalds: (resposne: ITextRecognitionResponse) => IParserResult
+}

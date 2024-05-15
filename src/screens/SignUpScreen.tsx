@@ -1,22 +1,71 @@
 import { useState } from "react";
 import { Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from "react-native";
 import useAppContext from "../components/hooks/useAppContext";
+import routes, { ISignUpScreenStackProps } from "../routes";
 
-export default function SignUpScreen() {
+interface ISignUpErrors {
+  name?: string,
+  email?: string,
+  password?: string,
+}
+
+export default function SignUpScreen(props: ISignUpScreenStackProps) {
 
   const ctx = useAppContext();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [errors, setErrors] = useState<ISignUpErrors>({});
 
-  const handleSignUpClick = () => {
-    ctx.createAuthenticatedUserAsync(email, password, name);
+  const handleSignUpClick = async() => {
+    const hasErrors = errorCheck();
+    if (hasErrors) {
+      // TO DO: do something
+      console.log(errors)
+      return;
+    } 
+
+    try {
+      await ctx.createAuthenticatedUserAsync(email, password, name);
+    } catch (ex) {
+      console.error(ex);
+    }
+  }
+
+  const errorCheck = () => {
+    setErrors({});
+    let errors: ISignUpErrors = {}
+    // TO DO: create regex tester for email
+    if (!email) {
+      errors.email = "Email required"
+    }
+
+    // TO DO: minimum length required for name?
+    if (!name) {
+      errors.name = "Name required"
+    }
+    
+    // TO DO: password minimums?
+    if (!password) {
+      errors.password = "Password required"
+    }
+
+    setErrors(errors);
+    return errors.email || errors.name || errors.password
   }
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>Sign up</Text>
       <View style={styles.inputView}>
+        <TextInput 
+          style={styles.input} 
+          placeholder='YOUR NAME' 
+          value={name} 
+          onChangeText={setName} 
+          autoCorrect={false}
+          autoCapitalize='none'
+        />
         <TextInput 
           style={styles.input} 
           placeholder='EMAIL' 
@@ -38,18 +87,10 @@ export default function SignUpScreen() {
           autoCapitalize='none'
           textContentType="newPassword"
         />
-        <TextInput 
-          style={styles.input} 
-          placeholder='YOUR NAME' 
-          value={name} 
-          onChangeText={setName} 
-          autoCorrect={false}
-          autoCapitalize='none'
-        />
       </View>
       <View style={styles.buttonView}>
         <Pressable style={styles.button} onPress={handleSignUpClick}>
-          <Text style={styles.buttonText}>LOGIN</Text>
+          <Text style={styles.buttonText}>CREATE</Text>
         </Pressable>
       </View>
     </SafeAreaView>

@@ -95,6 +95,8 @@ export type ILoginScreenTabProps = BottomTabScreenProps<IRootParamList, typeof r
 export type ILogoutScreenTabProps = BottomTabScreenProps<IRootParamList, typeof routes.LOGOUT_SCREEN>;
 export type ISignUpScreenTabProps = BottomTabScreenProps<IRootParamList, typeof routes.SIGNUP_SCREEN>;
 
+export type ISignUpScreenStackProps = StackScreenProps<IRootParamList, typeof routes.SIGNUP_SCREEN>;
+
 export type IProcessImageStackScreenProps = StackScreenProps<IRootParamList, typeof routes.PROCESS_IMAGE_SCREEN>;
 
 export type ICreateContactScreenProps = StackScreenProps<IRootParamList, typeof routes.CREATE_CONTACT_SCREEN>;
@@ -102,6 +104,7 @@ export type IViewContactScreenProps = StackScreenProps<IContactsStackScreenParam
 
 export type ILoginStackScreenProps = StackScreenProps<ILoginStackParamList, typeof routes.LOGIN_SCREEN>;
 export type ILogoutStackScreenProps = StackScreenProps<ILoginStackParamList, typeof routes.LOGOUT_SCREEN>;
+
 
 // Adds additional methods to the prop type. This one is combined with another type on the Process Image screen
 export type IProcessImageRouteProps = RouteProp<IRootParamList, typeof routes.PROCESS_IMAGE_SCREEN>;

@@ -1,11 +1,11 @@
 import React, { useState } from 'react'
 import { Alert, Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native'
 import logo from "../assets/logo.png"
-import routes, { ILoginScreenDrawerProps } from '../routes'
+import routes, { ILoginStackScreenProps } from '../routes'
 import useAppContext from '../components/hooks/useAppContext';
 
 
-export default function LoginScreen(props: ILoginScreenDrawerProps) {
+export default function LoginScreen(props: ILoginStackScreenProps) {
 
   const ctx = useAppContext();
   const [email, setEmail] =  useState("");
@@ -59,7 +59,7 @@ export default function LoginScreen(props: ILoginScreenDrawerProps) {
       <View style={styles.footerText}>
         <Text style={{marginRight: 5}}>Don't Have Account?</Text>
         <Pressable>
-          <Text onPress={() => props.navigation.navigate(routes.SIGNUP_SCREEN)}>Sign Up</Text>
+          <Text onPress={() => props.navigation.navigate(routes.LOGOUT_SCREEN)}>Sign Up</Text>
         </Pressable> 
       </View>
       

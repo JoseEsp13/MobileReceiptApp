@@ -3,10 +3,12 @@ import MLkit from "../components/mlkit/index.ts"
 import { IParser } from "./IParser";
 import { ToastAndroid, Alert, Button } from 'react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
-
+import * as parseFunctions from "./parser";
 interface Item {
     text: string;
+    xcord: number;
     ycord: number;
+    width: number;
 }
 
 /* parseGeneric(setResponse)
@@ -14,19 +16,15 @@ interface Item {
  * Goal: To extract the items from basic line to price receipts
  * Wanted: [{Item: Price}, Sub-Total, Sales Tax, Total]
  * List of Random Receipts:
- *  Student Health Center
- *  Target
+ *  Student Health Center x
+ *  Target <
  *  Walmart
  *  CVS-Pharmacy
  *  Sephora
  *  Marshalls
  */
 
-/* Steps to complete this
- * Console log everything
- * 
- */
-export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>) {
+export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): Promise<{[key: string]: number}> {
   const {distance, closest} = require('fastest-levenshtein');
   let item_dict: {[key: string]: number} = {};
 
@@ -39,6 +37,13 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
   /* pairItems()
   * Returns an [Item, Item] array where and Item contains an item and the xcord
   */
+
+  function convertToNumber(input: string): number {
+    // Remove non-numeric characters and convert to number
+    let number = Number(input.replace(/[^0-9\.]/g, ''));
+    return number;
+  }
+
   function pairItems(items: Item[]): Array<[Item, Item]> {
     // Sort items by number
     items.sort((a, b) => a.ycord - b.ycord);
@@ -77,28 +82,39 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
     return similarity >= threshold;
   }
 
-  const postProcess = (response: ITextRecognitionResponse): string[] | undefined => {
+  const postProcess = (response: ITextRecognitionResponse): { [key: string]: number } | undefined => {
     let items: Item[] = [];
-    let item_names: string[] = [];
+    let num_dict: {[key: string]: number} = {};
     let dict: { [key: string]: string } = {};
-    const Price = /^\d+(\.\d+)?\s?[a-zA-Z]?$/
-    let adict: { [key: string]: number } = {}; // Fix: Specify key as string and value as any
+    const Price = /^\$?\d+(\.\d+)?\s?[a-zA-Z]?$/
+    const ItemNumber = /^\d{5,}$/;
+    const RandomLetter = /^[a-zA-Z]$/;
+    const IgnoreWords = /^SUBTOTAL$/
+
     for (let i = response.blocks.length - 1; i >= 0; i--) {
       for (let j = response.blocks[i].lines.length - 1; j >= 0; j--) {
         let item = response.blocks[i].lines[j];
-        let text = response.blocks[i].lines[j].text;
+        let text = response.blocks[i].lines[j].text.toUpperCase();
         let ycord = item.rect.top;
         let xcord = item.rect.left;
         let width = item.rect.width;
-        // console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);
-        // adict[text] = ycord;
-        items.push({ text, ycord: ycord });
+        
+        // console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);  // This line tells me everyhing I need
+        if (!ItemNumber.test(text) && (!RandomLetter.test(text))) { 
+          // console.log(text);
+          items.push({ text, ycord: ycord, xcord: xcord, width: width });
+        }
       }
     }
-
+    
+    // Sort Items by xcord
+    items.sort((a, b) => a.xcord - b.xcord);
+    
     let pairs = pairItems(items);
+
     // Assigns the dictionary values, if the first value of pair[i], i.e [Item, Item] where pair[0] is a price, it swaps basically.
     for (let pair of pairs) {
+      // console.log(`pair[0].text ${pair[0].text.padEnd(30)} pair[0].xcord ${pair[0].xcord} pair[0].text ${pair[1].text.padEnd(30)} pair[0].xcord ${pair[1].xcord}`)
       if (Price.test(pair[0].text)) {
         dict[pair[1].text] = pair[0].text;
       }
@@ -106,15 +122,24 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
         dict[pair[0].text] = pair[1].text;
       }
     }
-    // This will loop and convert any "," which look like periods in prices into a "."
-    // for (let key in dict) {
-    //   if (dict[key]) {
-      
-    //   }
 
-    // }
-      // console.log(`pairs[0]: ${pair[0]} pairs[1]: ${pair[1]} pairs: ${pair}`);
-      
+
+    // This will loop and convert any "," which look like periods in prices into a "."
+    for (let key in dict) {
+      if (dict[key].includes(',')) {
+        dict[key] = dict[key].replace(',', '.');
+      }
+      if ((!IgnoreWords.test(key))){
+        item_dict[key] = convertToNumber(dict[key]);
+      }
+    }
+
+    for (let key in item_dict) {
+      console.log(`${key.padEnd(30)}:${item_dict[key]}`);
+    }
+
+    console.log(`checkSum: ${parseFunctions.checksum(item_dict)}`)
+
 
     // const sortedKeys = Object.keys(adict).sort((a, b) => adict[a] - adict[b]);
     // for (const key of sortedKeys) {
@@ -123,17 +148,7 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
     //   console.log(`${text.padEnd(30)} ${ycord.toString().padStart(10)}`);
     // }
 
-    // console.log("price\t", item_prices);
-    // console.log("name\t", item_names);
-    // console.log("misc\t", misc);
-    // console.log("relate\t", related);
-    // console.log("quant\t", quantity);
-
-    // for (let key in dict){
-    //   console.log(key, "\t", dict[key]);
-    // }
-
-    return item_names;
+    return num_dict;
   };
 
   const { scannedImages } = await DocumentScanner.scanDocument();
@@ -142,7 +157,7 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
     const response = await MLkit.recognizeImage(scannedImages[0]); // Fix: Use recognizeImage from MLkit
     console.log(scannedImages[0]);
     setResponse(response);
-    postProcess(response);
+    item_dict = postProcess(response) || {}; // Fix: Update the type of item_dict to allow for undefined values
   }
 
   return item_dict;

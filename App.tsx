@@ -4,18 +4,21 @@
  * Entry point into the application
  */
 import React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import NavigatorBottomTabs from './src/NavigatorBottomTabs';
+import {DarkTheme, DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import AppState from './src/components/state/AppState';
 import NavigatorDrawer from './src/NavigatorDrawer';
+import { useColorScheme } from 'react-native';
+import NavigatorBottomTabs from './src/NavigatorBottomTabs';
 
 
 export default function App() {
   
+  const scheme = useColorScheme();
+
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={scheme === "dark" ? DarkTheme : DefaultTheme}>
       <AppState>
-        <NavigatorDrawer />
+        <NavigatorBottomTabs />
       </AppState>
     </NavigationContainer>
   );

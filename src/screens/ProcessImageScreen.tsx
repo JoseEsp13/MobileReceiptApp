@@ -16,8 +16,9 @@ import ViewParserResult from '../components/ViewParserResult';
 import { groupNames } from './GroupsScreen';
 import parser from '../parsers/parser';
 import { testChecksum } from '../parsers/ctests';
-import { IProcessImageDrawerProps, IProcessImageRouteProps } from '../routes';
+import { IProcessImageRouteProps } from '../routes';
 import { IParserResult } from '../parsers/IParser';
+import { IHomeStackParamList } from '../components/nav_stacks/HomeStackScreen';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -26,7 +27,7 @@ interface RenderSceneRoute {
 }
 
 interface ProcessImageScreenProps {
-  navigation: IProcessImageDrawerProps;
+  navigation: IHomeStackParamList;
   route: IProcessImageRouteProps;
 }
 
@@ -38,9 +39,9 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const [tabIndex, setTabIndex] = React.useState(0);
   const [tabRoutes] = React.useState([
     { key: 'overlay', title: "Overlay" },
-    { key: 'dict', title: "Dict" },
+    { key: 'dictionary', title: "Dict" },
     { key: 'parser', title: "Parser" },
-    { key: 'Groups', title: "Groups"}
+    { key: 'groups', title: "Groups"}
   ]);
 
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
@@ -61,7 +62,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
         return <ViewDictionary response={response} />
       case 'parser':
         return <ViewParserResult parserResult={parserResult} />
-      case 'Groups':
+      case 'groups':
         return parserResult ? <ViewGroups groupNames={groupNames} dict={parserResult} /> : null;
     }
   }, [response, uri]);
@@ -81,11 +82,11 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
             setResponse(response_img);
 
             // TO DO: What else do we want to do with the ML Kit response?
-            const dict = await parser.parseOutput(response_img, setResponse)
+            const parserResult = await parser.parseOutput(response_img, setResponse)
              //console.log(dict)
-            if (dict != undefined) {
-              console.log(parser.checksum(dict))
-              setParserResult(dict);
+            if (parserResult != undefined) {
+              console.log(parser.checksum(parserResult))
+              setParserResult(parserResult);
             }
           }
         }

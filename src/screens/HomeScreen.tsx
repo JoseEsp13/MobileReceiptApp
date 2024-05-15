@@ -7,24 +7,20 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Modal, TouchableOpacity } from 'react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import { DemoButton } from '../components/ui/DemoButton';
-import routes, { IHomeScreenDrawerProps } from '../routes';
+import routes, { IHomeScreenTabProps } from '../routes';
 import { groupNames } from './GroupsScreen'; // Importing groups from defineGroups
 import useAppContext from '../components/hooks/useAppContext';
 
 
-export default function HomeScreen(props: IHomeScreenDrawerProps) {
+export default function HomeScreen(props: IHomeScreenTabProps) {
   
   const ctx = useAppContext();
-  const [scannedImage, setScannedImage] = useState<string | undefined>();
 
   const scanDocument = async () => {
     const { scannedImages } = await DocumentScanner.scanDocument();
     
     if (scannedImages && scannedImages.length > 0) {
-      setScannedImage(scannedImages[0]);
       onProcessImage(scannedImages[0]);
-    } else {
-      setScannedImage(undefined);
     }
   };
 
@@ -53,7 +49,11 @@ export default function HomeScreen(props: IHomeScreenDrawerProps) {
           {'Choose Group'}
         </DemoButton>
       </View>
-      
+      {/*<View style={{height: 48}}>
+        <DemoButton key="Select Image" onPress={() => props.navigation.navigate(routes.SELECT_SCREEN)}>
+          {'Select Image'}
+        </DemoButton>
+      </View>*/}
     </View>
   );
 }

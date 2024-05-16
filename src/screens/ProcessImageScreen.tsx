@@ -65,7 +65,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       case 'groups':
         return parserResult ? <ViewGroups groupNames={groupNames} dict={parserResult} /> : null;
     }
-  }, [response, uri]);
+  }, [response, uri, parserResult]);
 
   // Main logic for reading a receipt is here
   const processImage = async (url: string) => {
@@ -83,7 +83,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
 
             // TO DO: What else do we want to do with the ML Kit response?
             const parserResult = await parser.parseOutput(response_img, setResponse)
-             //console.log(dict)
+            
             if (parserResult != undefined) {
               console.log(parser.checksum(parserResult))
               setParserResult(parserResult);

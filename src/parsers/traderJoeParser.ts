@@ -80,11 +80,6 @@ function isPriceTraderJoe(price: string): string {
  *     (original and discounted), chooses the discounted
  *     price.
  * 
- * Notes for Safeway Receipts:
- *  - Anything related to Savings was skipped(line 88-92).
- *  - Balance is the total. 
- *  - Skip unnecessary items(line 146-151)
- * 
  * Context for Variebles:
  *  prices: [price, ycoor, xcoor, width][]
  *  items:  [item name, ycoor, xcoor][]

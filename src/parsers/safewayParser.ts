@@ -13,20 +13,10 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
     const { [key]: removedKey, ...newDict } = dict;
     return newDict;
 }
-
-/**
- * Print Dictionary function
- * normally meant for {[key: string]: number}
- * otherwise will try to do {[key: number]: string[]}
- * @param dict {[key: string]: number} | {[key: number]: string[]}
- */
-function isNumberKey(key: string | number): key is number {
-    return typeof key === 'number';
-}
   
 function printDict<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T) {
     for (const key in dict) {
-      if (isNumberKey(key)) {
+      if (typeof key === 'number') {
         const values: string[] = dict[key];
         console.log(`Key: ${key}, Values: ${values.join(', ')}\n`);
       } else {
@@ -48,7 +38,7 @@ function printDict<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
  * @returns string
  */
 function isPriceSafeway(price: string): string {
-    const re_price = /^(\d+(\.|\,)\d{2}).{0,3}$/;
+    const re_price = /^([-]{0,1}\d+(\.|\,)\d{2}).{0,3}$/;
     const re_price2 = /^(\d+(\.|\,)\d{2}) *[$]* *(\d+(\.|\,)\d{2}).*$/;
     let match = price.match(re_price2);
     if (match) {
@@ -72,18 +62,20 @@ function isPriceSafeway(price: string): string {
  *  1. split response lines to items and prices.
  *     Also cleaned up item names and skipped anything
  *     related to savings.
- *  2. for every price, find its closest item that is
- *     not located near according to its x axis
+ *  2. for every price, find its closest item
+ *     on the y axis that is not located near according
+ *     to its width on the x axis
  *  3. fill a backwards dictionary of prices with their
  *     closest items
  *  4. flip the dictionary. Items with multiple prices
  *     (original and discounted), chooses the discounted
  *     price.
  * 
- * Notes for Safeway Receipts:
- *  - Anything related to Savings was skipped(line 88-92).
- *  - Balance is the total. 
- *  - Skip unnecessary items(line 146-151)
+ * CURRENT BUG:
+ *  - If price is misread, choosing the price with the
+ *    lower cost doesn't work:
+ *    6.99 6.29 is misread as 5.99 6.29
+ *  - Resolve by choosing farther x distance from item
  * 
  * Context for Variebles:
  *  prices: [price, ycoor, xcoor, width][]
@@ -106,7 +98,6 @@ export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[ke
         for (let j = 0; j < response.blocks[i].lines.length; j++) {
             let checkifNotPrice: boolean = true;
             let item = response.blocks[i].lines[j];
-            // console.log("line:"+item.text+" y:"+item.rect.top+" x:"+item.rect.left);
             const regex3 = 
                 /.*saving.*|.*total.*|.*member.*|.*mermber.*|.*nenber.*/i;
             if (regex3.test(item.text)) {
@@ -122,7 +113,7 @@ export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[ke
                 checkifNotPrice = false;
             }
             if (checkifNotPrice && !(/^\d+$/.test(item.text))) {
-                items.push([item.text.replace(/^\d*[\s*%]*|^\W+/, ''),
+                items.push([item.text.replace(/^[\d|\?]*[\s*%]*|^\W+/, ''),
                     item.rect.top, item.rect.left]);
             }
         }
@@ -130,7 +121,7 @@ export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[ke
 
     let widthScale: number = 2.5;
     for (let a = 0; a < prices.length; a++) {
-        if (prices[a][0] <= 0) {
+        if (prices[a][0] == 0) {
             continue;
         }
         let minitem = items[0];
@@ -166,12 +157,27 @@ export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[ke
     console.log("pre dict");
     printDict(flipped);
 
-    const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*/i;
+    let keyMax: string = "";
+    let total: number = 0;
+    const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*sngp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*|.*tatal.*|.*value.*|.*visa.*/i;
     for (const ke in flipped) {
         if (regex4.test(ke)) {
             console.log(ke+" removed");
             flipped = removeKey(flipped, ke);
+            continue;
         }
+        if (flipped[ke] >= total) {
+            total = flipped[ke];
+            keyMax = ke;
+        }
+    }
+    flipped["TOTAL"] = flipped[keyMax];
+    flipped = removeKey(flipped, keyMax);
+    console.log("REMOVED " + keyMax);
+
+    if (!("TAX" in flipped)) {
+        flipped["TAX"] = 0;
+        console.log("APPENDED TAX TO FLIPPED")
     }
 
     console.log("final dict");

@@ -59,7 +59,7 @@ export default function LoginScreen(props: ILoginStackScreenProps) {
       <View style={styles.footerText}>
         <Text style={{marginRight: 5}}>Don't Have Account?</Text>
         <Pressable>
-          <Text onPress={() => props.navigation.navigate(routes.LOGOUT_SCREEN)}>Sign Up</Text>
+          <Text onPress={() => props.navigation.navigate(routes.SIGNUP_SCREEN)}>Sign Up</Text>
         </Pressable> 
       </View>
       

@@ -7,7 +7,7 @@ export default function LogoutScreen(props: ILogoutStackScreenProps) {
   const ctx = useAppContext()
 
   const handleLogout = () => {
-    ctx.logout()
+    ctx.logout();
   }
 
   return (

@@ -14,6 +14,7 @@ import { ViewResponse } from '../components/ViewResponse';
 import ViewGroups from "../components/ViewGroups";
 import ViewParserResult from '../components/ViewParserResult';
 import { groupNames } from './GroupsScreen';
+import parseTools from '../parsers/parserTools';
 import parser from '../parsers/parser';
 import { testChecksum } from '../parsers/ctests';
 import { IProcessImageRouteProps } from '../routes';
@@ -85,7 +86,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
             const parserResult = await parser.parseOutput(response_img, setResponse)
             
             if (parserResult != undefined) {
-              console.log(parser.checksum(parserResult))
+              console.log(parseTools.checksum(parserResult))
               setParserResult(parserResult);
             }
           }

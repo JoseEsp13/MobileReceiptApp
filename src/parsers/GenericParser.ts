@@ -3,7 +3,7 @@ import MLkit from "../components/mlkit/index.ts"
 import { IParser } from "./IParser.ts";
 import { ToastAndroid, Alert, Button } from 'react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
-import * as parseFunctions from "./parser.ts";
+import parserTools from "./parserTools";
 interface Item {
     text: string;
     xcord: number;
@@ -138,7 +138,7 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
       console.log(`${key.padEnd(30)}:${item_dict[key]}`);
     }
 
-    console.log(`checkSum: ${parseFunctions.checksum(item_dict)}`)
+    console.log(`checkSum: ${parserTools.checksum(item_dict)}`)
 
 
     // const sortedKeys = Object.keys(adict).sort((a, b) => adict[a] - adict[b]);

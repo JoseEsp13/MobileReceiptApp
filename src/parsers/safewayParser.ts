@@ -13,20 +13,10 @@ function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
     const { [key]: removedKey, ...newDict } = dict;
     return newDict;
 }
-
-/**
- * Print Dictionary function
- * normally meant for {[key: string]: number}
- * otherwise will try to do {[key: number]: string[]}
- * @param dict {[key: string]: number} | {[key: number]: string[]}
- */
-function isNumberKey(key: string | number): key is number {
-    return typeof key === 'number';
-}
   
 function printDict<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T) {
     for (const key in dict) {
-      if (isNumberKey(key)) {
+      if (typeof key === 'number') {
         const values: string[] = dict[key];
         console.log(`Key: ${key}, Values: ${values.join(', ')}\n`);
       } else {
@@ -73,18 +63,19 @@ function isPriceSafeway(price: string): string {
  *     Also cleaned up item names and skipped anything
  *     related to savings.
  *  2. for every price, find its closest item
- *     on the y axis that is
- *     not located near according to its x axis
+ *     on the y axis that is not located near according
+ *     to its width on the x axis
  *  3. fill a backwards dictionary of prices with their
  *     closest items
  *  4. flip the dictionary. Items with multiple prices
  *     (original and discounted), chooses the discounted
  *     price.
  * 
- * Notes for Safeway Receipts:
- *  - Anything related to Savings was skipped(line 88-92).
- *  - Balance is the total. 
- *  - Skip unnecessary items(line 146-151)
+ * CURRENT BUG:
+ *  - If price is misread, choosing the price with the
+ *    lower cost doesn't work:
+ *    6.99 6.29 is misread as 5.99 6.29
+ *  - Resolve by choosing farther x distance from item
  * 
  * Context for Variebles:
  *  prices: [price, ycoor, xcoor, width][]

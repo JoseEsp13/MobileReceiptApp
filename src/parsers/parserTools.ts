@@ -42,6 +42,11 @@ function isSubtotal(name: string): boolean {
     return re_subtotal.test(name)
 }
 
+function isNonsense(name: string): boolean {
+    const re_nonsense = /^.*\d+$/;
+    return re_nonsense.test(name)
+}
+
 function isChar(name: string): boolean {
     const re_char = /^.$/;
     return re_char.test(name)
@@ -75,6 +80,36 @@ function grabPrices(items: string[]): number[] {
     // console.log(prices)
     return prices
 };
+
+function secondaryPrices(items: string[]): number[] {
+    // Iterate through output bottom to top to grab all prices, return array of Floats in order from bottom to top. Also deducts discounts from apropriate items.
+  
+    let prices: number[]
+    prices = []
+  
+    for (var j = 0; j < items.length; j++) {
+        if (isPrice(items[j])) {
+            let current_price = parseFloat(items[j])
+            prices.push(roundPrice(current_price))
+        } else if (isDiscount(items[j])) {
+            var last = prices.pop()
+            if (last) {
+                prices.push(last - parseFloat(items[j]))
+            }
+        } else if (isTotal(items[j])) {
+            break
+        }
+    }
+    let total = prices[prices.length - 1] + prices[prices.length - 2]
+
+    prices.push(total)
+    prices = prices.reverse()
+  
+    prices.splice(2, 1);
+  
+    // console.log(prices)
+    return prices
+  };
 
 function merge(arr: [number, string][], l: number, m: number, r: number) {
     // Merge for mergesort SOURCE: https://www.geeksforgeeks.org/merge-sort/
@@ -197,7 +232,9 @@ const parseTools = {
     isSubtotal,
     isTotal,
     strClean,
-    checksum
+    checksum,
+    secondaryPrices,
+    isNonsense
 }
 
 export default parseTools;

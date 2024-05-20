@@ -53,7 +53,8 @@ function matchStore(stores_in: string[]): string | undefined {
   return undefined
 }
 
-async function parseOutput(response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): Promise<IParserResult | undefined> {
+async function parseOutput(response: ITextRecognitionResponse, uri: string): Promise<IParserResult | undefined> {
+  console.log("Parsing output function");
   var store_name = getStore(response)
   if (store_name == "costco") {
     return parseCostco(response)
@@ -67,10 +68,8 @@ async function parseOutput(response: ITextRecognitionResponse, setResponse: Reac
   if (store_name == "mcdonalds") {
     return parseMcDonalds(response);
   }
-
-  return await parseGeneric(setResponse);
-
-  return undefined;
+  console.log("parsingGeneric");
+  return await parseGeneric(uri);
 };
 
 function parseSafeway(response: ITextRecognitionResponse): IParserResult {
@@ -152,3 +151,7 @@ const parser: IParser = {
 }
 
 export default parser;
+
+export function checksum(item_dict: { [key: string]: number; }) {
+  throw new Error("Function not implemented.");
+}

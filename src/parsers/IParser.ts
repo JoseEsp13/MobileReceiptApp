@@ -5,7 +5,7 @@ export interface IParserResult {
 }
 
 export interface IParser {
-    parseOutput: (response: ITextRecognitionResponse, setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>) => Promise<IParserResult | undefined>
+    parseOutput: (response: ITextRecognitionResponse, uri: string) => Promise<IParserResult | undefined>
 }
 
 export interface ISafeway {

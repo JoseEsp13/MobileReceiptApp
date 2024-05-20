@@ -72,23 +72,22 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const processImage = async (url: string) => {
     if (url) {
       try {
+        console.log("here");
+        console.log("Processing image: " + url);
         // Send a request to Google's ML Kit
         let response_img;
-        if (!response) {
-          response_img = await MLKit.recognizeImage(url);
-          // If the response contains data
-          if (response_img?.blocks?.length > 0) {
+        response_img = await MLKit.recognizeImage(url);
+        // If the response contains data
+        if (response_img?.blocks?.length > 0) {
 
-            // Process response here
-            setResponse(response_img);
+          // Process response here
+          setResponse(response_img);
 
-            // TO DO: What else do we want to do with the ML Kit response?
-            const parserResult = await parser.parseOutput(response_img, setResponse)
-            
-            if (parserResult != undefined) {
-              console.log(parseTools.checksum(parserResult))
-              setParserResult(parserResult);
-            }
+          // TO DO: What else do we want to do with the ML Kit response?
+          const parserResult = await parser.parseOutput(response_img, url)
+          if (parserResult != undefined) {
+            console.log(parseTools.checksum(parserResult))
+            setParserResult(parserResult);
           }
         }
     } catch (error) {

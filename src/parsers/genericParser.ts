@@ -3,7 +3,9 @@ import MLkit from "../components/mlkit/index.ts"
 import { IParser } from "./IParser.ts";
 import { ToastAndroid, Alert, Button } from 'react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
-import parserTools from "./parserTools";
+import * as parseFunctions from "./parser.ts";
+import ImagePicker from 'react-native-image-crop-picker';
+
 interface Item {
     text: string;
     xcord: number;
@@ -11,6 +13,7 @@ interface Item {
     width: number;
 }
 
+let inUrl = "";
 /* parseGeneric(setResponse)
  * A function which will parse very simple inputs
  * Goal: To extract the items from basic line to price receipts
@@ -24,10 +27,10 @@ interface Item {
  *  Marshalls
  */
 
-export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): Promise<{[key: string]: number}> {
+export async function parseGeneric(url: string): Promise<{[key: string]: number}> {
   const {distance, closest} = require('fastest-levenshtein');
   let item_dict: {[key: string]: number} = {};
-
+  let inUrl = url;
   // Puts a little message for user
   ToastAndroid.showWithGravity(
     "Please crop the image",
@@ -98,10 +101,8 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
         let ycord = item.rect.top;
         let xcord = item.rect.left;
         let width = item.rect.width;
-        
         // console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);  // This line tells me everyhing I need
         if (!ItemNumber.test(text) && (!RandomLetter.test(text))) { 
-          // console.log(text);
           items.push({ text, ycord: ycord, xcord: xcord, width: width });
         }
       }
@@ -138,7 +139,7 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
       console.log(`${key.padEnd(30)}:${item_dict[key]}`);
     }
 
-    console.log(`checkSum: ${parserTools.checksum(item_dict)}`)
+    console.log(`checkSum: ${parseFunctions.checksum(item_dict)}`)
 
 
     // const sortedKeys = Object.keys(adict).sort((a, b) => adict[a] - adict[b]);
@@ -147,18 +148,22 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
     //   const ycord = adict[key];
     //   console.log(`${text.padEnd(30)} ${ycord.toString().padStart(10)}`);
     // }
-
     return num_dict;
   };
+  const image = await ImagePicker.openCropper({
+    path: inUrl,
+    includeBase64: true,
+    mediaType: "photo",
+    cropping: true,
+    freeStyleCropEnabled: true,
+    enableRotationGesture: false,
+  });
 
-  const { scannedImages } = await DocumentScanner.scanDocument();
-
-  if (scannedImages && scannedImages.length > 0) {
-    const response = await MLkit.recognizeImage(scannedImages[0]); // Fix: Use recognizeImage from MLkit
-    console.log(scannedImages[0]);
-    setResponse(response);
-    item_dict = postProcess(response) || {}; // Fix: Update the type of item_dict to allow for undefined values
+  if (image) {
+    const response: ITextRecognitionResponse = await MLkit.recognizeImage(image.path);
+    item_dict = postProcess(response) || {};
   }
-
   return item_dict;
 }
+
+

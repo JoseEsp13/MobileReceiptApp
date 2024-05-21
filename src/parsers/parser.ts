@@ -54,7 +54,6 @@ function matchStore(stores_in: string[]): string | undefined {
 }
 
 async function parseOutput(response: ITextRecognitionResponse, uri: string): Promise<IParserResult | undefined> {
-  console.log("Parsing output function");
   var store_name = getStore(response)
   if (store_name == "costco") {
     return parseCostco(response)
@@ -68,7 +67,6 @@ async function parseOutput(response: ITextRecognitionResponse, uri: string): Pro
   if (store_name == "mcdonalds") {
     return parseMcDonalds(response);
   }
-  console.log("parsingGeneric");
   return await parseGeneric(uri);
 };
 

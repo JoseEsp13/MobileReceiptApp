@@ -92,7 +92,9 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
     const Price = /^\$?\d+(\.\d+)?\s?[a-zA-Z]?$/
     const ItemNumber = /^\d{5,}$/;
     const RandomLetter = /^[a-zA-Z]$/;
-    const IgnoreWords = /^SUBTOTAL$/
+    const IgnoreWords = /^SUBTOTAL$/;
+    const DuplicateItems = /^\d+\s?.\s?[\$S]?\d+\.\d{0,2}$/;
+    const UselessCharacters = /@/;
 
     for (let i = response.blocks.length - 1; i >= 0; i--) {
       for (let j = response.blocks[i].lines.length - 1; j >= 0; j--) {
@@ -102,7 +104,7 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
         let xcord = item.rect.left;
         let width = item.rect.width;
         // console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);  // This line tells me everyhing I need
-        if (!ItemNumber.test(text) && (!RandomLetter.test(text))) { 
+        if (!ItemNumber.test(text) && !RandomLetter.test(text) && !DuplicateItems.test(text)) { 
           items.push({ text, ycord: ycord, xcord: xcord, width: width });
         }
       }
@@ -139,7 +141,7 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
       console.log(`${key.padEnd(30)}:${item_dict[key]}`);
     }
 
-    console.log(`checkSum: ${parseFunctions.checksum(item_dict)}`)
+    // console.log(`checkSum: ${parseFunctions.checksum(item_dict)}`)
 
 
     // const sortedKeys = Object.keys(adict).sort((a, b) => adict[a] - adict[b]);

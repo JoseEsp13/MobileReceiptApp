@@ -72,8 +72,6 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   const processImage = async (url: string) => {
     if (url) {
       try {
-        console.log("here");
-        console.log("Processing image: " + url);
         // Send a request to Google's ML Kit
         let response_img;
         response_img = await MLKit.recognizeImage(url);

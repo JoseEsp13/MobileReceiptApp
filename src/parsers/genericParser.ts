@@ -92,7 +92,8 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
     const Price = /^\$?\d+(\.\d+)?\s?[a-zA-Z]?$/
     const ItemNumber = /^\d{5,}$/;
     const RandomLetter = /^[a-zA-Z]$/;
-    const IgnoreWords = /^SUBTOTAL$/;
+    const IgnoreWords = /SUBTOTAL|VISA|ITEM/;
+    const SynonymTotal = /TOTAL|BALANCE|PAY/;
     const DuplicateItems = /^\d+\s?.\s?[\$S]?\d+\.\d{0,2}$/;
     const UselessCharacters = /@/;
 
@@ -132,9 +133,13 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
       if (dict[key].includes(',')) {
         dict[key] = dict[key].replace(',', '.');
       }
-      if ((!IgnoreWords.test(key))){
+      if (!IgnoreWords.test(key)){
         item_dict[key] = convertToNumber(dict[key]);
       }
+      else {
+        delete dict[key];
+      }
+  
     }
 
     for (let key in item_dict) {

@@ -67,7 +67,8 @@ async function parseOutput(response: ITextRecognitionResponse, uri: string): Pro
   if (store_name == "mcdonalds") {
     return parseMcDonalds(response);
   }
-  return await parseGeneric(uri);
+  let genericDict: { [key: string]: number } =  await parseGeneric(uri);
+  return genericDict;
 };
 
 function parseSafeway(response: ITextRecognitionResponse): IParserResult {

@@ -20,6 +20,8 @@ import { testChecksum } from '../parsers/ctests';
 import { IProcessImageRouteProps } from '../routes';
 import { IParserResult } from '../parsers/IParser';
 import { IHomeStackParamList } from '../components/nav_stacks/HomeStackScreen';
+import Verification from './Verification';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -84,7 +86,6 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
           // TO DO: What else do we want to do with the ML Kit response?
           const parserResult = await parser.parseOutput(response_img, url)
           if (parserResult != undefined) {
-            console.log(parseTools.checksum(parserResult))
             setParserResult(parserResult);
           }
         }
@@ -95,11 +96,8 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   };
 
   return (
-    <TabView
-      navigationState={{index: tabIndex, routes: tabRoutes}}
-      renderScene={renderScene}
-      onIndexChange={setTabIndex}
-      initialLayout={{width: windowDimensions.width}}
-    />
+    <SafeAreaView>
+      {parserResult && <Verification parserResult={parserResult} />}
+    </SafeAreaView>
   );
 };

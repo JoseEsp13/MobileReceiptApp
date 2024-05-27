@@ -20,7 +20,7 @@ let inUrl = "";
  * Wanted: [{Item: Price}, Sub-Total, Sales Tax, Total]
  * List of Random Receipts:
  *  Student Health Center x
- *  Target <
+ *  Target 
  *  Walmart
  *  CVS-Pharmacy
  *  Sephora
@@ -89,10 +89,11 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
     let items: Item[] = [];
     let num_dict: {[key: string]: number} = {};
     let dict: { [key: string]: string } = {};
-    const Price = /^\$?\d+(\.\d+)?\s?[a-zA-Z]?$/
-    const ItemNumber = /^\d{5,}$/;
+    const Price = /^\$?\d+(\.\d+)?\s?[A-Z]{0,2}$/
+    const NegativePrice = /^-\$?\d+(\.\d+)?\s?[A-Z]{0,2}$/;
+    const ItemNumber = /^\d{4,}$/;
     const RandomLetter = /^[a-zA-Z]$/;
-    const IgnoreWords = /SUBTOTAL|VISA|ITEM/;
+    const IgnoreWords = /SUBTOTAL|VISA|ITEM|LB/;
     const SynonymTotal = /TOTAL|BALANCE|PAY/;
     const DuplicateItems = /^\d+\s?.\s?[\$S]?\d+\.\d{0,2}$/;
     const UselessCharacters = /@/;
@@ -127,7 +128,6 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
       }
     }
 
-
     // This will loop and convert any "," which look like periods in prices into a "."
     for (let key in dict) {
       if (dict[key].includes(',')) {
@@ -139,23 +139,13 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
       else {
         delete dict[key];
       }
-  
     }
-
-    for (let key in item_dict) {
-      console.log(`${key.padEnd(30)}:${item_dict[key]}`);
-    }
-
-    // console.log(`checkSum: ${parseFunctions.checksum(item_dict)}`)
-
-
-    // const sortedKeys = Object.keys(adict).sort((a, b) => adict[a] - adict[b]);
-    // for (const key of sortedKeys) {
-    //   const text = key;
-    //   const ycord = adict[key];
-    //   console.log(`${text.padEnd(30)} ${ycord.toString().padStart(10)}`);
+    // To print out the dictionary
+    // for (let key in item_dict) {
+    //   console.log(`${key.padEnd(30)}:${item_dict[key]}`);
     // }
-    return num_dict;
+
+    return item_dict;
   };
   const image = await ImagePicker.openCropper({
     path: inUrl,
@@ -172,5 +162,4 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
   }
   return item_dict;
 }
-
 

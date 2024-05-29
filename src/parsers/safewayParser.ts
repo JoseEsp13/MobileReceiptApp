@@ -1,39 +1,47 @@
 import { ITextRecognitionResponse } from "../components/mlkit";
 import { ISafeway } from "./IParser";
+import parseTools from "./parserTools";
 
 interface StringKeyNumberValueObject {
     [key: string]: number;
 }
 
-interface NumberKeyStringArrayObject {
-    [key: number]: string[];
+interface StringKeyStringValueObject {
+    [key: string]: string[];
 }
 
-function removeKey<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T, key: keyof T): Omit<T, keyof T> {
+interface StringKeyPricePosObjArrayObj {
+    [item: string]: PricePositionObject
+}
+
+interface PricePositionObject {
+    price: number,
+    xCoor: number,
+    yCoor: number,
+    width: number
+}
+
+interface ItemPositionObject {
+    item: string,
+    xCoor: number,
+    yCoor: number
+}
+
+function removeKey<T extends StringKeyNumberValueObject | StringKeyStringValueObject>(dict: T, key: keyof T): Omit<T, keyof T> {
     const { [key]: removedKey, ...newDict } = dict;
     return newDict;
 }
 
-/**
- * Print Dictionary function
- * normally meant for {[key: string]: number}
- * otherwise will try to do {[key: number]: string[]}
- * @param dict {[key: string]: number} | {[key: number]: string[]}
- */
-function isNumberKey(key: string | number): key is number {
-    return typeof key === 'number';
-}
-  
-function printDict<T extends StringKeyNumberValueObject | NumberKeyStringArrayObject>(dict: T) {
+function printDict<T extends StringKeyNumberValueObject | StringKeyStringValueObject | StringKeyPricePosObjArrayObj>(dict: T) {
     for (const key in dict) {
-      if (isNumberKey(key)) {
-        const values: string[] = dict[key];
-        console.log(`Key: ${key}, Values: ${values.join(', ')}\n`);
-      } else {
-        console.log(`Key: ${key}, Value: ${dict[key]}`);
-      }
+        const value = dict[key];
+        if (Array.isArray(value)) {
+            console.log(`Key: ${key}, Values: ${value.join(', ')}\n`);
+        } else {
+            console.log(`Key: ${key}, Value: ${value}`);
+        }
     }
-  }
+}
 
 /**
  * checks if inputed string is a price
@@ -48,7 +56,7 @@ function printDict<T extends StringKeyNumberValueObject | NumberKeyStringArrayOb
  * @returns string
  */
 function isPriceSafeway(price: string): string {
-    const re_price = /^(\d+(\.|\,)\d{2}).{0,3}$/;
+    const re_price = /^([-]{0,1}\d+(\.|\,)\d{2}).{0,3}$/;
     const re_price2 = /^(\d+(\.|\,)\d{2}) *[$]* *(\d+(\.|\,)\d{2}).*$/;
     let match = price.match(re_price2);
     if (match) {
@@ -62,7 +70,7 @@ function isPriceSafeway(price: string): string {
     }
     console.log("\"" + price + "\"" + " no match");
     return "no match";
-};
+}
 
 /**
  * ML Kit response parser for Safeway Receipts.
@@ -72,18 +80,20 @@ function isPriceSafeway(price: string): string {
  *  1. split response lines to items and prices.
  *     Also cleaned up item names and skipped anything
  *     related to savings.
- *  2. for every price, find its closest item that is
- *     not located near according to its x axis
+ *  2. for every price, find its closest item
+ *     on the y axis that is not located near according
+ *     to its width on the x axis
  *  3. fill a backwards dictionary of prices with their
  *     closest items
  *  4. flip the dictionary. Items with multiple prices
  *     (original and discounted), chooses the discounted
  *     price.
  * 
- * Notes for Safeway Receipts:
- *  - Anything related to Savings was skipped(line 88-92).
- *  - Balance is the total. 
- *  - Skip unnecessary items(line 146-151)
+ * CURRENT BUG:
+ *  - If price is misread, choosing the price with the
+ *    lower cost doesn't work:
+ *    6.99 6.29 is misread as 5.99 6.29
+ *  - Resolve by choosing farther x distance from item
  * 
  * Context for Variebles:
  *  prices: [price, ycoor, xcoor, width][]
@@ -96,18 +106,17 @@ function isPriceSafeway(price: string): string {
  * @param response 
  * @returns {[key: string]: number}
  */
-export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[key: string]: number} {
-    let dict: NumberKeyStringArrayObject = {};
-    const prices: [number, number, number, number][] = [];    
-    const items: [string, number, number][] = [];
+function pairItemtoPriceSafeway(response: ITextRecognitionResponse): { [key: string]: number } {
+    let dict: { [key: string]: string[] } = {};
+    const prices: PricePositionObject[] = [];
+    const items: ItemPositionObject[] = [];
     const regex2 = /-?\d+\,\d{1,2}/g;
     let match;
     for (let i = 0; i < response.blocks.length; i++) {
         for (let j = 0; j < response.blocks[i].lines.length; j++) {
             let checkifNotPrice: boolean = true;
             let item = response.blocks[i].lines[j];
-            // console.log("line:"+item.text+" y:"+item.rect.top+" x:"+item.rect.left);
-            const regex3 = 
+            const regex3 =
                 /.*saving.*|.*total.*|.*member.*|.*mermber.*|.*nenber.*/i;
             if (regex3.test(item.text)) {
                 continue;
@@ -117,68 +126,115 @@ export function pairItemtoPriceSafeway(response: ITextRecognitionResponse): {[ke
                 if (regex2.test(str)) {
                     str = str.replace(/,/g, '.');
                 }
-                prices.push(
-                    [Number(str), item.rect.top, item.rect.left, item.rect.width]);
+                const priceObj: PricePositionObject = {
+                    price: Number(str),
+                    xCoor: item.rect.left,
+                    yCoor: item.rect.top,
+                    width: item.rect.width
+                };
+                prices.push(priceObj);
                 checkifNotPrice = false;
             }
             if (checkifNotPrice && !(/^\d+$/.test(item.text))) {
-                items.push([item.text.replace(/^\d*[\s*%]*|^\W+/, ''),
-                    item.rect.top, item.rect.left]);
+                const itemObj: ItemPositionObject = {
+                    item: item.text.replace(/^[\d|\?]*[\s*%]*|^\W+/, ''),
+                    xCoor: item.rect.left,
+                    yCoor: item.rect.top
+                };
+                items.push(itemObj);
             }
         }
     }
 
     let widthScale: number = 2.5;
     for (let a = 0; a < prices.length; a++) {
-        if (prices[a][0] <= 0) {
+        if (prices[a].price == 0) {
             continue;
         }
-        let minitem = items[0];
+        let minitem: ItemPositionObject = items[0];
         for (let b = 0; b < items.length; b++) {
-            if (Math.abs(items[b][2] - prices[a][2]) > widthScale*prices[a][3]) {
-                let newval = Math.abs(prices[a][1] - items[b][1]);
-                if (newval < Math.abs(prices[a][1] - minitem[1])) {
+            if (Math.abs(items[b].xCoor - prices[a].xCoor) > widthScale * prices[a].width) {
+                let newval = Math.abs(prices[a].yCoor - items[b].yCoor);
+                if (newval < Math.abs(prices[a].yCoor - minitem.yCoor)) {
                     minitem = items[b];
                 }
             }
         }
-        if (prices[a][0] in dict) {
-            dict[prices[a][0]].push(minitem[0]);
+        const keyObj = JSON.stringify(prices[a]);
+        if (keyObj in dict) {
+            dict[keyObj].push(minitem.item);
         } else {
-            dict[prices[a][0]] = [minitem[0]];
+            dict[keyObj] = [minitem.item];
         }
     }
-    
+
     console.log("number dictionary");
     printDict(dict);
 
-    let flipped: StringKeyNumberValueObject = {};
+    let yMargin = 15;
+    let flipped: StringKeyPricePosObjArrayObj = {};
     for (const k in dict) {
         dict[k].forEach((v) => {
-            if (v in flipped) {
-                flipped[v] = Math.min(Number(k), flipped[v]);
-            } else {
-                flipped[v] = Number(k);
+            const parsedKeyPrice: PricePositionObject = JSON.parse(k);
+            let liquidV = v;
+            while (liquidV in flipped) {
+                console.log(liquidV + " IN FLIPPED");
+                if (Math.abs(flipped[liquidV].yCoor - parsedKeyPrice.yCoor) < yMargin) {
+                    if (parsedKeyPrice.xCoor > flipped[liquidV].xCoor) {
+                        flipped[liquidV] = parsedKeyPrice;
+                        break;
+                    }
+                } else {
+                    liquidV = liquidV + "#";
+                    console.log("NEW V: " + liquidV);
+                }
+            }
+            if (!(liquidV in flipped)) {
+                console.log("NEW VALUE: " + liquidV);
+                flipped[liquidV] = parsedKeyPrice;
             }
         });
     }
 
-    console.log("pre dict");
+    console.log("flipped");
     printDict(flipped);
 
-    const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*/i;
-    for (const ke in flipped) {
+    let result: StringKeyNumberValueObject = {};
+    for (let cpy in flipped) {
+        result[cpy] = flipped[cpy].price;
+    }
+
+    console.log("pre dict");
+    printDict(result);
+
+    let keyMax: string = "";
+    let total: number = 0;
+    const regex4 = /.*change.*|.*points.*|.*price.*|.*pay.*|.+balance.*|.*snap.*|.*snp.*|.*sngp.*|.*master.*|.*debt.*|.*grocery.*|.*your.*|.*:.*|.*totsl.*|.*total.*|.*tatal.*|.*value.*|.*visa.*|.*debit.*/i;
+    for (const ke in result) {
         if (regex4.test(ke)) {
-            console.log(ke+" removed");
-            flipped = removeKey(flipped, ke);
+            console.log(ke + " removed");
+            result = removeKey(result, ke);
+            continue;
         }
+        if (result[ke] >= total) {
+            total = result[ke];
+            keyMax = ke;
+        }
+    }
+    result["TOTAL"] = result[keyMax];
+    result = removeKey(result, keyMax);
+    console.log("REMOVED " + keyMax);
+
+    if (!("TAX" in result)) {
+        result["TAX"] = 0;
+        console.log("APPENDED TAX TO FLIPPED")
     }
 
     console.log("final dict");
-    printDict(flipped);
+    printDict(result);
 
-    return flipped;
-};
+    return result;
+}
 
 const safewayParser: ISafeway = {
     pairItemtoPriceSafeway

@@ -14,11 +14,14 @@ import { ViewResponse } from '../components/ViewResponse';
 import ViewGroups from "../components/ViewGroups";
 import ViewParserResult from '../components/ViewParserResult';
 import { groupNames } from './GroupsScreen';
+import parseTools from '../parsers/parserTools';
 import parser from '../parsers/parser';
 import { testChecksum } from '../parsers/ctests';
 import { IProcessImageRouteProps } from '../routes';
 import { IParserResult } from '../parsers/IParser';
 import { IHomeStackParamList } from '../components/nav_stacks/HomeStackScreen';
+import Verification from './Verification';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Tab routing type
 interface RenderSceneRoute {
@@ -65,7 +68,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       case 'groups':
         return parserResult ? <ViewGroups groupNames={groupNames} dict={parserResult} /> : null;
     }
-  }, [response, uri]);
+  }, [response, uri, parserResult]);
 
   // Main logic for reading a receipt is here
   const processImage = async (url: string) => {
@@ -73,21 +76,17 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       try {
         // Send a request to Google's ML Kit
         let response_img;
-        if (!response) {
-          response_img = await MLKit.recognizeImage(url);
-          // If the response contains data
-          if (response_img?.blocks?.length > 0) {
+        response_img = await MLKit.recognizeImage(url);
+        // If the response contains data
+        if (response_img?.blocks?.length > 0) {
 
-            // Process response here
-            setResponse(response_img);
+          // Process response here
+          setResponse(response_img);
 
-            // TO DO: What else do we want to do with the ML Kit response?
-            const parserResult = await parser.parseOutput(response_img, setResponse)
-             //console.log(dict)
-            if (parserResult != undefined) {
-              console.log(parser.checksum(parserResult))
-              setParserResult(parserResult);
-            }
+          // TO DO: What else do we want to do with the ML Kit response?
+          const parserResult = await parser.parseOutput(response_img, url)
+          if (parserResult != undefined) {
+            setParserResult(parserResult);
           }
         }
     } catch (error) {
@@ -97,11 +96,8 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   };
 
   return (
-    <TabView
-      navigationState={{index: tabIndex, routes: tabRoutes}}
-      renderScene={renderScene}
-      onIndexChange={setTabIndex}
-      initialLayout={{width: windowDimensions.width}}
-    />
+    <SafeAreaView>
+      {parserResult && <Verification parserResult={parserResult} />}
+    </SafeAreaView>
   );
 };

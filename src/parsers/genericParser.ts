@@ -4,6 +4,8 @@ import { IParser } from "./IParser.ts";
 import { ToastAndroid, Alert, Button } from 'react-native';
 import DocumentScanner from 'react-native-document-scanner-plugin';
 import * as parseFunctions from "./parser.ts";
+import ImagePicker from 'react-native-image-crop-picker';
+
 interface Item {
     text: string;
     xcord: number;
@@ -11,23 +13,28 @@ interface Item {
     width: number;
 }
 
+let inUrl = "";
 /* parseGeneric(setResponse)
  * A function which will parse very simple inputs
  * Goal: To extract the items from basic line to price receipts
  * Wanted: [{Item: Price}, Sub-Total, Sales Tax, Total]
  * List of Random Receipts:
  *  Student Health Center x
- *  Target <
+ *  Target 
  *  Walmart
  *  CVS-Pharmacy
  *  Sephora
  *  Marshalls
  */
 
+<<<<<<< HEAD:src/parsers/GenericParser.ts
 export async function parseGeneric(response: ITextRecognitionResponse): Promise<{[key: string]: number}> {
+=======
+export async function parseGeneric(url: string): Promise<{[key: string]: number}> {
+>>>>>>> main:src/parsers/genericParser.ts
   const {distance, closest} = require('fastest-levenshtein');
   let item_dict: {[key: string]: number} = {};
-
+  let inUrl = url;
   // Puts a little message for user
   /*ToastAndroid.showWithGravity(
     "Please crop the image",
@@ -86,10 +93,14 @@ export async function parseGeneric(response: ITextRecognitionResponse): Promise<
     let items: Item[] = [];
     let num_dict: {[key: string]: number} = {};
     let dict: { [key: string]: string } = {};
-    const Price = /^\$?\d+(\.\d+)?\s?[a-zA-Z]?$/
-    const ItemNumber = /^\d{5,}$/;
+    const Price = /^\$?\d+(\.\d+)?\s?[A-Z]{0,2}$/
+    const NegativePrice = /^-\$?\d+(\.\d+)?\s?[A-Z]{0,2}$/;
+    const ItemNumber = /^\d{4,}$/;
     const RandomLetter = /^[a-zA-Z]$/;
-    const IgnoreWords = /^SUBTOTAL$/
+    const IgnoreWords = /SUBTOTAL|VISA|ITEM|LB/;
+    const SynonymTotal = /TOTAL|BALANCE|PAY/;
+    const DuplicateItems = /^\d+\s?.\s?[\$S]?\d+\.\d{0,2}$/;
+    const UselessCharacters = /@/;
 
     for (let i = response.blocks.length - 1; i >= 0; i--) {
       for (let j = response.blocks[i].lines.length - 1; j >= 0; j--) {
@@ -98,10 +109,8 @@ export async function parseGeneric(response: ITextRecognitionResponse): Promise<
         let ycord = item.rect.top;
         let xcord = item.rect.left;
         let width = item.rect.width;
-        
         // console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);  // This line tells me everyhing I need
-        if (!ItemNumber.test(text) && (!RandomLetter.test(text))) { 
-          // console.log(text);
+        if (!ItemNumber.test(text) && !RandomLetter.test(text) && !DuplicateItems.test(text)) { 
           items.push({ text, ycord: ycord, xcord: xcord, width: width });
         }
       }
@@ -123,34 +132,35 @@ export async function parseGeneric(response: ITextRecognitionResponse): Promise<
       }
     }
 
-
     // This will loop and convert any "," which look like periods in prices into a "."
     for (let key in dict) {
       if (dict[key].includes(',')) {
         dict[key] = dict[key].replace(',', '.');
       }
-      if ((!IgnoreWords.test(key))){
+      if (!IgnoreWords.test(key)){
         item_dict[key] = convertToNumber(dict[key]);
       }
+      else {
+        delete dict[key];
+      }
     }
-
-    for (let key in item_dict) {
-      console.log(`${key.padEnd(30)}:${item_dict[key]}`);
-    }
-
-    console.log(`checkSum: ${parseFunctions.checksum(item_dict)}`)
-
-
-    // const sortedKeys = Object.keys(adict).sort((a, b) => adict[a] - adict[b]);
-    // for (const key of sortedKeys) {
-    //   const text = key;
-    //   const ycord = adict[key];
-    //   console.log(`${text.padEnd(30)} ${ycord.toString().padStart(10)}`);
+    // To print out the dictionary
+    // for (let key in item_dict) {
+    //   console.log(`${key.padEnd(30)}:${item_dict[key]}`);
     // }
 
     return item_dict;
   };
+  const image = await ImagePicker.openCropper({
+    path: inUrl,
+    includeBase64: true,
+    mediaType: "photo",
+    cropping: true,
+    freeStyleCropEnabled: true,
+    enableRotationGesture: false,
+  });
 
+<<<<<<< HEAD:src/parsers/GenericParser.ts
   //const { scannedImages } = await DocumentScanner.scanDocument();
 
   //if (scannedImages && scannedImages.length > 0) {
@@ -160,5 +170,12 @@ export async function parseGeneric(response: ITextRecognitionResponse): Promise<
   item_dict = postProcess(response) || {}; // Fix: Update the type of item_dict to allow for undefined values
   //}
 
+=======
+  if (image) {
+    const response: ITextRecognitionResponse = await MLkit.recognizeImage(image.path);
+    item_dict = postProcess(response) || {};
+  }
+>>>>>>> main:src/parsers/genericParser.ts
   return item_dict;
 }
+

@@ -17,7 +17,9 @@ export default function HomeScreen(props: IHomeScreenTabProps) {
   const ctx = useAppContext();
 
   const scanDocument = async () => {
-    const { scannedImages } = await DocumentScanner.scanDocument();
+    const { scannedImages } = await DocumentScanner.scanDocument({
+      maxNumDocuments: 1
+    });
     
     if (scannedImages && scannedImages.length > 0) {
       onProcessImage(scannedImages[0]);
@@ -39,19 +41,24 @@ export default function HomeScreen(props: IHomeScreenTabProps) {
 
   return (
     <View style={styles.container}>
-      <View style={{height: 48}}>
+      <View style={{height: 60}}>
         <DemoButton key="Process Image" onPress={() => scanDocument()}>
           {'Process Image'}
         </DemoButton>
       </View>
-      <View style={{height: 48}}>
+      <View style={{height: 60, marginTop: 30}}>
         <DemoButton key="Choose Group" onPress={chooseGroup}>
           {'Choose Group'}
         </DemoButton>
       </View>
-      <View style={{height: 48}}>
+      <View style={{height: 60, marginTop: 30}}>
         <DemoButton key="Dev Logout" onPress={() => props.navigation.navigate(routes.LOGOUT_SCREEN)}>
           {'Dev Logout'}
+        </DemoButton>
+      </View>
+      <View style={{height: 60, marginTop: 30}}>
+        <DemoButton key="Dev Logout" onPress={() => props.navigation.navigate(routes.SPLIT_SCREEN)}>
+          {'Dev Split'}
         </DemoButton>
       </View>
     </View>

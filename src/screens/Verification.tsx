@@ -1,75 +1,98 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, ScrollView, TextStyle, ViewStyle } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, TextInput, ScrollView, TextStyle, ViewStyle, Text, Button } from 'react-native';
 import { IParserResult } from '../parsers/IParser';
 
 interface VerificationProps {
     parserResult: IParserResult;
+    numberOfButtons: number; // Specify the number of buttons
 }
 
-interface InputValidity {
-    [key: string]: boolean | undefined;
-}
-
-const Verification: React.FC<VerificationProps> = ({ parserResult }: VerificationProps) => {
-    const [itemNames, setItemNames] = useState<IParserResult>(parserResult);
-    const [inputValidity, setInputValidity] = useState<InputValidity>({});
-
-    const handleTextChange = (text: string, key: string): void => {
-        const priceFloat: RegExp = /^[0-9]*(\.[0-9]{0,2})?$/;
-        if (priceFloat.test(text)) {
-            setItemNames((prevItemNames: IParserResult) => {
-                const updatedItemNames: IParserResult = { ...prevItemNames };
-                updatedItemNames[key] = parseFloat(text); // Convert text to a number
-                return updatedItemNames;
-            });
-            setInputValidity((prevValidity: InputValidity) => ({
-                ...prevValidity,
-                [key]: true,
-            }));
-        } else {
-            setInputValidity((prevValidity: InputValidity) => ({
-                ...prevValidity,
-                [key]: false,
-            }));
-
-            // Reset the invalid input state after 1 second
-            setTimeout(() => {
-                setInputValidity((prevValidity: InputValidity) => {
-                    const updatedValidity: InputValidity = { ...prevValidity };
-                    updatedValidity[key] = undefined; // Reset the validity state to undefined
-                    return updatedValidity;
-                });
-            }, 1000);
+// Helper function to calculate the total sum, excluding the "TOTAL" key
+const calculateTotalSum = (entries: [string, string][]): number => {
+    const totalSum = entries.reduce((sum, [key, value]) => {
+        if (key !== "TOTAL") {
+            return sum + (parseFloat(value) || 0);
         }
+        return sum;
+    }, 0);
+    return parseFloat(totalSum.toFixed(2)); // Round the total to two decimal places
+};
+
+
+const Verification: React.FC<VerificationProps> = ({ parserResult, numberOfButtons }: VerificationProps) => {
+    // Explicitly type the initial entries
+    const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
+
+    const [itemEntries, setItemEntries] = useState<[string, string][]>(initialEntries);
+    const [totalSum, setTotalSum] = useState<number>(calculateTotalSum(initialEntries));
+
+    useEffect(() => {
+        setTotalSum(calculateTotalSum(itemEntries));
+        // Update the TOTAL key in parserResult
+        parserResult.TOTAL = parseFloat(totalSum.toFixed(2));
+    }, [itemEntries]);
+
+    const handleKeyChange = (text: string, index: number): void => {
+        setItemEntries((prevEntries) => {
+            const updatedEntries = [...prevEntries];
+            const [_, value] = updatedEntries[index];
+            updatedEntries[index] = [text, value];
+            return updatedEntries;
+        });
+    };
+
+    const handleValueChange = (text: string, index: number): void => {
+        setItemEntries((prevEntries) => {
+            const updatedEntries = [...prevEntries];
+            const [key, _] = updatedEntries[index];
+            updatedEntries[index] = [key, text];
+            return updatedEntries;
+        });
     };
 
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
+                {itemEntries.map(([key, value], index) => {
+                    if (key !== "TOTAL") {
+                        return (
+                            <View key={index} style={styles.row}>
+                                <View style={styles.item}>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={key}
+                                        onChangeText={(text) => handleKeyChange(text, index)}
+                                        editable={true}
+                                    />
+                                </View>
+                                <View style={styles.item}>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={value}
+                                        onChangeText={(text) => handleValueChange(text, index)}
+                                        keyboardType="default"
+                                    />
+                                </View>
+                            </View>
+                        );
+                    }
+                    return null; // Don't render the TOTAL key
+                })}
                 <View style={styles.row}>
-                    <View style={styles.column}>
-                        {Object.keys(itemNames).map((key: string) => (
-                            <View key={key} style={styles.item}>
-                                <TextInput
-                                    style={[styles.input, inputValidity[key] === false && styles.invalidInput]}
-                                    value={key}
-                                    editable={true}
-                                />
-                            </View>
-                        ))}
+                    <View style={styles.item}>
+                        <Text style={styles.title}>TOTAL:</Text>
                     </View>
-                    <View style={styles.column}>
-                        {Object.keys(itemNames).map((key: string) => (
-                            <View key={key} style={styles.item}>
-                                <TextInput
-                                    style={[styles.input, inputValidity[key] === false && styles.invalidInput]}
-                                    value={itemNames[key].toString()}
-                                    onChangeText={(text) => handleTextChange(text, key)}
-                                    keyboardType="numeric"
-                                />
-                            </View>
-                        ))}
+                    <View style={styles.item}>
+                        <Text style={styles.title}>{totalSum.toFixed(2)}</Text>
                     </View>
+                </View>
+                <View style={styles.buttonContainer}>
+                    {[...Array(numberOfButtons)].map((_, index) => (
+                        <View key={index} style={styles.circularButton}>
+                            <Button title={`Button ${index + 1}`} onPress={() => console.log(`Button ${index + 1} pressed`) }/>
+                        </View>
+
+                    ))}
                 </View>
             </View>
         </ScrollView>
@@ -81,12 +104,13 @@ interface Styles {
     container: ViewStyle;
     title: TextStyle;
     row: ViewStyle;
-    column: ViewStyle;
     item: ViewStyle;
     input: TextStyle;
-    invalidInput: ViewStyle;
+    buttonContainer: ViewStyle;
+    circularButton: ViewStyle;
 }
 
+// Styling for the text boxes and rows
 const styles = StyleSheet.create<Styles>({
     scrollContainer: {
         flexGrow: 1,
@@ -97,16 +121,16 @@ const styles = StyleSheet.create<Styles>({
     },
     title: {
         fontSize: 24,
-        marginBottom: 16,
+        fontWeight: 'bold',
     },
     row: {
         flexDirection: 'row',
-    },
-    column: {
-        flex: 1,
+        alignItems: 'center',
+        marginBottom: 10,
     },
     item: {
-        marginBottom: 10,
+        flex: 1,
+        marginHorizontal: 5,
     },
     input: {
         height: 40,
@@ -114,17 +138,27 @@ const styles = StyleSheet.create<Styles>({
         borderWidth: 1,
         borderRadius: 4,
         paddingHorizontal: 8,
-        paddingVertical: 6,
         textAlign: 'center',
         fontSize: 12,
         fontWeight: 'bold',
         color: 'coral',
         backgroundColor: 'oldlace'
     },
-    invalidInput: {
-        borderColor: 'red',
+    buttonContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        marginTop: 20,
     },
-    
+    circularButton: {
+        width: 50, // Adjust width as needed
+        height: 50, // Adjust height as needed
+        borderRadius: 25, // Half of width/height to make it circular
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'blue', // Example background color
+        overflow: 'hidden', // Ensure the button is clipped to be circular
+    },
 });
+
 
 export default Verification;

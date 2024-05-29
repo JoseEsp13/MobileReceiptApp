@@ -25,6 +25,7 @@ export type IRootParamList = {
   [routes.LOGOUT_SCREEN]: undefined,
   [routes.SIGNUP_SCREEN]: undefined,
   [routes.VIEW_CONTACT_SCREEN]: {contact: IContact;}
+  [routes.SPLIT_SCREEN]: undefined
 };
 
 
@@ -40,7 +41,8 @@ export interface IRoutes {
   LOGIN_SCREEN: "Login",
   LOGOUT_SCREEN: "Logout",
   SIGNUP_SCREEN: "Sign Up",
-  VIEW_CONTACT_SCREEN: "View Contact"
+  VIEW_CONTACT_SCREEN: "View Contact",
+  SPLIT_SCREEN: "Split"
 }
 
 const routes: IRoutes = {
@@ -54,7 +56,8 @@ const routes: IRoutes = {
   LOGIN_SCREEN: "Login",
   LOGOUT_SCREEN: "Logout",
   SIGNUP_SCREEN: "Sign Up",
-  VIEW_CONTACT_SCREEN: "View Contact"
+  VIEW_CONTACT_SCREEN: "View Contact",
+  SPLIT_SCREEN: "Split"
 }
 
 export interface IStackRoutes {

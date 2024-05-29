@@ -27,11 +27,7 @@ let inUrl = "";
  *  Marshalls
  */
 
-<<<<<<< HEAD:src/parsers/GenericParser.ts
-export async function parseGeneric(response: ITextRecognitionResponse): Promise<{[key: string]: number}> {
-=======
 export async function parseGeneric(url: string): Promise<{[key: string]: number}> {
->>>>>>> main:src/parsers/genericParser.ts
   const {distance, closest} = require('fastest-levenshtein');
   let item_dict: {[key: string]: number} = {};
   let inUrl = url;
@@ -160,22 +156,10 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
     enableRotationGesture: false,
   });
 
-<<<<<<< HEAD:src/parsers/GenericParser.ts
-  //const { scannedImages } = await DocumentScanner.scanDocument();
-
-  //if (scannedImages && scannedImages.length > 0) {
-    //const response = await MLkit.recognizeImage(scannedImages[0]); // Fix: Use recognizeImage from MLkit
-    //console.log(scannedImages[0]);
-    //setResponse(response);
-  item_dict = postProcess(response) || {}; // Fix: Update the type of item_dict to allow for undefined values
-  //}
-
-=======
   if (image) {
     const response: ITextRecognitionResponse = await MLkit.recognizeImage(image.path);
     item_dict = postProcess(response) || {};
   }
->>>>>>> main:src/parsers/genericParser.ts
   return item_dict;
 }
 

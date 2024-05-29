@@ -24,12 +24,12 @@ interface Item {
  *  Marshalls
  */
 
-export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAction<ITextRecognitionResponse | undefined>>): Promise<{[key: string]: number}> {
+export async function parseGeneric(response: ITextRecognitionResponse): Promise<{[key: string]: number}> {
   const {distance, closest} = require('fastest-levenshtein');
   let item_dict: {[key: string]: number} = {};
 
   // Puts a little message for user
-  ToastAndroid.showWithGravity(
+  /*ToastAndroid.showWithGravity(
     "Please crop the image",
     ToastAndroid.LONG,
     ToastAndroid.TOP
@@ -148,17 +148,17 @@ export async function parseGeneric(setResponse: React.Dispatch<React.SetStateAct
     //   console.log(`${text.padEnd(30)} ${ycord.toString().padStart(10)}`);
     // }
 
-    return num_dict;
+    return item_dict;
   };
 
-  const { scannedImages } = await DocumentScanner.scanDocument();
+  //const { scannedImages } = await DocumentScanner.scanDocument();
 
-  if (scannedImages && scannedImages.length > 0) {
-    const response = await MLkit.recognizeImage(scannedImages[0]); // Fix: Use recognizeImage from MLkit
-    console.log(scannedImages[0]);
-    setResponse(response);
-    item_dict = postProcess(response) || {}; // Fix: Update the type of item_dict to allow for undefined values
-  }
+  //if (scannedImages && scannedImages.length > 0) {
+    //const response = await MLkit.recognizeImage(scannedImages[0]); // Fix: Use recognizeImage from MLkit
+    //console.log(scannedImages[0]);
+    //setResponse(response);
+  item_dict = postProcess(response) || {}; // Fix: Update the type of item_dict to allow for undefined values
+  //}
 
   return item_dict;
 }

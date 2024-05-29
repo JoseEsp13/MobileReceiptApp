@@ -112,7 +112,7 @@ async function parseOutput(response: ITextRecognitionResponse, setResponse: Reac
     return parseMcDonalds(response);
   }
     
-  return await parseGeneric(setResponse);
+  return await parseGeneric(response);
 
   return undefined;
 };
@@ -306,7 +306,7 @@ const parser: IParser = {
     checksum
 }
 
-const parseTools = {
+export const parseTools = {
   roundPrice,
   grabPrices,
   genList,
@@ -319,4 +319,4 @@ const parseTools = {
   strClean
 }
 
-export default parseTools;
+export default parser;

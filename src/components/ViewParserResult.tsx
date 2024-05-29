@@ -29,8 +29,9 @@ export default function ViewParserResult(props: IParserResultProps) {
     <ScrollView style={{flex: 1, width: "100%"}}>
       <Text style={{color: "#000"}}>{"{"}</Text>
       {Object.keys(parserResult).map((key, i) => (
-        <View key={i}>
-          <Text>{parserResult[key]}</Text>
+        <View key={i} style={{flexDirection: "row", justifyContent: "space-between"}}>
+          <Text>{`"${key}":`}</Text>
+          <Text>{`${parserResult[key]}`}</Text>
         </View>
       ))}
       <Text style={{color: "#000"}}>{"}"}</Text>

@@ -24,27 +24,27 @@ export const ViewDictionary = (props: IViewDictionaryProps) => {
 
   return (
     <ScrollView style={{flex: 1, width: "100%"}}>
-      <Text style={{color: "#000"}}>{"{"}</Text>
+      <Text style={{}}>{"{"}</Text>
       {props.response?.blocks.map((block, bIdx) => (
         <View key={bIdx}>
-          <Text style={{paddingLeft: 10, color: "#000"}}>{`# Block ${bIdx}`}</Text>
-          <Text style={{paddingLeft: 10, color: "#000"}}>{`${bIdx}: {`}</Text>
+          <Text style={{paddingLeft: 10}}>{`# Block ${bIdx}`}</Text>
+          <Text style={{paddingLeft: 10}}>{`${bIdx}: {`}</Text>
           
           <View style={{flexDirection: "row", paddingLeft: 20}}>
-            <Text style={{fontWeight: "600", color: "#000"}}>Text: </Text>
-            <Text style={{color: "#000"}}>{block.text}</Text>
+            <Text style={{fontWeight: "600", }}>Text: </Text>
+            <Text style={{}}>{block.text}</Text>
           </View>
           <View style={{flexDirection: "row", paddingLeft: 20}}>
-            <Text style={{fontWeight: "600", color: "#000"}}>Lines: </Text>
-            <Text style={{color: "#000"}}>{"{"}</Text>
+            <Text style={{fontWeight: "600", }}>Lines: </Text>
+            <Text style={{}}>{"{"}</Text>
           </View>
           <LineComponent lines={block.lines} />
-          <Text style={{paddingLeft: 20, color: "#000"}}>{"}"}</Text>
+          <Text style={{paddingLeft: 20, }}>{"}"}</Text>
 
-          <Text style={{paddingLeft: 10, color: "#000"}}>{"}"}</Text>
+          <Text style={{paddingLeft: 10, }}>{"}"}</Text>
         </View>
       ))}
-      <Text style={{color: "#000"}}>{"}"}</Text>
+      <Text style={{}}>{"}"}</Text>
     </ScrollView>
   );
 };
@@ -71,9 +71,9 @@ interface ILineComponent {
 const LineComponent = (props: ILineComponent) => {
   return props.lines.map((line, idx) => (
     <View key={idx} style={{paddingLeft: 30}}>
-      <Text style={{color: "#000"}}>{`${idx}: {`}</Text>
-      <Text style={{paddingLeft: 10, color: "#000"}}>{`"${line.text}"`}</Text>
-      <Text style={{color: "#000"}}>{"}"}</Text>
+      <Text style={{}}>{`${idx}: {`}</Text>
+      <Text style={{paddingLeft: 10, }}>{`"${line.text}"`}</Text>
+      <Text style={{}}>{"}"}</Text>
     </View>
   ))
 }

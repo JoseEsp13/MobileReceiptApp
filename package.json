@@ -41,7 +41,8 @@
     "react-native-screens": "^3.30.1",
     "react-native-tab-view": "^3.5.2",
     "react-native-vector-icons": "^10.0.3",
-    "react-navigation": "^5.0.0"
+    "react-navigation": "^5.0.0",
+    "reanimated-color-picker": "^3.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

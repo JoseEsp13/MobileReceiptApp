@@ -11,6 +11,7 @@ import { IBottomTabsParamList, ILoginStackParamList } from "./NavigatorBottomTab
 import { IHomeStackParamList } from "./components/nav_stacks/HomeStackScreen";
 import { IContact } from "./components/state/IFirebaseDocument";
 import { IContactsStackScreenParamList } from "./components/nav_stacks/ContactsStackScreen";
+import { IGroupsStackScreenParamList } from "./components/nav_stacks/GroupsStackScreen";
 
 // Defines what parameters gets sent to a screen route
 export type IRootParamList = {
@@ -24,7 +25,7 @@ export type IRootParamList = {
   [routes.LOGIN_SCREEN]: undefined,
   [routes.LOGOUT_SCREEN]: undefined,
   [routes.SIGNUP_SCREEN]: undefined,
-  [routes.VIEW_CONTACT_SCREEN]: {contact: IContact;}
+  [routes.EDIT_CONTACT_SCREEN]: {contact: IContact;}
   [routes.SPLIT_SCREEN]: undefined
 };
 
@@ -36,12 +37,14 @@ export interface IRoutes {
   PROCESS_IMAGE_SCREEN: "Process Image",
   SETTINGS_SCREEN: "Settings",
   GROUPS_SCREEN: "Groups ",
+  EDIT_GROUP_SCREEN: "Edit Group",
+  CREATE_GROUP_SCREEN: "Create Group",
   CONTACTS_SCREEN: "Contacts ",
   CREATE_CONTACT_SCREEN: "Create Contact",
   LOGIN_SCREEN: "Login",
   LOGOUT_SCREEN: "Logout",
   SIGNUP_SCREEN: "Sign Up",
-  VIEW_CONTACT_SCREEN: "View Contact",
+  EDIT_CONTACT_SCREEN: "Edit Contact",
   SPLIT_SCREEN: "Split"
 }
 
@@ -51,12 +54,14 @@ const routes: IRoutes = {
   PROCESS_IMAGE_SCREEN: "Process Image",
   SETTINGS_SCREEN: "Settings",
   GROUPS_SCREEN: "Groups ",
+  EDIT_GROUP_SCREEN: "Edit Group",
+  CREATE_GROUP_SCREEN: "Create Group",
   CONTACTS_SCREEN: "Contacts ",
   CREATE_CONTACT_SCREEN: "Create Contact",
   LOGIN_SCREEN: "Login",
   LOGOUT_SCREEN: "Logout",
   SIGNUP_SCREEN: "Sign Up",
-  VIEW_CONTACT_SCREEN: "View Contact",
+  EDIT_CONTACT_SCREEN: "Edit Contact",
   SPLIT_SCREEN: "Split"
 }
 
@@ -102,8 +107,12 @@ export type ISignUpScreenStackProps = StackScreenProps<IRootParamList, typeof ro
 
 export type IProcessImageStackScreenProps = StackScreenProps<IRootParamList, typeof routes.PROCESS_IMAGE_SCREEN>;
 
-export type ICreateContactScreenProps = StackScreenProps<IRootParamList, typeof routes.CREATE_CONTACT_SCREEN>;
-export type IViewContactScreenProps = StackScreenProps<IContactsStackScreenParamList, typeof routes.VIEW_CONTACT_SCREEN>;
+export type ICreateContactScreenProps = StackScreenProps<IContactsStackScreenParamList, typeof routes.CREATE_CONTACT_SCREEN>;
+export type IEditContactScreenProps = StackScreenProps<IContactsStackScreenParamList, typeof routes.EDIT_CONTACT_SCREEN>;
+
+export type ICreateGroupScreenProps = StackScreenProps<IGroupsStackScreenParamList, typeof routes.CREATE_GROUP_SCREEN>;
+export type IEditGroupScreenProps = StackScreenProps<IGroupsStackScreenParamList, typeof routes.EDIT_GROUP_SCREEN>;
+
 
 export type ILoginStackScreenProps = StackScreenProps<ILoginStackParamList, typeof routes.LOGIN_SCREEN>;
 export type ILogoutStackScreenProps = StackScreenProps<ILoginStackParamList, typeof routes.LOGOUT_SCREEN>;

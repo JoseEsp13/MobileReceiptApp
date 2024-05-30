@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, ScrollView, TextStyle, ViewStyle } from 'react-native';
+import { StyleSheet, View, TextInput, ScrollView, TextStyle, ViewStyle, SafeAreaView } from 'react-native';
 import { IParserResult } from '../parsers/IParser';
 
 interface VerificationProps {
@@ -44,7 +44,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView style={styles.scrollContainer}>
             <View style={styles.container}>
                 <View style={styles.row}>
                     <View style={styles.column}>
@@ -89,7 +89,7 @@ interface Styles {
 
 const styles = StyleSheet.create<Styles>({
     scrollContainer: {
-        flexGrow: 1,
+        flex: 1,
     },
     container: {
         marginTop: 8,

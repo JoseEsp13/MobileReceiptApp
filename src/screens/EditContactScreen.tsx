@@ -1,31 +1,35 @@
-import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import useAppContext from "../components/hooks/useAppContext";
+import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { IContact } from "../components/state/IFirebaseDocument";
+import routes, { IEditContactScreenProps } from "../routes";
 import { useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
-import { ICreateContactScreenProps } from "../routes";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import useAppContext from "../components/hooks/useAppContext";
 import Avatar from "../components/Avatar";
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
 import type { returnedResults } from 'reanimated-color-picker';
 
 
-export default function CreateContactScreen(props: ICreateContactScreenProps) {
+export default function EditContactScreen(props: IEditContactScreenProps) {
 
   const ctx = useAppContext();
-  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: colorKit.randomRgbColor().hex(), color: "#1a1a1a"})
+  const [contact, setContact] = useState<IContact>(props.route.params.contact);
   const [showModal, setShowModal] = useState(false);
 
   const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbColor().hex());
 
-  const selectedColor = useSharedValue(customSwatches[0]);
+  const selectedColor = useSharedValue(props.route.params.contact.bgColor);
   const backgroundColorStyle = useAnimatedStyle(() => ({ backgroundColor: selectedColor.value }));
 
-  const handleSave = () => {
-    if (contact.name && contact.email) {
-      ctx.addContact(contact);
-      props.navigation.goBack();
-    } 
+  const handleClose = () => {
+    ctx.editContact(contact);
+    props.navigation.navigate(routes.CONTACTS_SCREEN);
+  }
+
+  const handleDelete = () => {
+    ctx.deleteContact(contact);
+    props.navigation.navigate(routes.CONTACTS_SCREEN);
   }
 
   // Modal functions
@@ -43,9 +47,11 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
     }))
     setShowModal(false);
   }
-  return(
+
+
+  return (
     <>
-      <SafeAreaView style={{flex: 1}}>
+     <SafeAreaView style={{flex: 1}}>
         <ScrollView>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
@@ -53,11 +59,13 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
                 <Icon name="color-palette" size={35}/>
               </TouchableOpacity>
             </View>
-            <View style={{borderRadius: 100, backgroundColor: contact.bgColor, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
-              <Icon name="person-add" size={65}></Icon>
+            <View style={{borderRadius: 100, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
+              <Avatar contact={contact} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-
+              <TouchableOpacity onPress={() => handleDelete()}>
+                <Icon name="trash" size={35} color="red"/>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -105,7 +113,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
 
           <View style={{marginTop: 60, alignItems: "center"}}>
             <View style={{width: "60%", borderRadius: 50}}>
-              <Button title="Save" color="steelblue" onPress={handleSave} />
+              <Button title="Save" color="steelblue" onPress={handleClose} />
             </View>
           </View>  
         </ScrollView>
@@ -147,7 +155,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
           </View>
         </Animated.View>
       </Modal>
-    </>  
+    </>
   )
 }
 
@@ -284,4 +292,4 @@ const styles = StyleSheet.create({
 
     elevation: 5,
   },
-})
+});

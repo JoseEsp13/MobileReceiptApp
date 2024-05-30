@@ -10,29 +10,11 @@ interface IAvatarProps {
 
 export default function Avatar(props: IAvatarProps) {
 
-  let initial = "?";
-  if (props.contact.name.length > 0) {
-    initial = props.contact.name[0]
-  }
-
+  const initial = props.contact.name.length > 0 ? props.contact.name[0] :"?";
 
   return (
-    <View style={props.viewStyle}>
-      <Text style={props.textStyle}>{initial}</Text>
+    <View style={[props.viewStyle, {backgroundColor: props.contact.bgColor}]}>
+      <Text style={[props.textStyle, {color: props.contact.color}]}>{initial}</Text>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 10,
-    width: 10,
-    borderRadius: 25
-  },
-  text: {
-
-  }
-})

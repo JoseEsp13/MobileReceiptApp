@@ -16,20 +16,17 @@ export default function SplitScreen() {
       const topContacts = (numContacts / 2) + (numContacts % 2);
       const bottomContacts = numContacts / 2;
       
-      let angle = 
+      /*let angle = 
       if (numContacts == 1) {
         angle = 
       }
       const angle = (2 * Math.PI)/(numContacts + 2)
-      console.log(angle)
+      console.log(angle)*/
     }
   }, [groupSelected])
 
   return (
     <View style={styles.container}>
-
-
-
       <View style={styles.containerLetters}>
         <View style={styles.container}>
 

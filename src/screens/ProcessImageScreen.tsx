@@ -23,52 +23,20 @@ import { IHomeStackParamList } from '../components/nav_stacks/HomeStackScreen';
 import Verification from './Verification';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-// Tab routing type
-interface RenderSceneRoute {
-  route: {key: string},
-  jumpTo: (tab: string) => void,
-}
-
 interface ProcessImageScreenProps {
   navigation: IHomeStackParamList;
   route: IProcessImageRouteProps;
 }
 
-
 export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
-  const windowDimensions = useWindowDimensions();
-
-  // Tab routing
-  const [tabIndex, setTabIndex] = React.useState(0);
-  const [tabRoutes] = React.useState([
-    { key: 'overlay', title: "Overlay" },
-    { key: 'dictionary', title: "Dict" },
-    { key: 'parser', title: "Parser" },
-    { key: 'groups', title: "Groups"}
-  ]);
 
   const [response, setResponse] = useState<ITextRecognitionResponse | undefined>();
   const [parserResult, setParserResult] = useState<IParserResult | undefined>();
 
-  const uri = props.route.params.uri
-
   useEffect(() => {
-    if (uri) processImage(uri);
-  }, [uri]);
-
-  // Tab routing
-  const renderScene = useCallback((params: RenderSceneRoute) => {
-    switch (params.route.key) {
-      case 'overlay':
-        return <ViewOverlay response={response} uri={uri}/>
-      case 'dictionary':
-        return <ViewDictionary response={response} />
-      case 'parser':
-        return <ViewParserResult parserResult={parserResult} />
-      case 'groups':
-        return parserResult ? <ViewGroups groupNames={groupNames} dict={parserResult} /> : null;
-    }
-  }, [response, uri, parserResult]);
+    if (props.route.params.uri)
+      processImage(props.route.params.uri);
+  }, [props.route.params.uri]);
 
   // Main logic for reading a receipt is here
   const processImage = async (url: string) => {

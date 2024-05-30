@@ -1,25 +1,25 @@
 import { Button, SafeAreaView, ScrollView, TextInput, View } from "react-native";
-import { IContact } from "../components/state/IFirebaseDocument";
-import routes, { IViewContactScreenProps } from "../routes";
+import { IContact, IGroup } from "../components/state/IFirebaseDocument";
+import routes, { IEditGroupScreenProps } from "../routes";
 import { useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useAppContext from "../components/hooks/useAppContext";
 
 
-export default function ViewContactScreen(props: IViewContactScreenProps) {
+export default function EditGroupScreen(props: IEditGroupScreenProps) {
 
   const ctx = useAppContext();
-  const [contact, setContact] = useState<IContact>(props.route.params.contact);
+  const [group, setGroup] = useState<IGroup>(props.route.params.group);
 
   const handleClose = () => {
-    ctx.editContact(contact);
-    props.navigation.navigate(routes.CONTACTS_SCREEN);
+    ctx.editGroup(group);
+    props.navigation.navigate(routes.GROUPS_SCREEN);
   }
 
-  const handleDelete = (contact: IContact) => {
-    ctx.deleteContact(contact);
-    props.navigation.navigate(routes.CONTACTS_SCREEN);
+  const handleDelete = (group: IGroup) => {
+    ctx.deleteGroup(group);
+    props.navigation.navigate(routes.GROUPS_SCREEN);
   }
 
   return(
@@ -33,7 +33,7 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
             <Icon name="person-add" size={65}></Icon>
           </View>
           <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-            <TouchableOpacity onPress={() => handleDelete(contact)}>
+            <TouchableOpacity onPress={() => handleDelete(group)}>
               <Icon name="trash" size={35} color="red"/>
             </TouchableOpacity>
           </View>
@@ -69,9 +69,8 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
 
         <View style={{marginTop: 60, alignItems: "center"}}>
           <View style={{width: "60%", borderRadius: 50}}>
-            <Button title="Close" color="steelblue" onPress={handleClose} />
+            <Button title="Save" color="steelblue" onPress={handleClose} />
           </View>
-          
         </View>  
       </ScrollView>
     </SafeAreaView>

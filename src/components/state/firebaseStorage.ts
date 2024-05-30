@@ -4,21 +4,9 @@ import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firest
 import { IUser } from './IFirebaseDocument';
 import utility from '../util/utility';
 
-const loginAsync = async (email: string, password: string) => {
-  auth()
-    .signInWithEmailAndPassword(email, password)
-    .then(() => {
-      console.log('User signed in!');
-    })
-    .catch(error => {console.error(error);});
-}
-
-const logoutAsync = async () => {
-  await auth().signOut();
-}
-
-// Create a new authenticated login
-const createAuthenticatedAsync = async (email: string, password: string, name: string) => {
+// Creates a new authenticated login
+// Also creates a new user data entry in the Firestore Database
+const createAuthenticatedUserAsync = async (email: string, password: string, name: string) => {
   return await auth()
     .createUserWithEmailAndPassword(email, password)
     .then(async credential => {
@@ -32,7 +20,7 @@ const createAuthenticatedAsync = async (email: string, password: string, name: s
         email
       };
 
-      await createUserAsync(newUser);
+      await setUserDataAsync(newUser);
       return newUser;
     })
     .catch(error => {
@@ -49,22 +37,39 @@ const createAuthenticatedAsync = async (email: string, password: string, name: s
     });
 }
 
-// Create a user datastore
-const createUserAsync = async (user: IUser) => {
+// Login
+const loginAsync = async (email: string, password: string) => {
+  auth()
+    .signInWithEmailAndPassword(email, password)
+    .then(() => {
+      console.log('User signed in!');
+    })
+    .catch(error => {console.error(error);});
+}
+
+// Logout
+const logoutAsync = async () => {
+  await auth().signOut();
+}
+
+
+// Sets user data in Firestore Database
+const setUserDataAsync = async (user: IUser) => {
   try {
     await firestore()
       .collection('users')
       .doc(user.uid)
       .set(user);
-    console.log(`User: ${user.name} datastore created`);
+    console.log(`User: ${user.name} saved correctly.`);
     return true;
   } catch {
-    console.log(`Failed to create datastore for ${user.name}`);
+    console.log(`Failed to save to datastore: ${user.name}`);
     return false;
   }
 }
 
-const getUserAsync = async (uid: string) => {
+// Gets user data from firebase
+const getUserDataAsync = async (uid: string) => {
   return firestore().collection('users').doc(uid).get()
     .then(result => {
       return utility.mapDocumentDataToUser(result.data());
@@ -73,18 +78,6 @@ const getUserAsync = async (uid: string) => {
       console.log(ex);
       return utility.createEmptyUserObject();
     })
-}
-
-const saveUserAsync = async (user: IUser) => {
-  try {
-    firestore()
-      .collection('users')
-      .doc(user.uid)
-      .set(user)
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 /*
@@ -101,6 +94,7 @@ const saveUserAsync = async (user: IUser) => {
 
   task.resume();
 */
+// Receipt functions
 const addReceiptAsync = async (uid: string, path: string, newFileName: string) => {
   const reference = storage().ref(`/users/${uid}/receipts/${newFileName}`);
   return reference.putFile(path);
@@ -122,30 +116,28 @@ const deleteReceiptAsync = async (uid: string, fileName: string) => {
   await reference.delete();
 }
 
-export interface IFirebase {
+export interface IFirebaseWrapper {
   loginAsync: (email: string, password: string) => Promise<void>,
   logoutAsync: () => Promise<void>,
-  createAuthenticatedAsync: (email: string, password: string, name: string) => Promise<IUser | null>,
+  createAuthenticatedUserAsync: (email: string, password: string, name: string) => Promise<IUser | null>,
+  setUserDataAsync: (user: IUser) => Promise<Boolean>,
+  getUserDataAsync: (uid: string) => Promise<IUser>,
   addReceiptAsync: (uid: string, path: string, newFileName: string) => Promise<FirebaseStorageTypes.TaskSnapshot>,
   listReceiptsAsync: (uid: string) => Promise<string[]>,
   downloadReceiptAsync: (uid: string, fileName: string) => Promise<string>,
   deleteReceiptAsync: (uid: string, fileName: string) => void,
-  saveUserAsync: (user: IUser) => Promise<Boolean>,
-  createUserAsync: (user: IUser) => Promise<Boolean>,
-  getUserAsync: (uid: string) => Promise<IUser>,
 }
 
-const firebase: IFirebase = {
+const firebase: IFirebaseWrapper = {
   loginAsync,
   logoutAsync,
-  createAuthenticatedAsync,
+  createAuthenticatedUserAsync,
+  setUserDataAsync,
+  getUserDataAsync,
   addReceiptAsync,
   listReceiptsAsync,
   downloadReceiptAsync,
   deleteReceiptAsync,
-  saveUserAsync,
-  createUserAsync,
-  getUserAsync,
 }
 
 export default firebase;

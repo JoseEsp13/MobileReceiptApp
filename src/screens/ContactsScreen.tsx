@@ -3,11 +3,8 @@
  * 
  * Home screen component.
  */
-import { Button, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { FloatingAction } from "react-native-floating-action";
-import * as ImagePicker from 'react-native-image-picker';
-import {ImagePickerResponse} from 'react-native-image-picker/src/types';
-import React, { useState } from 'react';
+import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'
 import useAppContext from '../components/hooks/useAppContext';
 import Avatar from '../components/Avatar';
@@ -23,17 +20,18 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
     props.navigation.navigate(routes.CREATE_CONTACT_SCREEN);
   }
 
-  const handleViewContactOnPress = (contact: IContact) => {
-    props.navigation.navigate(routes.VIEW_CONTACT_SCREEN, {contact});
+  const handleEditContactOnPress = (contact: IContact) => {
+    props.navigation.navigate(routes.EDIT_CONTACT_SCREEN, {contact});
   }
 
   return (
     <SafeAreaView style={styles.container}>
       {ctx.user.contacts.length > 0 ?
         <>
+          <ScrollView style={{flex: 1}}>
           {
             ctx.user.contacts.map((x, i) => (
-              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleViewContactOnPress(x)}>
+              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleEditContactOnPress(x)}>
                 <View style={styles.avatarContainer}>
                   <Avatar contact={x} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
                 </View>
@@ -42,6 +40,7 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
                 </View> 
               </TouchableOpacity>
           ))}
+          </ScrollView>
           <TouchableOpacity style={styles.addBtnAbsoluteContainer} onPress={handleAddBtnOnPress}>
             <View style={styles.addBtn}>
               <Icon name="add" size={25} color="white"/>
@@ -61,8 +60,7 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
           </View>
           
         </View>
-      }
-      
+      }   
     </SafeAreaView>
   );
 }
@@ -70,7 +68,7 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1, 
-    paddingHorizontal: 15, 
+    paddingHorizontal: 10, 
     paddingTop: 15
   },
   viewRow: {
@@ -78,7 +76,8 @@ const styles = StyleSheet.create({
     height: 55,
     backgroundColor: "white",
     marginBottom: 10,
-    borderRadius: 7
+    borderRadius: 10,
+    paddingHorizontal: 10
   },
   avatarContainer: {
     height: 55,

@@ -5,6 +5,8 @@ import { useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useAppContext from "../components/hooks/useAppContext";
+import { ColorPicker, TriangleColorPicker } from "react-native-color-picker";
+
 
 
 export default function ViewContactScreen(props: IViewContactScreenProps) {
@@ -21,6 +23,19 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
     ctx.deleteContact(contact);
     props.navigation.navigate(routes.CONTACTS_SCREEN);
   }
+
+  const [buttonColorSet, setButtonColor] = useState("#ffffff")
+
+  const colorButtonPress = () => (
+    <ColorPicker
+      onColorSelected={(color: string) => {
+        console.log(`Color Selected: ${color}`);
+        setButtonColor(color);
+        setContact(prevState => ({...prevState, color: color}));
+      }}
+      style={{flex: 1}}
+    />
+  )
 
   return(
     <SafeAreaView style={{flex: 1}}>
@@ -63,6 +78,19 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
               value={contact.email}
               onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
               style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+            />
+          </View>
+        </View>
+
+        <View style={{marginTop: 20, flexDirection: "row"}}>
+          <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+            <Icon name="color-filter-outline" size={25}></Icon>
+          </View>
+          <View style={{flex: 1}}>
+            <Button 
+              title="ChangeColor"
+              onPress={colorButtonPress}
+              color={buttonColorSet}
             />
           </View>
         </View>

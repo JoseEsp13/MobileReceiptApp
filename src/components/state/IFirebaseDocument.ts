@@ -10,6 +10,7 @@ export interface IContact {
   id: number,
   name: string,
   email: string,
+  color: string
 }
 
 export interface IGroup {

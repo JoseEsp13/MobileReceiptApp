@@ -89,12 +89,6 @@ function isPriceSafeway(price: string): string {
  *     (original and discounted), chooses the discounted
  *     price.
  * 
- * CURRENT BUG:
- *  - If price is misread, choosing the price with the
- *    lower cost doesn't work:
- *    6.99 6.29 is misread as 5.99 6.29
- *  - Resolve by choosing farther x distance from item
- * 
  * Context for Variebles:
  *  prices: [price, ycoor, xcoor, width][]
  *  items:  [item name, ycoor, xcoor][]

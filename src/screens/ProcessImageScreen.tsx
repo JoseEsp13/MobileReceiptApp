@@ -97,7 +97,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
 
   return (
     <SafeAreaView>
-      {parserResult && <Verification parserResult={parserResult} numberOfButtons={2} />}
+      {parserResult && <Verification parserResult={parserResult}/>}
     </SafeAreaView>
   );
 };

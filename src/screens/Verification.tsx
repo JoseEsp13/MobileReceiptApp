@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated } from 'react-native';
 import { IParserResult } from '../parsers/IParser';
-import { groupNames, groupData } from './GroupsScreen';
+import { groupData } from './GroupsScreen';
+import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
 
 interface VerificationProps {
     parserResult: IParserResult;
@@ -27,6 +28,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
     const [isPanelVisible, setIsPanelVisible] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<{ title: string, subGroups: string[] } | null>(null);
     const [groupItems, setGroupItems] = useState<[string, string][]>([]); // State to hold items and prices for the selected group
+    const [editable, setEditable] = useState(true); // State to control the editability of TextInput fields
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -80,6 +82,10 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
         }
     };
 
+    const finalize = (): void => {
+        setEditable(false); // Set editable to false to disable all TextInput fields
+    };
+
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.container}>
@@ -92,7 +98,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                                         style={styles.input}
                                         value={key}
                                         onChangeText={(text) => handleKeyChange(text, index)}
-                                        editable={true}
+                                        editable={editable} // Use the editable state here
                                     />
                                 </View>
                                 <View style={styles.item}>
@@ -101,10 +107,11 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                                         value={value}
                                         onChangeText={(text) => handleValueChange(text, index)}
                                         keyboardType="default"
+                                        editable={editable} // Use the editable state here
                                     />
                                 </View>
                                 <View style={styles.buttonItem}>
-                                    <Button title="-" onPress={() => deleteEntry(index)} />
+                                    <Button title="-" onPress={() => deleteEntry(index)} disabled={!editable} />
                                 </View>
                             </View>
                         );
@@ -119,8 +126,8 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                         <Text style={styles.title}>{totalSum.toFixed(2)}</Text>
                     </View>
                 </View>
-                <Button title="Add Item" onPress={addNewEntry} />
-                <Button title="Undo" onPress={undoDelete} disabled={deletedEntries.length === 0} />
+                <Button title="Add Item" onPress={addNewEntry} disabled={!editable} />
+                <Button title="Undo" onPress={undoDelete} disabled={deletedEntries.length === 0 || !editable} />
                 <Text style={styles.chooseGroupText}>Group:</Text>
                 {selectedGroup && (
                     <View style={styles.chosenGroup}>
@@ -133,8 +140,19 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                 </View>
                 <View style={styles.buttonContainer}>
                     {selectedGroup && selectedGroup.subGroups.map((subGroupName, index) => (
-                        <View key={index} style={styles.circularButton}>
-                            <Button title={subGroupName} onPress={() => console.log(`${subGroupName} pressed`)} />
+                        <View key={index}>
+                            <ThemedButton
+                                name='rick'
+                                textColor='gray'
+                                textSize={5}
+                                type='primary'
+                                raiseLevel={3}
+                                width={50}
+                                height={50}
+                                onPress={finalize} // Call finalize function here
+                            >
+                                {subGroupName}
+                            </ThemedButton>
                         </View>
                     ))}
                 </View>
@@ -235,22 +253,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 12,
         fontWeight: 'bold',
-        color: 'coral',
-        backgroundColor: 'oldlace',
+        color: '#1f91ec',   // Blue color
     },
     buttonContainer: {
         flexDirection: 'row',
+        flexWrap: 'wrap', // Allow buttons to wrap to the next line
         justifyContent: 'space-around',
         marginTop: 20,
-    },
-    circularButton: {
-        width: 50, // Adjust width as needed
-        height: 50, // Adjust height as needed
-        borderRadius: 25, // Half of width/height to make it circular
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'blue', // Example background color
-        overflow: 'hidden', // Ensure the button is clipped to be circular
     },
     buttonItem: {
         marginHorizontal: 5,
@@ -297,4 +306,3 @@ const styles = StyleSheet.create({
 });
 
 export default Verification;
-

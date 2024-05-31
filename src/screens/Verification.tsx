@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, TextInput, ScrollView, TextStyle, ViewStyle, Text, Button } from 'react-native';
+import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated } from 'react-native';
 import { IParserResult } from '../parsers/IParser';
+import { groupNames, groupData } from './GroupsScreen';
 
 interface VerificationProps {
     parserResult: IParserResult;
-    numberOfButtons: number; // Specify the number of buttons
 }
 
 // Helper function to calculate the total sum, excluding the "TOTAL" key
@@ -18,19 +18,29 @@ const calculateTotalSum = (entries: [string, string][]): number => {
     return parseFloat(totalSum.toFixed(2)); // Round the total to two decimal places
 };
 
-
-const Verification: React.FC<VerificationProps> = ({ parserResult, numberOfButtons }: VerificationProps) => {
-    // Explicitly type the initial entries
+const Verification: React.FC<VerificationProps> = ({ parserResult }: VerificationProps) => {
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
 
     const [itemEntries, setItemEntries] = useState<[string, string][]>(initialEntries);
     const [totalSum, setTotalSum] = useState<number>(calculateTotalSum(initialEntries));
+    const [deletedEntries, setDeletedEntries] = useState<[string, string][]>([]);
+    const [isPanelVisible, setIsPanelVisible] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState<{ title: string, subGroups: string[] } | null>(null);
+    const [groupItems, setGroupItems] = useState<[string, string][]>([]); // State to hold items and prices for the selected group
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
-        // Update the TOTAL key in parserResult
         parserResult.TOTAL = parseFloat(totalSum.toFixed(2));
     }, [itemEntries]);
+
+    useEffect(() => {
+        if (selectedGroup) {
+            const groupItemsFiltered = itemEntries.filter(([key]) =>
+                selectedGroup.subGroups.includes(key)
+            );
+            setGroupItems(groupItemsFiltered);
+        }
+    }, [selectedGroup, itemEntries]);
 
     const handleKeyChange = (text: string, index: number): void => {
         setItemEntries((prevEntries) => {
@@ -48,6 +58,26 @@ const Verification: React.FC<VerificationProps> = ({ parserResult, numberOfButto
             updatedEntries[index] = [key, text];
             return updatedEntries;
         });
+    };
+
+    const addNewEntry = (): void => {
+        setItemEntries((prevEntries) => [...prevEntries, ["", "0"]]);
+    };
+
+    const deleteEntry = (index: number): void => {
+        setItemEntries((prevEntries) => {
+            const entryToDelete = prevEntries[index];
+            setDeletedEntries((prevDeleted) => [entryToDelete, ...prevDeleted]);
+            return prevEntries.filter((_, i) => i !== index);
+        });
+    };
+
+    const undoDelete = (): void => {
+        if (deletedEntries.length > 0) {
+            const [lastDeleted, ...restDeleted] = deletedEntries;
+            setItemEntries((prevEntries) => [...prevEntries, lastDeleted]);
+            setDeletedEntries(restDeleted);
+        }
     };
 
     return (
@@ -73,10 +103,13 @@ const Verification: React.FC<VerificationProps> = ({ parserResult, numberOfButto
                                         keyboardType="default"
                                     />
                                 </View>
+                                <View style={styles.buttonItem}>
+                                    <Button title="-" onPress={() => deleteEntry(index)} />
+                                </View>
                             </View>
                         );
                     }
-                    return null; // Don't render the TOTAL key
+                    return null;
                 })}
                 <View style={styles.row}>
                     <View style={styles.item}>
@@ -86,32 +119,93 @@ const Verification: React.FC<VerificationProps> = ({ parserResult, numberOfButto
                         <Text style={styles.title}>{totalSum.toFixed(2)}</Text>
                     </View>
                 </View>
+                <Button title="Add Item" onPress={addNewEntry} />
+                <Button title="Undo" onPress={undoDelete} disabled={deletedEntries.length === 0} />
+                <Text style={styles.chooseGroupText}>Group:</Text>
+                {selectedGroup && (
+                    <View style={styles.chosenGroup}>
+                        <Text style={styles.chosenGroupText}>{selectedGroup.title}</Text>
+                    </View>
+                )}
+                
+                <View style={styles.panelButtonContainer}>
+                    <Button title="+" onPress={() => setIsPanelVisible(true)} />
+                </View>
                 <View style={styles.buttonContainer}>
-                    {[...Array(numberOfButtons)].map((_, index) => (
+                    {selectedGroup && selectedGroup.subGroups.map((subGroupName, index) => (
                         <View key={index} style={styles.circularButton}>
-                            <Button title={`Button ${index + 1}`} onPress={() => console.log(`Button ${index + 1} pressed`) }/>
+                            <Button title={subGroupName} onPress={() => console.log(`${subGroupName} pressed`)} />
                         </View>
-
                     ))}
                 </View>
+                {/* Display item names and prices */}
+                {groupItems.length > 0 && (
+                    <View style={styles.subGroupContainer}>
+                        {groupItems.map(([key, value], index) => (
+                            <View key={index} style={styles.row}>
+                                <View style={styles.item}>
+                                    <Text style={styles.subGroupText}>{key}</Text>
+                                </View>
+                                <View style={styles.item}>
+                                    <Text style={styles.subGroupText}>{value}</Text>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                )}
+                <SlideUpPanel isVisible={isPanelVisible} onClose={() => setIsPanelVisible(false)} setSelectedGroup={setSelectedGroup} />
             </View>
         </ScrollView>
     );
 };
 
-interface Styles {
-    scrollContainer: ViewStyle;
-    container: ViewStyle;
-    title: TextStyle;
-    row: ViewStyle;
-    item: ViewStyle;
-    input: TextStyle;
-    buttonContainer: ViewStyle;
-    circularButton: ViewStyle;
-}
 
-// Styling for the text boxes and rows
-const styles = StyleSheet.create<Styles>({
+const SlideUpPanel: React.FC<{ isVisible: boolean; onClose: () => void; setSelectedGroup: React.Dispatch<React.SetStateAction<{ title: string, subGroups: string[] } | null>> }> = ({
+    isVisible,
+    onClose,
+    setSelectedGroup,
+}) => {
+    const slideUpValue = useState(new Animated.Value(0))[0];
+
+    useEffect(() => {
+        if (isVisible) {
+            Animated.timing(slideUpValue, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        } else {
+            Animated.timing(slideUpValue, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        }
+    }, [isVisible, slideUpValue]);
+
+    const slideUpAnimation = {
+        transform: [
+            {
+                translateY: slideUpValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [500, 0],
+                }),
+            },
+        ],
+    };
+
+    return (
+        <Animated.View style={[styles.slideUpPanel, slideUpAnimation]}>
+            <ScrollView>
+                {groupData.map((group, index) => (
+                    <Button key={index} title={group.title} onPress={() => { onClose(); setSelectedGroup(group); }} />
+                ))}
+            </ScrollView>
+        </Animated.View>
+    );
+};
+
+const styles = StyleSheet.create({
     scrollContainer: {
         flexGrow: 1,
     },
@@ -142,7 +236,7 @@ const styles = StyleSheet.create<Styles>({
         fontSize: 12,
         fontWeight: 'bold',
         color: 'coral',
-        backgroundColor: 'oldlace'
+        backgroundColor: 'oldlace',
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -158,7 +252,49 @@ const styles = StyleSheet.create<Styles>({
         backgroundColor: 'blue', // Example background color
         overflow: 'hidden', // Ensure the button is clipped to be circular
     },
+    buttonItem: {
+        marginHorizontal: 5,
+    },
+    chooseGroupText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20,
+        textAlign: 'center',
+    },
+    panelButtonContainer: {
+        alignItems: 'center',
+    },
+    slideUpPanel: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'white',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        padding: 10,
+        elevation: 5,
+    },
+    chosenGroup: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    chosenGroupText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginRight: 5,
+    },
+    subGroupContainer: {
+        marginTop: 10,
+        paddingHorizontal: 16,
+    },
+    subGroupText: {
+        fontSize: 14,
+        paddingVertical: 2,
+    },
 });
 
-
 export default Verification;
+

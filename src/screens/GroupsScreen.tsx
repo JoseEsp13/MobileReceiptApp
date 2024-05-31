@@ -1,85 +1,78 @@
-/**
- * DefineGroupsScreen.tsx
- * 
- * Allows the user to configure the groups
- */
-// DefineGroupsScreen.tsx
+
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export const groupNames: string[] = [];
-export const groupData: IGroupColumns[] = [];
-
-interface ISubGroup {
-  name: string;
-}
+export const groupData: { title: string, subGroups: string[] }[] = [];
 
 interface IGroupColumns {
   title: string;
-  subGroups: ISubGroup[];
+  subGroups: string[];
 }
 
 export default function GroupsScreen() {
   const [columns, setColumns] = useState<IGroupColumns[]>([]);
 
-  // Inside addColumn()
-const addColumn = () => {
-  const newGroupName = `Group ${groupNames.length + 1}`;
-  groupNames.push(newGroupName);
-  setColumns([...columns, { title: newGroupName, subGroups: [] }]);
-  groupData.push({ title: newGroupName, subGroups: [] }); // Update groupData
-};
+  const addColumn = () => {
+    const newGroupName = `Group ${groupNames.length + 1}`;
+    groupNames.push(newGroupName);
+    setColumns([...columns, { title: newGroupName, subGroups: [] }]);
+    groupData.push({ title: newGroupName, subGroups: [] });
+  };
 
-// Inside deleteColumn()
-const deleteColumn = (index: number) => {
-  const deletedGroupName = columns[index].title;
-  const updatedColumns = columns.filter((_, i) => i !== index);
-  setColumns(updatedColumns);
-  const groupIndex = groupNames.indexOf(deletedGroupName);
-  if (groupIndex !== -1) {
-    groupNames.splice(groupIndex, 1);
-    groupData.splice(groupIndex, 1); // Remove the corresponding entry from groupData
-  }
-};
+  const deleteColumn = (index: number) => {
+    if (index >= 0 && index < columns.length) {
+      const deletedGroupName = columns[index].title;
+      const updatedColumns = columns.filter((_, i) => i !== index);
+      setColumns(updatedColumns);
+      const groupIndex = groupNames.indexOf(deletedGroupName);
+      if (groupIndex !== -1) {
+        groupNames.splice(groupIndex, 1);
+        groupData.splice(groupIndex, 1);
+      }
+    }
+  };
 
-// Inside addSubGroup()
-const addSubGroup = (index: number) => {
-  const updatedColumns = [...columns];
-  const subGroupIndex = updatedColumns[index].subGroups.length; // Use the length of subGroups array as the index
-  updatedColumns[index].subGroups.push({ name: `Subgroup ${subGroupIndex + 1}` }); // Use subGroupIndex + 1 as the subgroup number
-  setColumns(updatedColumns);
-  groupData[index].subGroups.push({ name: `Subgroup ${subGroupIndex + 1}` }); // Update groupData with the correct subgroup number
-};
+  const addSubGroup = (index: number) => {
+    if (index >= 0 && index < columns.length) {
+      const updatedColumns = [...columns];
+      const subGroupIndex = updatedColumns[index].subGroups.length;
+      const subGroupName = `Subgroup ${subGroupIndex + 1}`;
+      updatedColumns[index].subGroups.push(subGroupName);
+      setColumns(updatedColumns);
+      groupData[index].subGroups.push(subGroupName);
+    }
+  };
 
-// Inside deleteSubGroup()
-const deleteSubGroup = (groupIndex: number, subGroupIndex: number) => {
-  const updatedColumns = [...columns];
-  updatedColumns[groupIndex].subGroups.splice(subGroupIndex, 1);
-  setColumns(updatedColumns);
-  groupData[groupIndex].subGroups.splice(subGroupIndex, 1); // Remove the corresponding entry from groupData
-};
+  const deleteSubGroup = (groupIndex: number, subGroupIndex: number) => {
+    if (groupIndex >= 0 && groupIndex < columns.length && subGroupIndex >= 0 && subGroupIndex < columns[groupIndex].subGroups.length) {
+      const updatedColumns = [...columns];
+      updatedColumns[groupIndex].subGroups.splice(subGroupIndex, 1);
+      setColumns(updatedColumns);
+      groupData[groupIndex].subGroups.splice(subGroupIndex, 1);
+    }
+  };
 
-// Inside handleGroupNameChange()
-const handleGroupNameChange = (index: number, name: string) => {
-  const updatedColumns = [...columns];
-  updatedColumns[index].title = name;
-  setColumns(updatedColumns);
-  groupData[index].title = name; // Update groupData
-};
+  const handleGroupNameChange = (index: number, name: string) => {
+    if (index >= 0 && index < columns.length) {
+      const updatedColumns = [...columns];
+      updatedColumns[index].title = name;
+      setColumns(updatedColumns);
+      groupData[index].title = name;
+    }
+  };
 
-// Inside handleSubGroupNameChange()
-// Inside handleSubGroupNameChange()
-const handleSubGroupNameChange = (groupIndex: number, subGroupIndex: number, name: string) => {
-  const updatedColumns = [...columns];
-  updatedColumns[groupIndex].subGroups[subGroupIndex].name = name;
-  setColumns(updatedColumns);
-
-  // Update only the name of the subgroup in groupData
-  groupData[groupIndex].subGroups[subGroupIndex].name = name;
-};
-
+  const handleSubGroupNameChange = (groupIndex: number, subGroupIndex: number, name: string) => {
+    if (groupIndex >= 0 && groupIndex < columns.length && subGroupIndex >= 0 && subGroupIndex < columns[groupIndex].subGroups.length) {
+      const updatedColumns = [...columns];
+      updatedColumns[groupIndex].subGroups[subGroupIndex] = name;
+      setColumns(updatedColumns);
+      groupData[groupIndex].subGroups[subGroupIndex] = name;
+    }
+  };
+  console.log(groupData)
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Define Groups Screen</Text>
@@ -97,7 +90,7 @@ const handleSubGroupNameChange = (groupIndex: number, subGroupIndex: number, nam
             <View key={subIndex} style={styles.subGroupContainer}>
               <TextInput
                 style={styles.subGroupInput}
-                value={subGroup.name}
+                value={subGroup}
                 onChangeText={(text) => handleSubGroupNameChange(index, subIndex, text)}
               />
               <TouchableOpacity onPress={() => deleteSubGroup(index, subIndex)} style={styles.deleteSubGroupButton}>
@@ -118,7 +111,6 @@ const handleSubGroupNameChange = (groupIndex: number, subGroupIndex: number, nam
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

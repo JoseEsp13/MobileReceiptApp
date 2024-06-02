@@ -1,19 +1,18 @@
 import { Button, SafeAreaView, ScrollView, TextInput, View } from "react-native";
 import useAppContext from "../components/hooks/useAppContext";
-import { IContact, IGroup } from "../components/state/IFirebaseDocument";
+import { IGroup } from "../components/state/IFirebaseDocument";
 import { useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import { ICreateGroupScreenProps } from "../routes";
 
-
 export default function CreateGroupScreen(props: ICreateGroupScreenProps) {
 
   const ctx = useAppContext();
-  const [contact, setContact] = useState<IGroup>({id: 0, name: "", contacts: []})
+  const [group, setGroup] = useState<IGroup>({id: 0, name: "", contacts: []})
 
   const handleSave = () => {
-    if (contact.name && contact.email) {
-      ctx.addContact(contact);
+    if (group.name) {
+      ctx.addGroup(group);
       props.navigation.goBack();
     } 
   }
@@ -34,22 +33,8 @@ export default function CreateGroupScreen(props: ICreateGroupScreenProps) {
           <View style={{flex: 1}}>
             <TextInput
               placeholder="Name"
-              value={contact.name}
-              onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
-              style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-            />
-          </View>
-        </View>
-
-        <View style={{marginTop: 25, flexDirection: "row"}}>
-          <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-            <Icon name="mail-outline" size={25}></Icon>
-          </View>
-          <View style={{flex: 1}}>
-            <TextInput
-              placeholder="Email"
-              value={contact.email}
-              onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
+              value={group.name}
+              onChangeText={(s: string) => setGroup(prevState => ({...prevState, name: s}))}
               style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
             />
           </View>

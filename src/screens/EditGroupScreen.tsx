@@ -46,14 +46,14 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
           <View style={{flex: 1}}>
             <TextInput
               placeholder="Name"
-              value={contact.name}
-              onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
+              value={group.name}
+              onChangeText={(s: string) => setGroup(prevState => ({...prevState, name: s}))}
               style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
             />
           </View>
         </View>
 
-        <View style={{marginTop: 25, flexDirection: "row"}}>
+        {/*<View style={{marginTop: 25, flexDirection: "row"}}>
           <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
             <Icon name="mail-outline" size={25}></Icon>
           </View>
@@ -65,7 +65,7 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
               style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
             />
           </View>
-        </View>
+        </View>*/}
 
         <View style={{marginTop: 60, alignItems: "center"}}>
           <View style={{width: "60%", borderRadius: 50}}>

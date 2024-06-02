@@ -60,12 +60,14 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
           <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
             <Icon name="color-palette-outline" size={25}></Icon>
           </View>
-          <TriangleColorPicker
-            defaultColor={contact.color}
-            oldColor={contact.color}
-            onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
-            style={{ width: 200, height: 200, left: 40 }}
-          />
+          <View style={{justifyContent: "center", alignItems: "center", left: '20%'}}>
+            <TriangleColorPicker
+              defaultColor={contact.color}
+              oldColor={contact.color}
+              onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
+              style={{ width: 200, height: 200 }}
+            />
+          </View>
         </View>
 
         <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>

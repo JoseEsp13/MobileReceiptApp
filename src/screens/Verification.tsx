@@ -82,7 +82,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
         }
     };
 
-    const finalize = (): void => {
+    const finalize = () => {
         setEditable(false); // Set editable to false to disable all TextInput fields
     };
 

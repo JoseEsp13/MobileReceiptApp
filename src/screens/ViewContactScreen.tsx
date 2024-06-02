@@ -1,4 +1,4 @@
-import { Button, SafeAreaView, ScrollView, TextInput, View } from "react-native";
+import { Button, SafeAreaView, ScrollView, TextInput, View, Text } from "react-native";
 import { IContact } from "../components/state/IFirebaseDocument";
 import routes, { IViewContactScreenProps } from "../routes";
 import { useState } from "react";
@@ -81,7 +81,11 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
           />
         </View>
 
-        <View style={{marginTop: 60, alignItems: "center"}}>
+        <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
+          Press above button to select color 
+        </Text>
+
+        <View style={{marginTop: 30, alignItems: "center"}}>
           <View style={{width: "60%", borderRadius: 50}}>
             <Button title="Close" color="steelblue" onPress={handleClose} />
           </View>

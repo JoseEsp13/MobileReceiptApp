@@ -4,12 +4,13 @@ import { IContact } from "../components/state/IFirebaseDocument";
 import { useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import { ICreateContactScreenProps } from "../routes";
+import { TriangleColorPicker, fromHsv } from "react-native-color-picker";
 
 
 export default function CreateContactScreen(props: ICreateContactScreenProps) {
 
   const ctx = useAppContext();
-  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: ""})
+  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", color: ""})
 
   const handleSave = () => {
     if (contact.name && contact.email) {
@@ -22,7 +23,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
     <SafeAreaView style={{flex: 1}}>
       <ScrollView>
         <View style={{justifyContent: "center", alignItems: "center", marginTop: 25}}>
-          <View style={{borderRadius: 100, backgroundColor: "white", justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
+          <View style={{borderRadius: 100, backgroundColor: "grey", justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
             <Icon name="person-add" size={65}></Icon>
           </View>
         </View>
@@ -53,6 +54,18 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
               style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
             />
           </View>
+        </View>
+
+        <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
+          <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+            <Icon name="color-palette-outline" size={25}></Icon>
+          </View>
+          <TriangleColorPicker
+            defaultColor={contact.color}
+            oldColor={contact.color}
+            onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
+            style={{ width: 200, height: 200, left: 40 }}
+          />
         </View>
 
         <View style={{marginTop: 60, alignItems: "center"}}>

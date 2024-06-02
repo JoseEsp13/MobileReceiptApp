@@ -33,7 +33,11 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
         <>
           {
             ctx.user.contacts.map((x, i) => (
-              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleViewContactOnPress(x)}>
+              <TouchableOpacity 
+                key={i} 
+                style={[styles.viewRow, { backgroundColor: x.color }]} 
+                onPress={() => handleViewContactOnPress(x)}
+              >
                 <View style={styles.avatarContainer}>
                   <Avatar contact={x} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
                 </View>

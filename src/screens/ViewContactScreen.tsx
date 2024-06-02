@@ -5,7 +5,7 @@ import { useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import useAppContext from "../components/hooks/useAppContext";
-import { ColorPicker, TriangleColorPicker } from "react-native-color-picker";
+import { TriangleColorPicker, fromHsv } from "react-native-color-picker";
 
 
 
@@ -24,19 +24,6 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
     props.navigation.navigate(routes.CONTACTS_SCREEN);
   }
 
-  const [buttonColorSet, setButtonColor] = useState("#ffffff")
-
-  const colorButtonPress = () => (
-    <ColorPicker
-      onColorSelected={(color: string) => {
-        console.log(`Color Selected: ${color}`);
-        setButtonColor(color);
-        setContact(prevState => ({...prevState, color: color}));
-      }}
-      style={{flex: 1}}
-    />
-  )
-
   return(
     <SafeAreaView style={{flex: 1}}>
       <ScrollView>
@@ -44,7 +31,7 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
           <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
             
           </View>
-          <View style={{borderRadius: 100, backgroundColor: "white", justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
+          <View style={{borderRadius: 100, backgroundColor: "grey", justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
             <Icon name="person-add" size={65}></Icon>
           </View>
           <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
@@ -82,24 +69,22 @@ export default function ViewContactScreen(props: IViewContactScreenProps) {
           </View>
         </View>
 
-        <View style={{marginTop: 20, flexDirection: "row"}}>
+        <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
           <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-            <Icon name="color-filter-outline" size={25}></Icon>
+            <Icon name="color-palette-outline" size={25}></Icon>
           </View>
-          <View style={{flex: 1}}>
-            <Button 
-              title="ChangeColor"
-              onPress={colorButtonPress}
-              color={buttonColorSet}
-            />
-          </View>
+          <TriangleColorPicker
+            defaultColor={contact.color}
+            oldColor={contact.color}
+            onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
+            style={{ width: 200, height: 200, left: 40 }}
+          />
         </View>
 
         <View style={{marginTop: 60, alignItems: "center"}}>
           <View style={{width: "60%", borderRadius: 50}}>
             <Button title="Close" color="steelblue" onPress={handleClose} />
           </View>
-          
         </View>  
       </ScrollView>
     </SafeAreaView>

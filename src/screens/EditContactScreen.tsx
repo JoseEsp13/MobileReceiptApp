@@ -1,4 +1,4 @@
-import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { Button, Keyboard, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { IContact } from "../components/state/IFirebaseDocument";
 import routes, { IEditContactScreenProps } from "../routes";
 import { useState } from "react";
@@ -10,11 +10,13 @@ import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanima
 import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
 import type { returnedResults } from 'reanimated-color-picker';
 import { TriangleColorPicker } from "react-native-color-picker";
+import { useKeyboardVisible } from "../components/hooks/useKeyboardVisible";
 
 
 export default function EditContactScreen(props: IEditContactScreenProps) {
 
   const ctx = useAppContext();
+  const isKeyboardVisible = useKeyboardVisible();
   const [contact, setContact] = useState<IContact>(props.route.params.contact);
   const [showModal, setShowModal] = useState(false);
 
@@ -49,6 +51,7 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
   }
 
 
+  console.log(isKeyboardVisible)
   return (
     <>
      <SafeAreaView style={{flex: 1}}>
@@ -70,8 +73,8 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
           </View>
 
           <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
-            <View>
-              <Text style={{fontSize: 17, color: "#424242"}}>Contact info</Text>
+            <View style={{paddingLeft: 5}}>
+              <Text style={{fontSize: 17, color: "#424242", }}>Contact info</Text>
             </View>
             
             <View style={{flexDirection: "row", marginTop: 20}}>
@@ -134,11 +137,14 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
           </Text>
         </ScrollView>
 
-        <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
-          <View style={styles.floatingActionBtn}>
-            <Icon name="save" size={38} color="green"/>
-          </View>
-        </TouchableOpacity>
+        {!isKeyboardVisible &&
+          <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
+            <View style={styles.floatingActionBtn}>
+              <Icon name="save" size={38} color="green"/>
+            </View>
+          </TouchableOpacity>
+        }
+        
       </SafeAreaView>
 
       <Modal onRequestClose={() => setShowModal(false)} visible={showModal} animationType='slide'>
@@ -175,6 +181,7 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
               <Text style={{ color: '#707070', fontWeight: 'bold' }}>Save</Text>
             </Pressable>
           </View>
+          
         </Animated.View>
       </Modal>
     </>

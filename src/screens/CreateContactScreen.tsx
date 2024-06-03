@@ -9,11 +9,13 @@ import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanima
 import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
 import type { returnedResults } from 'reanimated-color-picker';
 import { TriangleColorPicker, fromHsv } from "react-native-color-picker";
+import { useKeyboardVisible } from "../components/hooks/useKeyboardVisible";
 
 
 export default function CreateContactScreen(props: ICreateContactScreenProps) {
 
   const ctx = useAppContext();
+  const isKeyboardVisible = useKeyboardVisible();
   const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: "#fafafa", color: "#bdbdbd"})
   const [showModal, setShowModal] = useState(false);
 
@@ -67,7 +69,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
           </View>
 
           <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
-            <View>
+            <View style={{paddingLeft: 8}}>
               <Text style={{fontSize: 17, color: "#424242"}}>Contact info</Text>
             </View>
 
@@ -133,11 +135,13 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
           </Text>
         </ScrollView>
 
-        <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
-          <View style={styles.floatingActionBtn}>
-            <Icon name="save" size={38} color="green"/>
-          </View>
-        </TouchableOpacity>
+        {!isKeyboardVisible &&
+          <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
+            <View style={styles.floatingActionBtn}>
+              <Icon name="save" size={38} color="green"/>
+            </View>
+          </TouchableOpacity>
+        }
 		
       </SafeAreaView>
 

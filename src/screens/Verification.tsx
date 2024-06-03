@@ -20,7 +20,7 @@ const calculateTotalSum = (entries: [string, string][]): number => {
     return parseFloat(totalSum.toFixed(2)); // Round the total to two decimal places
 };
 
-const Verification: React.FC<VerificationProps> = ({ parserResult }: VerificationProps) => {
+const Verification = ({ parserResult }: VerificationProps) => {
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
 
     const [itemEntries, setItemEntries] = useState<[string, string][]>(initialEntries);
@@ -175,7 +175,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                 <SlideUpPanel isVisible={isPanelVisible} onClose={() => setIsPanelVisible(false)} setSelectedGroup={setSelectedGroup} />
             </View>
         </ScrollView>
-    );
+    )
 };
 
 

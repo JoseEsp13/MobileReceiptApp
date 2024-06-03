@@ -4,7 +4,7 @@
  * Runs the image through ML Kit. Processes the response.
  */
 import React, {useCallback, useEffect, useState} from 'react';
-import {Image, useWindowDimensions, ScrollView} from 'react-native';
+import {Image, useWindowDimensions, ScrollView, Text} from 'react-native';
 import MLKit, { ITextRecognitionResponse } from '../components/mlkit';
 import { ViewOverlay } from '../components/ViewOverlay';
 import { TabView, SceneMap } from 'react-native-tab-view';
@@ -13,7 +13,6 @@ import { ViewReceipt } from '../components/ViewReceipt';
 import { ViewResponse } from '../components/ViewResponse';
 import ViewGroups from "../components/ViewGroups";
 import ViewParserResult from '../components/ViewParserResult';
-import { groupNames } from './GroupsScreen';
 import parseTools from '../parsers/parserTools';
 import parser from '../parsers/parser';
 import { testChecksum } from '../parsers/ctests';
@@ -43,8 +42,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
     if (url) {
       try {
         // Send a request to Google's ML Kit
-        let response_img;
-        response_img = await MLKit.recognizeImage(url);
+        const response_img = await MLKit.recognizeImage(url);
         // If the response contains data
         if (response_img?.blocks?.length > 0) {
 
@@ -64,7 +62,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{flex: 1}}>
       {parserResult && <Verification parserResult={parserResult}/>}
     </SafeAreaView>
   );

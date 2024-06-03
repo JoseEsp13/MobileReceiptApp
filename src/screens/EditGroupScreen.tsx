@@ -74,7 +74,7 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
               <TouchableOpacity onPress={() => handleDelete(group)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
-                <Icon name="trash" size={35} color="red"/>
+                <Icon name="trash" size={35} color="#ef5350"/>
               </TouchableOpacity>
             </View>
           </View>

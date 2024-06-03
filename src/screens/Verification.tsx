@@ -12,12 +12,14 @@ interface VerificationProps {
 
 interface userItemsObj {
     user: IContact;
-    items: string[];
+    items: {[key: string]: number};
 }
 
 interface usersObj {
     [key: string]: userItemsObj;
 }
+
+type MemberDict = { [member: string]: {[key: string]: number} };
 
 // Helper function to calculate the total sum, excluding the "TOTAL" key
 const calculateTotalSum = (entries: [string, string][]): number => {
@@ -43,7 +45,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [isFinalized, setIsFinalized] = useState(false); // State to track whether editing is finalized
     const [clickedSubGroup, setClickedSubGroup] = useState<string | null>(null); // State to keep track of clicked subgroup
     const [subGroupValues, setSubGroupValues] = useState<{ [key: string]: string }>({}); // State to keep track of subgroup values
-    const [addedItems, setAddedItems] = useState<{ [subGroupName: string]: Set<string> }>({}); // Track added items for each subgroup
+    const [addedItems, setAddedItems] = useState<{ [contact: string]: Set<string> }>({}); // Track added items for each subgroup
     const [activeUser, setActiveUser] = useState<IContact>();
     const [usersColors, setUsersColors] = useState<userItemsObj[]>([]);
 
@@ -108,9 +110,10 @@ const Verification = ({ parserResult }: VerificationProps) => {
         }
     };
 
-    const handleSubGroupClick = (subGroupName: string): void => {
-        console.log(`Clicked subgroup: ${subGroupName}`);
-        setClickedSubGroup(subGroupName);
+    const handleSubGroupClick = (contact: IContact): void => {
+        console.log(`Clicked subgroup: ${contact.name}`);
+        setClickedSubGroup(contact.name);
+        setActiveUser(contact);
         finalize();
     };
 
@@ -134,10 +137,9 @@ const Verification = ({ parserResult }: VerificationProps) => {
         }
     };
 
-    const finalize = (newUser: IContact) => {
+    const finalize = () => {
         setEditable(false); // Set editable to false to disable all TextInput fields
         setIsFinalized(true); // Set the editing finalized state to true
-        setActiveUser(newUser);
     };
 
     const unfinalize = () => {
@@ -154,8 +156,13 @@ const Verification = ({ parserResult }: VerificationProps) => {
         });
     };
 
-    const handleUserColorItem = () => {
-
+    const handleBackgroundColor = (key: string) => {
+        if (activeUser) {
+            if (addedItems[activeUser.name].has(key)) {
+                return activeUser.bgColor;
+            }
+        }
+        return undefined;
     }
 
     return (
@@ -178,8 +185,8 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 {isFinalized ? (
                                 <View style={{ flex: 1 }}>
                                 <TouchableOpacity 
-                                    onPress={() => {() => handleItemClick(key, value)}} 
-                                    style={{ width: '100%' }}>
+                                    onPress={() => handleItemClick(key, value)} 
+                                    style={{ width: '100%', backgroundColor: handleBackgroundColor(key) }}>
                                     <Text style={styles.input}>{`${key}: ${value}`}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -238,7 +245,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 width={50}
                                 height={50}
                                 backgroundColor={contact.bgColor} // can either be the contacts back ground color or letter color
-                                onPress={() => handleSubGroupClick(contact.name)}
+                                onPress={() => handleSubGroupClick(contact)}
                             >
                             <Text style={styles.subGroupText}></Text>
                             </ThemedButton>

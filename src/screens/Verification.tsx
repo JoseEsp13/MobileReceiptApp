@@ -53,7 +53,7 @@ export const memberSums = (memberDict: {[member: string]: {[key: string]: number
                     itemsThatDontSplit[item] = modCents
                 }
                 let current = (Math.trunc((itemDict[item] / itemCountDict[item]) * 100) / 100)
-                console.log("modCents = " + String(modCents) + " and current= " + current)
+                // console.log("modCents = " + String(modCents) + " and current= " + current)
                 
                 if (itemsThatDontSplit[item] > 0) {
                     memberTotal += current + .01

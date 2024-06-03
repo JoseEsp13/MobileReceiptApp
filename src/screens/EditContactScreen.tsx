@@ -22,7 +22,7 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
   const selectedColor = useSharedValue(props.route.params.contact.bgColor);
   const backgroundColorStyle = useAnimatedStyle(() => ({ backgroundColor: selectedColor.value }));
 
-  const handleClose = () => {
+  const handleSave = () => {
     ctx.editContact(contact);
     props.navigation.navigate(routes.CONTACTS_SCREEN);
   }
@@ -55,65 +55,72 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
         <ScrollView>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-              <TouchableOpacity onPress={() => setShowModal(true)}>
+              <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
                 <Icon name="color-palette" size={35}/>
               </TouchableOpacity>
             </View>
             <View style={{borderRadius: 100, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
-              <Avatar contact={contact} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
+              <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-              <TouchableOpacity onPress={() => handleDelete()}>
+              <TouchableOpacity onPress={() => handleDelete()} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
                 <Icon name="trash" size={35} color="red"/>
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={{marginTop: 30, flexDirection: "row"}}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="person-outline" size={25}></Icon>
+          <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
+            <View>
+              <Text style={{fontSize: 17, color: "#424242"}}>Contact info</Text>
             </View>
-            <View style={{flex: 1}}>
-              <TextInput
-                placeholder="Name"
-                value={contact.name}
-                onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
-                style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-              />
+            
+            <View style={{flexDirection: "row", marginTop: 20}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 30}}>
+                <Icon name="person-outline" size={25}></Icon>
+              </View>
+              <View style={{flex: 1}}>
+                <TextInput
+                  placeholder="Name"
+                  value={contact.name}
+                  onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                />
+              </View>
             </View>
-          </View>
 
-          <View style={{marginTop: 25, flexDirection: "row"}}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="mail-outline" size={25}></Icon>
+            <View style={{marginTop: 25, flexDirection: "row"}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 30}}>
+                <Icon name="mail-outline" size={25}></Icon>
+              </View>
+              <View style={{flex: 1}}>
+                <TextInput
+                  placeholder="Email"
+                  value={contact.email}
+                  onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                />
+              </View>
             </View>
-            <View style={{flex: 1}}>
-              <TextInput
-                placeholder="Email"
-                value={contact.email}
-                onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
-                style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-              />
-            </View>
-          </View>
 
-          <View style={{marginTop: 25, flexDirection: "row"}}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="call-outline" size={25}></Icon>
-            </View>
-            <View style={{flex: 1}}>
-              <TextInput
-                placeholder="Phone"
-                value={contact.phoneNumber}
-                onChangeText={(s: string) => setContact(prevState => ({...prevState, phoneNumber: s}))}
-                style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-              />
+            <View style={{marginTop: 25, flexDirection: "row"}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 30}}>
+                <Icon name="call-outline" size={25}></Icon>
+              </View>
+              <View style={{flex: 1}}>
+                <TextInput
+                  placeholder="Phone"
+                  value={contact.phoneNumber}
+                  onChangeText={(s: string) => setContact(prevState => ({...prevState, phoneNumber: s}))}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                />
+              </View>
             </View>
           </View>
+          
 
           <View style={{marginTop: 60, alignItems: "center"}}>
             <View style={{width: "60%", borderRadius: 50}}>
-              <Button title="Save" color="steelblue" onPress={handleClose} />
+              <Button title="Save" color="steelblue" onPress={handleSave} />
             </View>
           </View>  
         </ScrollView>
@@ -291,5 +298,5 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
 
     elevation: 5,
-  },
+  }
 });

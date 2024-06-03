@@ -30,13 +30,15 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
         <>
           <ScrollView style={{flex: 1}}>
           {
-            ctx.user.contacts.map((x, i) => (
-              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleEditContactOnPress(x)}>
-                <View style={styles.avatarContainer}>
-                  <Avatar contact={x} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
+            ctx.user.contacts.map((contact, i) => (
+              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleEditContactOnPress(contact)}>
+                <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
+                  <View style={styles.avatarContainer}>
+                    <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
+                  </View>
                 </View>
                 <View style={styles.nameContainer}>
-                  <Text style={styles.nameText}>{x.name}</Text>
+                  <Text style={styles.nameText}>{contact.name}</Text>
                 </View> 
               </TouchableOpacity>
           ))}
@@ -73,15 +75,15 @@ const styles = StyleSheet.create({
   },
   viewRow: {
     flexDirection: "row",
-    height: 55,
+    height: 70,
     backgroundColor: "white",
     marginBottom: 10,
     borderRadius: 10,
     paddingHorizontal: 10
   },
   avatarContainer: {
-    height: 55,
-    width: 55,
+    height: 58,
+    width: 58,
     padding: 5,
   },
   avatarView: {
@@ -102,7 +104,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   },
   nameText: {
-    fontSize: 18
+    fontSize: 20
   },
   addBtnAbsoluteContainer: {
     position: "absolute",

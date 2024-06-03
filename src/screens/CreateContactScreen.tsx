@@ -13,7 +13,7 @@ import type { returnedResults } from 'reanimated-color-picker';
 export default function CreateContactScreen(props: ICreateContactScreenProps) {
 
   const ctx = useAppContext();
-  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: colorKit.randomRgbColor().hex(), color: "#1a1a1a"})
+  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: "#fafafa", color: "#bdbdbd"})
   const [showModal, setShowModal] = useState(false);
 
   const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbColor().hex());
@@ -49,57 +49,68 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
         <ScrollView>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-              <TouchableOpacity onPress={() => setShowModal(true)}>
-                <Icon name="color-palette" size={35}/>
+              <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
+                <Icon name="color-palette" size={35} color="#1976d2"/>
               </TouchableOpacity>
             </View>
             <View style={{borderRadius: 100, backgroundColor: contact.bgColor, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
-              <Icon name="person-add" size={65}></Icon>
+              {contact.name?.length > 0 ?
+                <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
+                :
+                <Icon name="person-add" size={65} color={contact.color}></Icon>
+              }
+              
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
 
             </View>
           </View>
 
-          <View style={{marginTop: 30, flexDirection: "row"}}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="person-outline" size={25}></Icon>
+          <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
+            <View>
+              <Text style={{fontSize: 17, color: "#424242"}}>Contact info</Text>
             </View>
-            <View style={{flex: 1}}>
-              <TextInput
-                placeholder="Name"
-                value={contact.name}
-                onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
-                style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-              />
-            </View>
-          </View>
 
-          <View style={{marginTop: 25, flexDirection: "row"}}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="mail-outline" size={25}></Icon>
+            <View style={{marginTop: 30, flexDirection: "row"}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+                <Icon name="person-outline" size={25}></Icon>
+              </View>
+              <View style={{flex: 1}}>
+                <TextInput
+                  placeholder="Name"
+                  value={contact.name}
+                  onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                />
+              </View>
             </View>
-            <View style={{flex: 1}}>
-              <TextInput
-                placeholder="Email"
-                value={contact.email}
-                onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
-                style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-              />
-            </View>
-          </View>
 
-          <View style={{marginTop: 25, flexDirection: "row"}}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="call-outline" size={25}></Icon>
+            <View style={{marginTop: 25, flexDirection: "row"}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+                <Icon name="mail-outline" size={25}></Icon>
+              </View>
+              <View style={{flex: 1}}>
+                <TextInput
+                  placeholder="Email"
+                  value={contact.email}
+                  onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                />
+              </View>
             </View>
-            <View style={{flex: 1}}>
-              <TextInput
-                placeholder="Phone"
-                value={contact.phoneNumber}
-                onChangeText={(s: string) => setContact(prevState => ({...prevState, phoneNumber: s}))}
-                style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-              />
+
+            <View style={{marginTop: 25, flexDirection: "row"}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+                <Icon name="call-outline" size={25}></Icon>
+              </View>
+              <View style={{flex: 1}}>
+                <TextInput
+                  placeholder="Phone"
+                  value={contact.phoneNumber}
+                  onChangeText={(s: string) => setContact(prevState => ({...prevState, phoneNumber: s}))}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                />
+              </View>
             </View>
           </View>
 

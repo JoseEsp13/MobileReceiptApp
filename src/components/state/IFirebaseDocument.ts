@@ -18,5 +18,7 @@ export interface IContact {
 export interface IGroup {
   id: number,
   name: string,
+  bgColor: string,
+  color: string,
   contacts: IContact[]
 }

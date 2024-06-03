@@ -9,7 +9,7 @@ import { RouteProp } from "@react-navigation/native";
 import { StackScreenProps } from "@react-navigation/stack";
 import { IBottomTabsParamList, ILoginStackParamList } from "./NavigatorBottomTabs";
 import { IHomeStackParamList } from "./components/nav_stacks/HomeStackScreen";
-import { IContact } from "./components/state/IFirebaseDocument";
+import { IContact, IGroup } from "./components/state/IFirebaseDocument";
 import { IContactsStackScreenParamList } from "./components/nav_stacks/ContactsStackScreen";
 import { IGroupsStackScreenParamList } from "./components/nav_stacks/GroupsStackScreen";
 
@@ -26,7 +26,9 @@ export type IRootParamList = {
   [routes.LOGOUT_SCREEN]: undefined,
   [routes.SIGNUP_SCREEN]: undefined,
   [routes.EDIT_CONTACT_SCREEN]: {contact: IContact;}
-  [routes.SPLIT_SCREEN]: undefined
+  [routes.SPLIT_SCREEN]: undefined,
+  [routes.EDIT_GROUP_SCREEN]: {group: IGroup}
+  [routes.GROUP_CONTACT_MANAGER_SCREEN]: {group: IGroup, returnScreen: typeof routes.CREATE_GROUP_SCREEN | typeof routes.EDIT_GROUP_SCREEN}
 };
 
 
@@ -45,6 +47,7 @@ export interface IRoutes {
   LOGOUT_SCREEN: "Logout",
   SIGNUP_SCREEN: "Sign Up",
   EDIT_CONTACT_SCREEN: "Edit Contact",
+  GROUP_CONTACT_MANAGER_SCREEN: "Attach Contacts to Group"
   SPLIT_SCREEN: "Split"
 }
 
@@ -62,6 +65,7 @@ const routes: IRoutes = {
   LOGOUT_SCREEN: "Logout",
   SIGNUP_SCREEN: "Sign Up",
   EDIT_CONTACT_SCREEN: "Edit Contact",
+  GROUP_CONTACT_MANAGER_SCREEN: "Attach Contacts to Group",
   SPLIT_SCREEN: "Split"
 }
 
@@ -112,6 +116,8 @@ export type IEditContactScreenProps = StackScreenProps<IContactsStackScreenParam
 
 export type ICreateGroupScreenProps = StackScreenProps<IGroupsStackScreenParamList, typeof routes.CREATE_GROUP_SCREEN>;
 export type IEditGroupScreenProps = StackScreenProps<IGroupsStackScreenParamList, typeof routes.EDIT_GROUP_SCREEN>;
+export type IGroupScreenProps = StackScreenProps<IGroupsStackScreenParamList, typeof routes.GROUPS_SCREEN>;
+export type IGroupContactManagerScreenProps = StackScreenProps<IGroupsStackScreenParamList, typeof routes.GROUP_CONTACT_MANAGER_SCREEN>;
 
 
 export type ILoginStackScreenProps = StackScreenProps<ILoginStackParamList, typeof routes.LOGIN_SCREEN>;

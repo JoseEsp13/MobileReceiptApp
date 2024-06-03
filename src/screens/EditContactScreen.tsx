@@ -50,8 +50,6 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
     setShowModal(false);
   }
 
-
-  console.log(isKeyboardVisible)
   return (
     <>
      <SafeAreaView style={{flex: 1}}>

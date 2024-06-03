@@ -32,7 +32,7 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
   let item_dict: {[key: string]: number} = {};
   let inUrl = url;
   // Puts a little message for user
-  ToastAndroid.showWithGravity(
+  /*ToastAndroid.showWithGravity(
     "Please crop the image",
     ToastAndroid.LONG,
     ToastAndroid.TOP

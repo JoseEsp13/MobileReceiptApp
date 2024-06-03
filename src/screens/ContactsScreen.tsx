@@ -3,11 +3,8 @@
  * 
  * Home screen component.
  */
-import { Button, Pressable, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { FloatingAction } from "react-native-floating-action";
-import * as ImagePicker from 'react-native-image-picker';
-import {ImagePickerResponse} from 'react-native-image-picker/src/types';
-import React, { useState } from 'react';
+import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import React from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'
 import useAppContext from '../components/hooks/useAppContext';
 import Avatar from '../components/Avatar';
@@ -23,32 +20,36 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
     props.navigation.navigate(routes.CREATE_CONTACT_SCREEN);
   }
 
-  const handleViewContactOnPress = (contact: IContact) => {
-    props.navigation.navigate(routes.VIEW_CONTACT_SCREEN, {contact});
+  const handleEditContactOnPress = (contact: IContact) => {
+    props.navigation.navigate(routes.EDIT_CONTACT_SCREEN, {contact});
   }
 
   return (
     <SafeAreaView style={styles.container}>
       {ctx.user.contacts.length > 0 ?
         <>
+          <ScrollView style={{flex: 1}}>
           {
-            ctx.user.contacts.map((x, i) => (
-              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleViewContactOnPress(x)}>
-                <View style={styles.avatarContainer}>
-                  <Avatar contact={x} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
+            ctx.user.contacts.map((contact, i) => (
+              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleEditContactOnPress(contact)}>
+                <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
+                  <View style={styles.avatarContainer}>
+                    <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
+                  </View>
                 </View>
                 <View style={styles.nameContainer}>
-                  <Text style={styles.nameText}>{x.name}</Text>
+                  <Text style={styles.nameText}>{contact.name}</Text>
                 </View> 
               </TouchableOpacity>
           ))}
-          <TouchableOpacity style={styles.addBtnAbsoluteContainer} onPress={handleAddBtnOnPress}>
-            <View style={styles.addBtn}>
+          </ScrollView>
+
+          <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleAddBtnOnPress}>
+            <View style={styles.floatingActionBtn}>
               <Icon name="add" size={25} color="white"/>
             </View>
           </TouchableOpacity>
         </>
-        
          :
         <View style={{flex: 1, alignItems: "center", marginTop: "50%"}}>
           <View>
@@ -59,10 +60,8 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
               <Text style={{color: "white", fontSize: 20}}>Add a contact</Text>
             </TouchableOpacity>
           </View>
-          
         </View>
-      }
-      
+      }   
     </SafeAreaView>
   );
 }
@@ -70,19 +69,20 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1, 
-    paddingHorizontal: 15, 
+    paddingHorizontal: 10, 
     paddingTop: 15
   },
   viewRow: {
     flexDirection: "row",
-    height: 55,
+    height: 70,
     backgroundColor: "white",
     marginBottom: 10,
-    borderRadius: 7
+    borderRadius: 10,
+    paddingHorizontal: 10
   },
   avatarContainer: {
-    height: 55,
-    width: 55,
+    height: 58,
+    width: 58,
     padding: 5,
   },
   avatarView: {
@@ -103,18 +103,20 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   },
   nameText: {
-    fontSize: 18
+    fontSize: 20
   },
-  addBtnAbsoluteContainer: {
+  floatingActionBtnContainer: {
     position: "absolute",
     borderRadius: 60,
     bottom: 25,
     right: 25,
-    height: 50,
-    width: 50,
-    backgroundColor: "steelblue"
+    height: 70,
+    width: 70,
+    backgroundColor: "steelblue",
+    elevation: 10,
+    shadowColor: '#52006A',
   },
-  addBtn: {
+  floatingActionBtn: {
     position: "relative",
     display: "flex",
     justifyContent: "center",

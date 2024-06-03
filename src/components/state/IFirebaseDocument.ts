@@ -10,10 +10,15 @@ export interface IContact {
   id: number,
   name: string,
   email: string,
+  phoneNumber: string,
+  color: string,
+  bgColor: string,
 }
 
 export interface IGroup {
   id: number,
   name: string,
+  bgColor: string,
+  color: string,
   contacts: IContact[]
 }

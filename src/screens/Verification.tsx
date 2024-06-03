@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated } from 'react-native';
 import { IParserResult } from '../parsers/IParser';
-import { groupData } from './GroupsScreen';
 import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
+import useAppContext from '../components/hooks/useAppContext';
+import { IGroup } from '../components/state/IFirebaseDocument';
 
 interface VerificationProps {
     parserResult: IParserResult;
@@ -19,14 +20,14 @@ const calculateTotalSum = (entries: [string, string][]): number => {
     return parseFloat(totalSum.toFixed(2)); // Round the total to two decimal places
 };
 
-const Verification: React.FC<VerificationProps> = ({ parserResult }: VerificationProps) => {
+const Verification = ({ parserResult }: VerificationProps) => {
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
 
     const [itemEntries, setItemEntries] = useState<[string, string][]>(initialEntries);
     const [totalSum, setTotalSum] = useState<number>(calculateTotalSum(initialEntries));
     const [deletedEntries, setDeletedEntries] = useState<[string, string][]>([]);
     const [isPanelVisible, setIsPanelVisible] = useState(false);
-    const [selectedGroup, setSelectedGroup] = useState<{ title: string, subGroups: string[] } | null>(null);
+    const [selectedGroup, setSelectedGroup] = useState<IGroup | null>(null);
     const [groupItems, setGroupItems] = useState<[string, string][]>([]); // State to hold items and prices for the selected group
     const [editable, setEditable] = useState(true); // State to control the editability of TextInput fields
 
@@ -38,7 +39,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
     useEffect(() => {
         if (selectedGroup) {
             const groupItemsFiltered = itemEntries.filter(([key]) =>
-                selectedGroup.subGroups.includes(key)
+                selectedGroup.contacts.some(contact => contact.name === key)
             );
             setGroupItems(groupItemsFiltered);
         }
@@ -82,12 +83,12 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
         }
     };
 
-    const finalize = (): void => {
+    const finalize = () => {
         setEditable(false); // Set editable to false to disable all TextInput fields
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView style={styles.scrollContainer}>
             <View style={styles.container}>
                 {itemEntries.map(([key, value], index) => {
                     if (key !== "TOTAL") {
@@ -131,7 +132,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                 <Text style={styles.chooseGroupText}>Group:</Text>
                 {selectedGroup && (
                     <View style={styles.chosenGroup}>
-                        <Text style={styles.chosenGroupText}>{selectedGroup.title}</Text>
+                        <Text style={styles.chosenGroupText}>{selectedGroup.name}</Text>
                     </View>
                 )}
                 
@@ -139,7 +140,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                     <Button title="+" onPress={() => setIsPanelVisible(true)} />
                 </View>
                 <View style={styles.buttonContainer}>
-                    {selectedGroup && selectedGroup.subGroups.map((subGroupName, index) => (
+                    {selectedGroup && selectedGroup.contacts.map((contact, index) => (
                         <View key={index}>
                             <ThemedButton
                                 name='rick'
@@ -151,7 +152,7 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                                 height={50}
                                 onPress={finalize} // Call finalize function here
                             >
-                                {subGroupName}
+                                {contact.name}
                             </ThemedButton>
                         </View>
                     ))}
@@ -174,15 +175,16 @@ const Verification: React.FC<VerificationProps> = ({ parserResult }: Verificatio
                 <SlideUpPanel isVisible={isPanelVisible} onClose={() => setIsPanelVisible(false)} setSelectedGroup={setSelectedGroup} />
             </View>
         </ScrollView>
-    );
+    )
 };
 
 
-const SlideUpPanel: React.FC<{ isVisible: boolean; onClose: () => void; setSelectedGroup: React.Dispatch<React.SetStateAction<{ title: string, subGroups: string[] } | null>> }> = ({
+const SlideUpPanel: React.FC<{ isVisible: boolean; onClose: () => void; setSelectedGroup: React.Dispatch<React.SetStateAction<IGroup | null>> }> = ({
     isVisible,
     onClose,
     setSelectedGroup,
 }) => {
+    const ctx = useAppContext();
     const slideUpValue = useState(new Animated.Value(0))[0];
 
     useEffect(() => {
@@ -215,8 +217,8 @@ const SlideUpPanel: React.FC<{ isVisible: boolean; onClose: () => void; setSelec
     return (
         <Animated.View style={[styles.slideUpPanel, slideUpAnimation]}>
             <ScrollView>
-                {groupData.map((group, index) => (
-                    <Button key={index} title={group.title} onPress={() => { onClose(); setSelectedGroup(group); }} />
+                {ctx.user.groups.map((group, index) => (
+                    <Button key={index} title={group.name} onPress={() => { onClose(); setSelectedGroup(group); }} />
                 ))}
             </ScrollView>
         </Animated.View>
@@ -225,7 +227,7 @@ const SlideUpPanel: React.FC<{ isVisible: boolean; onClose: () => void; setSelec
 
 const styles = StyleSheet.create({
     scrollContainer: {
-        flexGrow: 1,
+        flex: 1,
     },
     container: {
         marginTop: 8,

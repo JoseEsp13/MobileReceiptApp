@@ -1,121 +1,66 @@
 
 
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import useAppContext from '../components/hooks/useAppContext';
+import routes, { IGroupScreenProps } from '../routes';
+import { IGroup } from '../components/state/IFirebaseDocument';
+import Avatar from '../components/Avatar';
 
-export const groupNames: string[] = [];
-export const groupData: { title: string, subGroups: string[] }[] = [];
 
-interface IGroupColumns {
-  title: string;
-  subGroups: string[];
-}
+export default function GroupsScreen(props: IGroupScreenProps) {
+  const ctx = useAppContext();
 
-export default function GroupsScreen() {
-  const [columns, setColumns] = useState<IGroupColumns[]>([]);
+  const handleAddBtnOnPress = () => {
+    props.navigation.navigate(routes.CREATE_GROUP_SCREEN);
+  }
 
-  const addColumn = () => {
-    const newGroupName = `Group ${groupNames.length + 1}`;
-    groupNames.push(newGroupName);
-    setColumns([...columns, { title: newGroupName, subGroups: [] }]);
-    groupData.push({ title: newGroupName, subGroups: [] });
-  };
+  const handleEditGroupOnPress = (group: IGroup) => {
+    props.navigation.navigate(routes.EDIT_GROUP_SCREEN, {group});
+  }
 
-  const deleteColumn = (index: number) => {
-    if (index >= 0 && index < columns.length) {
-      const deletedGroupName = columns[index].title;
-      const updatedColumns = columns.filter((_, i) => i !== index);
-      setColumns(updatedColumns);
-      const groupIndex = groupNames.indexOf(deletedGroupName);
-      if (groupIndex !== -1) {
-        groupNames.splice(groupIndex, 1);
-        groupData.splice(groupIndex, 1);
-      }
-    }
-  };
-
-  const addSubGroup = (index: number) => {
-    if (index >= 0 && index < columns.length) {
-      const updatedColumns = [...columns];
-      const subGroupIndex = updatedColumns[index].subGroups.length;
-      const subGroupName = `Subgroup ${subGroupIndex + 1}`;
-      updatedColumns[index].subGroups.push(subGroupName);
-      setColumns(updatedColumns);
-      groupData[index].subGroups.push(subGroupName);
-    }
-  };
-
-  const deleteSubGroup = (groupIndex: number, subGroupIndex: number) => {
-    if (groupIndex >= 0 && groupIndex < columns.length && subGroupIndex >= 0 && subGroupIndex < columns[groupIndex].subGroups.length) {
-      const updatedColumns = [...columns];
-      updatedColumns[groupIndex].subGroups.splice(subGroupIndex, 1);
-      setColumns(updatedColumns);
-      groupData[groupIndex].subGroups.splice(subGroupIndex, 1);
-    }
-  };
-
-  const handleGroupNameChange = (index: number, name: string) => {
-    if (index >= 0 && index < columns.length) {
-      const updatedColumns = [...columns];
-      updatedColumns[index].title = name;
-      setColumns(updatedColumns);
-      groupData[index].title = name;
-    }
-  };
-
-  const handleSubGroupNameChange = (groupIndex: number, subGroupIndex: number, name: string) => {
-    if (groupIndex >= 0 && groupIndex < columns.length && subGroupIndex >= 0 && subGroupIndex < columns[groupIndex].subGroups.length) {
-      const updatedColumns = [...columns];
-      updatedColumns[groupIndex].subGroups[subGroupIndex] = name;
-      setColumns(updatedColumns);
-      groupData[groupIndex].subGroups[subGroupIndex] = name;
-    }
-  };
-  console.log(groupData)
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Define Groups Screen</Text>
-      {columns.map((column, index) => (
-        <View key={index} style={styles.columnContainer}>
-          <TextInput
-            style={styles.columnTitleInput}
-            value={column.title}
-            onChangeText={(text) => handleGroupNameChange(index, text)}
-          />
-          <TouchableOpacity onPress={() => deleteColumn(index)} style={styles.deleteColumnButton}>
-            <Icon name="delete" size={24} color="red" />
-          </TouchableOpacity>
-          {column.subGroups.map((subGroup, subIndex) => (
-            <View key={subIndex} style={styles.subGroupContainer}>
-              <TextInput
-                style={styles.subGroupInput}
-                value={subGroup}
-                onChangeText={(text) => handleSubGroupNameChange(index, subIndex, text)}
-              />
-              <TouchableOpacity onPress={() => deleteSubGroup(index, subIndex)} style={styles.deleteSubGroupButton}>
-                <Icon name="delete" size={20} color="red" />
+    <SafeAreaView style={styles.container}>
+      {ctx.user.groups.length > 0 ?
+        <>
+          <ScrollView>
+            {ctx.user.groups.map((group, i) => (
+              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleEditGroupOnPress(group)}>
+                <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
+                  <View style={styles.avatarContainer}>
+                    <Avatar name={group.name} bgColor={group.bgColor} color={group.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
+                  </View>
+                </View>
+                <View style={styles.nameContainer}>
+                  <Text style={styles.nameText}>{group.name}</Text>
+                </View> 
               </TouchableOpacity>
+            ))}
+          </ScrollView>
+          
+          <TouchableOpacity style={styles.addBtnAbsoluteContainer} onPress={handleAddBtnOnPress}>
+            <View style={styles.addBtn}>
+              <Icon name="add" size={25} color="white"/>
             </View>
-          ))}
-          <TouchableOpacity onPress={() => addSubGroup(index)} style={styles.addSubGroupButton}>
-            <Icon name="add" size={20} color="black" />
-            <Text style={styles.addSubGroupButtonText}>Add Subgroup</Text>
           </TouchableOpacity>
+        </>
+        :
+        <View style={{flex: 1, alignItems: "center", marginTop: "50%"}}>
+          <View>
+            <Text style={{fontSize: 24}}>No Groups yet!</Text>
+          </View>
+          <View style={{flexDirection: "row", justifyContent: "center", marginTop: 40}}>
+            <TouchableOpacity style={{backgroundColor: "steelblue", padding: 10, borderRadius: 10}} onPress={handleAddBtnOnPress}>
+              <Text style={{color: "white", fontSize: 20}}>Add a group</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      ))}
-      <TouchableOpacity onPress={addColumn} style={styles.addColumnButton}>
-        <Icon name="add" size={24} color="black" />
-        <Text style={styles.addColumnButtonText}>Add Group</Text>
-      </TouchableOpacity>
-    </View>
+      }
+    </SafeAreaView>
   );
 }
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
@@ -178,4 +123,61 @@ const styles = StyleSheet.create({
   addColumnButtonText: {
     marginLeft: 5,
   },
+  container: {
+    flex: 1, 
+    paddingHorizontal: 10, 
+    paddingTop: 15
+  },
+  viewRow: {
+    flexDirection: "row",
+    height: 70,
+    backgroundColor: "white",
+    marginBottom: 10,
+    borderRadius: 10,
+    paddingHorizontal: 10
+  },
+  avatarContainer: {
+    height: 58,
+    width: 58,
+    padding: 5,
+  },
+  avatarView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 25,
+    backgroundColor: "green",
+  },
+  avatarText: {
+    fontSize: 20,
+    color: "white",
+    textTransform: "uppercase"
+  },
+  nameContainer: {
+    flex: 1,
+    justifyContent: "center",
+    paddingLeft: 10
+  },
+  nameText: {
+    fontSize: 20
+  },
+  addBtnAbsoluteContainer: {
+    position: "absolute",
+    borderRadius: 60,
+    bottom: 25,
+    right: 25,
+    height: 70,
+    width: 70,
+    backgroundColor: "steelblue",
+    elevation: 10,
+    shadowColor: '#52006A',
+  },
+  addBtn: {
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    color: "white"
+  }
 });

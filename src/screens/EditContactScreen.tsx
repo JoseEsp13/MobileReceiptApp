@@ -1,34 +1,37 @@
-import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import useAppContext from "../components/hooks/useAppContext";
+import { Button, Keyboard, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { IContact } from "../components/state/IFirebaseDocument";
+import routes, { IEditContactScreenProps } from "../routes";
 import { useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
-import { ICreateContactScreenProps } from "../routes";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import useAppContext from "../components/hooks/useAppContext";
 import Avatar from "../components/Avatar";
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
 import type { returnedResults } from 'reanimated-color-picker';
-import { TriangleColorPicker, fromHsv } from "react-native-color-picker";
+import { TriangleColorPicker } from "react-native-color-picker";
 import { useKeyboardVisible } from "../components/hooks/useKeyboardVisible";
 
 
-export default function CreateContactScreen(props: ICreateContactScreenProps) {
+export default function EditContactScreen(props: IEditContactScreenProps) {
 
   const ctx = useAppContext();
   const isKeyboardVisible = useKeyboardVisible();
-  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: "#fafafa", color: "#bdbdbd"})
+  const [contact, setContact] = useState<IContact>(props.route.params.contact);
   const [showModal, setShowModal] = useState(false);
 
   const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbColor().hex());
-
-  const selectedColor = useSharedValue(customSwatches[0]);
+  const selectedColor = useSharedValue(props.route.params.contact.bgColor);
   const backgroundColorStyle = useAnimatedStyle(() => ({ backgroundColor: selectedColor.value }));
 
   const handleSave = () => {
-    if (contact.name && contact.email) {
-      ctx.addContact(contact);
-      props.navigation.goBack();
-    } 
+    ctx.editContact(contact);
+    props.navigation.navigate(routes.CONTACTS_SCREEN);
+  }
+
+  const handleDelete = () => {
+    ctx.deleteContact(contact);
+    props.navigation.navigate(routes.CONTACTS_SCREEN);
   }
 
   // Modal functions
@@ -46,35 +49,34 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
     }))
     setShowModal(false);
   }
+
   return (
     <>
-      <SafeAreaView style={{flex: 1}}>
-        <ScrollView>
+     <SafeAreaView style={{flex: 1}}>
+        <ScrollView style={{marginBottom: 20}}>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
               <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
                 <Icon name="color-palette" size={35} color="#ffa726"/>
               </TouchableOpacity>
             </View>
-            <View style={{borderRadius: 100, backgroundColor: contact.bgColor, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
-              {contact.name?.length > 0 ?
-                <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
-                :
-                <Icon name="person-add" size={65} color={contact.color}></Icon>
-              }    
+            <View style={{borderRadius: 100, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
+              <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-
+              <TouchableOpacity onPress={() => handleDelete()} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
+                <Icon name="trash" size={35} color="#ef5350"/>
+              </TouchableOpacity>
             </View>
           </View>
 
           <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
-            <View style={{paddingLeft: 8}}>
-              <Text style={{fontSize: 17, color: "#424242"}}>Contact info</Text>
+            <View style={{paddingLeft: 5}}>
+              <Text style={{fontSize: 17, color: "#424242", }}>Contact info</Text>
             </View>
-
-            <View style={{marginTop: 30, flexDirection: "row"}}>
-              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+            
+            <View style={{flexDirection: "row", marginTop: 20}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 30}}>
                 <Icon name="person-outline" size={25}></Icon>
               </View>
               <View style={{flex: 1}}>
@@ -88,7 +90,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
             </View>
 
             <View style={{marginTop: 25, flexDirection: "row"}}>
-              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 30}}>
                 <Icon name="mail-outline" size={25}></Icon>
               </View>
               <View style={{flex: 1}}>
@@ -102,7 +104,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
             </View>
 
             <View style={{marginTop: 25, flexDirection: "row"}}>
-              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+              <View style={{justifyContent: "center", alignItems: "center", width: 30}}>
                 <Icon name="call-outline" size={25}></Icon>
               </View>
               <View style={{flex: 1}}>
@@ -115,19 +117,17 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
               </View>
             </View>
           </View>
-
+          
           <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
             <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
               <Icon name="color-palette-outline" size={25}></Icon>
             </View>
-            <View style={{justifyContent: "center", alignItems: "center", left: '20%'}}>
-              <TriangleColorPicker
-                defaultColor={contact.color}
-                oldColor={contact.color}
-                onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
-                style={{ width: 200, height: 200 }}
-              />
-            </View>
+            <TriangleColorPicker
+              defaultColor={contact.bgColor}
+              oldColor={contact.bgColor}
+              onColorSelected={color => setContact(prevState => ({...prevState, bgColor: color}))}
+              style={{ width: 200, height: 200, left: 40 }}
+            />
           </View>
 
           <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
@@ -142,7 +142,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
             </View>
           </TouchableOpacity>
         }
-		
+        
       </SafeAreaView>
 
       <Modal onRequestClose={() => setShowModal(false)} visible={showModal} animationType='slide'>
@@ -179,9 +179,10 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
               <Text style={{ color: '#707070', fontWeight: 'bold' }}>Save</Text>
             </Pressable>
           </View>
+          
         </Animated.View>
       </Modal>
-    </>  
+    </>
   )
 }
 
@@ -339,4 +340,4 @@ const styles = StyleSheet.create({
     height: "100%",
     color: "white"
   }
-})
+});

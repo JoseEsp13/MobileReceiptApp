@@ -1,155 +1,145 @@
-import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import useAppContext from "../components/hooks/useAppContext";
-import { IContact } from "../components/state/IFirebaseDocument";
-import { useState } from "react";
+import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { IContact, IGroup } from "../components/state/IFirebaseDocument";
+import routes, { IEditGroupScreenProps } from "../routes";
+import { useEffect, useState } from "react";
 import Icon from "react-native-vector-icons/Ionicons";
-import { ICreateContactScreenProps } from "../routes";
+import { TouchableOpacity } from "react-native-gesture-handler";
+import useAppContext from "../components/hooks/useAppContext";
+import ColorPicker, { OpacitySlider, Panel3, Preview, SaturationSlider, Swatches, colorKit, returnedResults } from "reanimated-color-picker";
+import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import Avatar from "../components/Avatar";
-import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
-import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
-import type { returnedResults } from 'reanimated-color-picker';
-import { TriangleColorPicker, fromHsv } from "react-native-color-picker";
-import { useKeyboardVisible } from "../components/hooks/useKeyboardVisible";
 
 
-export default function CreateContactScreen(props: ICreateContactScreenProps) {
+export default function EditGroupScreen(props: IEditGroupScreenProps) {
 
   const ctx = useAppContext();
-  const isKeyboardVisible = useKeyboardVisible();
-  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: "#fafafa", color: "#bdbdbd"})
-  const [showModal, setShowModal] = useState(false);
+  const [group, setGroup] = useState<IGroup>(props.route.params.group);
+  const [showPaletteModal, setShowPaletteModal] = useState(false);
 
   const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbColor().hex());
 
   const selectedColor = useSharedValue(customSwatches[0]);
   const backgroundColorStyle = useAnimatedStyle(() => ({ backgroundColor: selectedColor.value }));
 
+  useEffect(() => {
+    setGroup(props.route.params.group)
+  }, [props.route.params.group])
+
   const handleSave = () => {
-    if (contact.name && contact.email) {
-      ctx.addContact(contact);
-      props.navigation.goBack();
-    } 
+    ctx.editGroup(group);
+    props.navigation.navigate(routes.GROUPS_SCREEN);
   }
 
-  // Modal functions
+  const handleDelete = (group: IGroup) => {
+    ctx.deleteGroup(group);
+    props.navigation.navigate(routes.GROUPS_SCREEN);
+  }
+
+  const handleManageContacts = () => {
+    props.navigation.navigate(routes.GROUP_CONTACT_MANAGER_SCREEN, {group: group, returnScreen: routes.EDIT_GROUP_SCREEN})
+  }
+
+  const handleRemoveContactFromGroup = (contact: IContact) => {
+    //props.navigation.navigate(routes.EDIT_CONTACT_SCREEN, {contact});
+  }
+
+  // Palette Modal functions
   const onColorSelect = (color: returnedResults) => {
     'worklet';
     selectedColor.value = color.hex;
   };
 
-  const handleModalSave = () => {
+  const handlePaletteModalSave = () => {
     const color = colorKit.isDark(selectedColor.value) ? "#fff" : "#1a1a1a";
-    setContact(prevState => ({
+    setGroup(prevState => ({
       ...prevState,
       color: color,
       bgColor: selectedColor.value
     }))
-    setShowModal(false);
+    setShowPaletteModal(false);
   }
-  return (
+
+  return(
     <>
       <SafeAreaView style={{flex: 1}}>
-        <ScrollView>
+        <ScrollView style={{paddingBottom: 20}}>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-              <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
+              <TouchableOpacity onPress={() => setShowPaletteModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
                 <Icon name="color-palette" size={35} color="#ffa726"/>
               </TouchableOpacity>
             </View>
-            <View style={{borderRadius: 100, backgroundColor: contact.bgColor, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
-              {contact.name?.length > 0 ?
-                <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
-                :
-                <Icon name="person-add" size={65} color={contact.color}></Icon>
-              }    
+            <View style={{borderRadius: 100, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
+              <Avatar name={group.name} bgColor={group.bgColor} color={group.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-
+              <TouchableOpacity onPress={() => handleDelete(group)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
+                <Icon name="trash" size={35} color="#ef5350"/>
+              </TouchableOpacity>
             </View>
           </View>
 
           <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
-            <View style={{paddingLeft: 8}}>
-              <Text style={{fontSize: 17, color: "#424242"}}>Contact info</Text>
+            <View>
+              <Text style={{fontSize: 17, color: "#424242"}}>Group info</Text>
             </View>
 
-            <View style={{marginTop: 30, flexDirection: "row"}}>
+            <View style={{marginTop: 20, flexDirection: "row"}}>
               <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-                <Icon name="person-outline" size={25}></Icon>
+                <Icon name="people-outline" size={25}></Icon>
               </View>
               <View style={{flex: 1}}>
                 <TextInput
                   placeholder="Name"
-                  value={contact.name}
-                  onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-                />
-              </View>
-            </View>
-
-            <View style={{marginTop: 25, flexDirection: "row"}}>
-              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-                <Icon name="mail-outline" size={25}></Icon>
-              </View>
-              <View style={{flex: 1}}>
-                <TextInput
-                  placeholder="Email"
-                  value={contact.email}
-                  onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
-                />
-              </View>
-            </View>
-
-            <View style={{marginTop: 25, flexDirection: "row"}}>
-              <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-                <Icon name="call-outline" size={25}></Icon>
-              </View>
-              <View style={{flex: 1}}>
-                <TextInput
-                  placeholder="Phone"
-                  value={contact.phoneNumber}
-                  onChangeText={(s: string) => setContact(prevState => ({...prevState, phoneNumber: s}))}
+                  value={group.name}
+                  onChangeText={(s: string) => setGroup(prevState => ({...prevState, name: s}))}
                   style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
                 />
               </View>
             </View>
           </View>
 
-          <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="color-palette-outline" size={25}></Icon>
+          <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
+
+            <View>
+              <Text style={{fontSize: 17, color: "#424242"}}>Attached Contacts</Text>
             </View>
-            <View style={{justifyContent: "center", alignItems: "center", left: '20%'}}>
-              <TriangleColorPicker
-                defaultColor={contact.color}
-                oldColor={contact.color}
-                onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
-                style={{ width: 200, height: 200 }}
-              />
+
+            <View style={{marginTop: 10}}>
+              {group.contacts.map((groupContact, i) => (
+                <View key={i} style={styles.viewRow}>
+                  <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
+                    <View style={styles.avatarContainer}>
+                      <Avatar name={groupContact.name} bgColor={groupContact.bgColor} color={groupContact.color} viewStyle={styles.avatarView} textStyle={styles.contactAvatarText}/>
+                    </View>
+                  </View>
+                  <View style={styles.nameContainer}>
+                    <Text style={styles.nameText}>{groupContact.name}</Text>
+                  </View> 
+                </View>
+              ))}
+
+              <View style={{alignItems: "center", justifyContent: "center", marginTop: 20}}>
+                <View style={{width: 150}}>
+                  <Button title="Manage" color="steelblue" onPress={handleManageContacts} />
+                </View>
+              </View>
             </View>
           </View>
-
-          <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
-            Press above button to select color 
-          </Text>
         </ScrollView>
 
-        {!isKeyboardVisible &&
-          <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
-            <View style={styles.floatingActionBtn}>
-              <Icon name="save" size={38} color="green"/>
-            </View>
-          </TouchableOpacity>
-        }
-		
+        <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
+          <View style={styles.floatingActionBtn}>
+            <Icon name="save" size={38} color="green"/>
+          </View>
+        </TouchableOpacity>
       </SafeAreaView>
 
-      <Modal onRequestClose={() => setShowModal(false)} visible={showModal} animationType='slide'>
-        <Animated.View style={[styles.container, backgroundColorStyle]}>
+      <Modal onRequestClose={() => setShowPaletteModal(false)} visible={showPaletteModal} animationType='slide'>
+        <Animated.View style={[styles.modalContainer, backgroundColorStyle]}>
           <View style={styles.pickerContainer}>
             <ColorPicker
-              value={contact.bgColor}
+              value={group.bgColor}
               sliderThickness={25}
               thumbShape='circle'
               thumbSize={25}
@@ -171,21 +161,33 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
           </View>
 
           <View style={styles.buttonWrapper}>
-            <Pressable style={styles.button} onPress={() => setShowModal(false)}>
+            <Pressable style={styles.button} onPress={() => setShowPaletteModal(false)}>
               <Text style={{ color: '#707070', fontWeight: 'bold' }}>Cancel</Text>
             </Pressable>
 
-            <Pressable style={styles.button} onPress={() => handleModalSave()}>
+            <Pressable style={styles.button} onPress={() => handlePaletteModalSave()}>
               <Text style={{ color: '#707070', fontWeight: 'bold' }}>Save</Text>
             </Pressable>
           </View>
         </Animated.View>
       </Modal>
-    </>  
+    </>
   )
 }
 
 const styles = StyleSheet.create({
+  viewRow: {
+    flexDirection: "row",
+    height: 55,
+    backgroundColor: "white",
+    borderRadius: 10,
+    paddingHorizontal: 10
+  },
+  avatarContainer: {
+    height: 55,
+    width: 55,
+    padding: 5,
+  },
   avatarView: {
     flex: 1,
     justifyContent: "center",
@@ -193,17 +195,39 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
     borderRadius: 100,
-    backgroundColor: "green",
   },
   avatarText: {
     fontSize: 55,
-    color: "white",
     textTransform: "uppercase"
   },
-  container: {
+  contactAvatarText: {
+    fontSize: 20,
+    textTransform: "uppercase"
+  },
+  nameContainer: {
     flex: 1,
     justifyContent: "center",
-    alignContent: 'center',
+    paddingLeft: 10
+  },
+  nameText: {
+    fontSize: 18
+  },
+  addBtnAbsoluteContainer: {
+    position: "absolute",
+    borderRadius: 60,
+    bottom: 25,
+    right: 25,
+    height: 50,
+    width: 50,
+    backgroundColor: "steelblue"
+  },
+  addBtn: {
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    color: "white"
   },
   pickerContainer: {
     alignSelf: 'center',
@@ -220,6 +244,11 @@ const styles = StyleSheet.create({
     shadowRadius: 6.27,
 
     elevation: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignContent: 'center',
   },
   panelStyle: {
     borderRadius: 16,

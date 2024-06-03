@@ -89,7 +89,7 @@ export default function CreateGroupScreen(props: ICreateGroupScreenProps) {
                   placeholder="Name"
                   value={group.name}
                   onChangeText={(s: string) => setGroup(prevState => ({...prevState, name: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
                 />
               </View>
             </View>

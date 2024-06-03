@@ -159,7 +159,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   },
   nameText: {
-    fontSize: 20
+    fontSize: 20,
+    color: "#424242"
   },
   addBtnAbsoluteContainer: {
     position: "absolute",

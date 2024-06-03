@@ -172,10 +172,17 @@ export default function AppState(props: IAppState) {
 
   const deleteContact = (contact: IContact) => {
     setUser(prevState => {
+      const groups = [...prevState.groups];
+
       const newState = {
         ...prevState,
-        contacts: prevState.contacts.filter(x => x.id !== contact.id)
+        contacts: prevState.contacts.filter(x => x.id !== contact.id),
+        groups: groups.map(group => ({
+          ...group,
+          contacts: group.contacts.filter(groupContact => groupContact.id !== contact.id)
+        }))
       }
+      
       firebase.setUserDataAsync(newState);
       return newState;
     });

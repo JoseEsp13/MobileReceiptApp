@@ -8,11 +8,13 @@ import useAppContext from "../components/hooks/useAppContext";
 import ColorPicker, { OpacitySlider, Panel3, Preview, SaturationSlider, Swatches, colorKit, returnedResults } from "reanimated-color-picker";
 import Animated, { useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import Avatar from "../components/Avatar";
+import useIsDarkColorTheme from "../components/hooks/useIsDarkColorTheme";
 
 
 export default function EditGroupScreen(props: IEditGroupScreenProps) {
 
   const ctx = useAppContext();
+  const isDark = useIsDarkColorTheme();
   const [group, setGroup] = useState<IGroup>(props.route.params.group);
   const [showPaletteModal, setShowPaletteModal] = useState(false);
 
@@ -39,10 +41,6 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
     props.navigation.navigate(routes.GROUP_CONTACT_MANAGER_SCREEN, {group: group, returnScreen: routes.EDIT_GROUP_SCREEN})
   }
 
-  const handleRemoveContactFromGroup = (contact: IContact) => {
-    //props.navigation.navigate(routes.EDIT_CONTACT_SCREEN, {contact});
-  }
-
   // Palette Modal functions
   const onColorSelect = (color: returnedResults) => {
     'worklet';
@@ -65,7 +63,7 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
         <ScrollView style={{paddingBottom: 20}}>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-              <TouchableOpacity onPress={() => setShowPaletteModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
+              <TouchableOpacity onPress={() => setShowPaletteModal(true)} style={{backgroundColor: isDark ? "#212121" : "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
                 <Icon name="color-palette" size={35} color="#ffa726"/>
               </TouchableOpacity>
             </View>
@@ -73,15 +71,15 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
               <Avatar name={group.name} bgColor={group.bgColor} color={group.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-              <TouchableOpacity onPress={() => handleDelete(group)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
+              <TouchableOpacity onPress={() => handleDelete(group)} style={{backgroundColor: isDark ? "#212121" : "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
                 <Icon name="trash" size={35} color="#ef5350"/>
               </TouchableOpacity>
             </View>
           </View>
 
-          <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
+          <View style={{marginTop: 30, backgroundColor: isDark ? "#212121" : "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
             <View>
-              <Text style={{fontSize: 17, color: "#424242"}}>Group info</Text>
+              <Text style={{fontSize: 17, color: isDark ? "white" : "#424242"}}>Group info</Text>
             </View>
 
             <View style={{marginTop: 20, flexDirection: "row"}}>
@@ -93,21 +91,21 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
                   placeholder="Name"
                   value={group.name}
                   onChangeText={(s: string) => setGroup(prevState => ({...prevState, name: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, borderRadius: 5}}
                 />
               </View>
             </View>
           </View>
 
-          <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
+          <View style={{marginTop: 30, backgroundColor: isDark ? "#212121" : "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
 
             <View>
-              <Text style={{fontSize: 17, color: "#424242"}}>Attached Contacts</Text>
+              <Text style={{fontSize: 17, color: isDark ? "white" : "#424242"}}>Attached Contacts</Text>
             </View>
 
             <View style={{marginTop: 10}}>
               {group.contacts.map((groupContact, i) => (
-                <View key={i} style={styles.viewRow}>
+                <View key={i} style={[styles.viewRow, {backgroundColor: isDark ? "#212121" : "white"}]}>
                   <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
                     <View style={styles.avatarContainer}>
                       <Avatar name={groupContact.name} bgColor={groupContact.bgColor} color={groupContact.color} viewStyle={styles.avatarView} textStyle={styles.contactAvatarText}/>
@@ -128,7 +126,7 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
           </View>
         </ScrollView>
 
-        <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
+        <TouchableOpacity style={[styles.floatingActionBtnContainer, {backgroundColor: isDark ? "#212121" : "white"}]} onPress={handleSave}>
           <View style={styles.floatingActionBtn}>
             <Icon name="save" size={38} color="green"/>
           </View>
@@ -179,7 +177,6 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: "row",
     height: 55,
-    backgroundColor: "white",
     borderRadius: 10,
     paddingHorizontal: 10
   },
@@ -354,18 +351,14 @@ const styles = StyleSheet.create({
     right: 25,
     height: 70,
     width: 70,
-    backgroundColor: "white",
     borderWidth: 1,
-    borderColor: "white",
-    elevation: 10,
-    shadowColor: '#52006A',
+    elevation: 10
   },
   floatingActionBtn: {
     position: "relative",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%",
-    color: "white"
+    height: "100%"
   }
 })

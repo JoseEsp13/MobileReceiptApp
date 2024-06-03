@@ -1,4 +1,4 @@
-import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Button, Modal, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View, useColorScheme } from "react-native";
 import useAppContext from "../components/hooks/useAppContext";
 import { IContact } from "../components/state/IFirebaseDocument";
 import { useState } from "react";
@@ -8,15 +8,15 @@ import Avatar from "../components/Avatar";
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
 import type { returnedResults } from 'reanimated-color-picker';
-import { TriangleColorPicker, fromHsv } from "react-native-color-picker";
-import { useKeyboardVisible } from "../components/hooks/useKeyboardVisible";
+import useIsDarkColorTheme from "../components/hooks/useIsDarkColorTheme";
 
 
 export default function CreateContactScreen(props: ICreateContactScreenProps) {
 
   const ctx = useAppContext();
-  const isKeyboardVisible = useKeyboardVisible();
-  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: "#fafafa", color: "#bdbdbd"})
+  const isDark = useIsDarkColorTheme();
+
+  const [contact, setContact] = useState<IContact>({id: 0, name: "", email: "", phoneNumber: "", bgColor: isDark ? "#212121" : "white", color: "#9e9e9e"})
   const [showModal, setShowModal] = useState(false);
 
   const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbColor().hex());
@@ -52,7 +52,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
         <ScrollView>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
-              <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
+              <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: isDark ? "#212121" : "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
                 <Icon name="color-palette" size={35} color="#ffa726"/>
               </TouchableOpacity>
             </View>
@@ -68,9 +68,9 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
             </View>
           </View>
 
-          <View style={{marginTop: 30, backgroundColor: "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
+          <View style={{marginTop: 30, backgroundColor: isDark ? "#212121" : "white", paddingTop: 15, paddingBottom: 30, paddingHorizontal: 10, borderRadius: 15, marginHorizontal: 10}}>
             <View style={{paddingLeft: 8}}>
-              <Text style={{fontSize: 17, color: "#424242"}}>Contact info</Text>
+              <Text style={{fontSize: 17, color: isDark? "white" :"#424242"}}>Contact info</Text>
             </View>
 
             <View style={{marginTop: 30, flexDirection: "row"}}>
@@ -82,7 +82,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
                   placeholder="Name"
                   value={contact.name}
                   onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, borderRadius: 5}}
                 />
               </View>
             </View>
@@ -96,7 +96,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
                   placeholder="Email"
                   value={contact.email}
                   onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, borderRadius: 5}}
                 />
               </View>
             </View>
@@ -110,39 +110,18 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
                   placeholder="Phone"
                   value={contact.phoneNumber}
                   onChangeText={(s: string) => setContact(prevState => ({...prevState, phoneNumber: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, borderRadius: 5}}
                 />
               </View>
             </View>
           </View>
-
-          <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
-            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
-              <Icon name="color-palette-outline" size={25}></Icon>
-            </View>
-            <View style={{justifyContent: "center", alignItems: "center", left: '20%'}}>
-              <TriangleColorPicker
-                defaultColor={contact.color}
-                oldColor={contact.color}
-                onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
-                style={{ width: 200, height: 200 }}
-              />
-            </View>
-          </View>
-
-          <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
-            Press above button to select color 
-          </Text>
         </ScrollView>
 
-        {!isKeyboardVisible &&
-          <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
-            <View style={styles.floatingActionBtn}>
-              <Icon name="save" size={38} color="green"/>
-            </View>
-          </TouchableOpacity>
-        }
-		
+        <TouchableOpacity style={[styles.floatingActionBtnContainer, {backgroundColor: isDark ? "#212121" : "white"}]} onPress={handleSave}>
+          <View style={styles.floatingActionBtn}>
+            <Icon name="save" size={38} color="green"/>
+          </View>
+        </TouchableOpacity>
       </SafeAreaView>
 
       <Modal onRequestClose={() => setShowModal(false)} visible={showModal} animationType='slide'>
@@ -325,11 +304,8 @@ const styles = StyleSheet.create({
     right: 25,
     height: 70,
     width: 70,
-    backgroundColor: "white",
     borderWidth: 1,
-    borderColor: "white",
-    elevation: 10,
-    shadowColor: '#52006A',
+    elevation: 10
   },
   floatingActionBtn: {
     position: "relative",
@@ -337,6 +313,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     height: "100%",
-    color: "white"
   }
 })

@@ -10,11 +10,13 @@ import useAppContext from '../components/hooks/useAppContext';
 import Avatar from '../components/Avatar';
 import routes, { IContactsScreenTabProps } from '../routes';
 import { IContact } from '../components/state/IFirebaseDocument';
+import useIsDarkColorTheme from '../components/hooks/useIsDarkColorTheme';
 
 
 export default function ContactsScreen(props: IContactsScreenTabProps) {
 
   const ctx = useAppContext();
+  const isDark = useIsDarkColorTheme();
 
   const handleAddBtnOnPress = () => {
     props.navigation.navigate(routes.CREATE_CONTACT_SCREEN);
@@ -31,7 +33,7 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
           <ScrollView style={{flex: 1}}>
           {
             ctx.user.contacts.map((contact, i) => (
-              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleEditContactOnPress(contact)}>
+              <TouchableOpacity key={i} style={[styles.viewRow, {backgroundColor: isDark ? "#212121" : "white"}]} onPress={() => handleEditContactOnPress(contact)}>
                 <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
                   <View style={styles.avatarContainer}>
                     <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
@@ -75,7 +77,6 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: "row",
     height: 70,
-    backgroundColor: "white",
     marginBottom: 10,
     borderRadius: 10,
     paddingHorizontal: 10
@@ -103,8 +104,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   },
   nameText: {
-    fontSize: 20,
-    color: "#424242"
+    fontSize: 20
   },
   floatingActionBtnContainer: {
     position: "absolute",
@@ -114,8 +114,7 @@ const styles = StyleSheet.create({
     height: 70,
     width: 70,
     backgroundColor: "steelblue",
-    elevation: 10,
-    shadowColor: '#52006A',
+    elevation: 10
   },
   floatingActionBtn: {
     position: "relative",

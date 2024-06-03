@@ -4,6 +4,7 @@ import useAppContext from "../components/hooks/useAppContext";
 import { IContact, IGroup } from "../components/state/IFirebaseDocument";
 import { useCallback, useMemo, useState } from "react";
 import Avatar from "../components/Avatar";
+import useIsDarkColorTheme from "../components/hooks/useIsDarkColorTheme";
 
 interface IContactHash {
   [key: string] : boolean
@@ -12,6 +13,7 @@ interface IContactHash {
 export default function GroupContactManagerScreen(props: IGroupContactManagerScreenProps) {
 
   const ctx = useAppContext();
+  const isDark = useIsDarkColorTheme();
   const [group, setGroup] = useState<IGroup>(props.route.params.group);
 
   const handleAddContactToGroup = (contact: IContact) => {
@@ -25,7 +27,7 @@ export default function GroupContactManagerScreen(props: IGroupContactManagerScr
   const handleRemoveContactFromGroup = (contact: IContact) => {
     setGroup(prevState => ({
       ...prevState,
-      contacts: prevState.contacts.filter(x => x.id === contact.id)
+      contacts: prevState.contacts.filter(x => x.id !== contact.id)
     }));
     contactHash[contact.name] = false;
   };
@@ -63,7 +65,7 @@ export default function GroupContactManagerScreen(props: IGroupContactManagerScr
         {contacts.map((contact, i) => {
           if (contactHash[contact.name]) {
             return (
-              <TouchableOpacity key={i} style={[styles.viewRow, {borderWidth: 2, borderColor: "#03a9f4"}]} onPress={() => handleRemoveContactFromGroup(contact)}>
+              <TouchableOpacity key={i} style={[styles.viewRow, {borderWidth: 2, borderColor: "#03a9f4", backgroundColor: isDark ? "#212121" : "white"}]} onPress={() => handleRemoveContactFromGroup(contact)}>
                 <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
                   <View style={styles.avatarContainer}>
                     <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
@@ -76,7 +78,7 @@ export default function GroupContactManagerScreen(props: IGroupContactManagerScr
             )
           }
           return (
-            <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleAddContactToGroup(contact)}>
+            <TouchableOpacity key={i} style={[styles.viewRow, {backgroundColor: isDark ? "#212121" : "white"}]} onPress={() => handleAddContactToGroup(contact)}>
               <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
                 <View style={styles.avatarContainer}>
                   <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
@@ -120,7 +122,6 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: "row",
     height: 70,
-    backgroundColor: "white",
     marginBottom: 5,
     borderRadius: 10,
     paddingHorizontal: 10
@@ -163,7 +164,6 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%",
-    color: "white"
+    height: "100%"
   }
 });

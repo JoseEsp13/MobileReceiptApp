@@ -54,11 +54,6 @@ export default function HomeScreen(props: IHomeScreenTabProps) {
           {'Dev Logout'}
         </DemoButton>
       </View>
-      {/*<View style={{height: 60, marginTop: 30}}>
-        <DemoButton key="Dev Logout" onPress={() => props.navigation.navigate(routes.SPLIT_SCREEN)}>
-          {'Dev Split'}
-        </DemoButton>
-      </View>*/}
     </View>
   );
 }

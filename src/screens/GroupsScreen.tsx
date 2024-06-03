@@ -7,10 +7,12 @@ import useAppContext from '../components/hooks/useAppContext';
 import routes, { IGroupScreenProps } from '../routes';
 import { IGroup } from '../components/state/IFirebaseDocument';
 import Avatar from '../components/Avatar';
+import useIsDarkColorTheme from '../components/hooks/useIsDarkColorTheme';
 
 
 export default function GroupsScreen(props: IGroupScreenProps) {
   const ctx = useAppContext();
+  const isDark = useIsDarkColorTheme();
 
   const handleAddBtnOnPress = () => {
     props.navigation.navigate(routes.CREATE_GROUP_SCREEN);
@@ -26,7 +28,7 @@ export default function GroupsScreen(props: IGroupScreenProps) {
         <>
           <ScrollView>
             {ctx.user.groups.map((group, i) => (
-              <TouchableOpacity key={i} style={styles.viewRow} onPress={() => handleEditGroupOnPress(group)}>
+              <TouchableOpacity key={i} style={[styles.viewRow, {backgroundColor: isDark ? "#212121" : "white"}]} onPress={() => handleEditGroupOnPress(group)}>
                 <View style={{justifyContent: "center", alignItems: "center", height: "100%"}}>
                   <View style={styles.avatarContainer}>
                     <Avatar name={group.name} bgColor={group.bgColor} color={group.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
@@ -131,7 +133,6 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: "row",
     height: 70,
-    backgroundColor: "white",
     marginBottom: 10,
     borderRadius: 10,
     paddingHorizontal: 10
@@ -159,8 +160,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   },
   nameText: {
-    fontSize: 20,
-    color: "#424242"
+    fontSize: 20
   },
   addBtnAbsoluteContainer: {
     position: "absolute",
@@ -170,15 +170,13 @@ const styles = StyleSheet.create({
     height: 70,
     width: 70,
     backgroundColor: "steelblue",
-    elevation: 10,
-    shadowColor: '#52006A',
+    elevation: 10
   },
   addBtn: {
     position: "relative",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%",
-    color: "white"
+    height: "100%"
   }
 });

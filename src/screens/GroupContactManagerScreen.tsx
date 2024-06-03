@@ -87,15 +87,26 @@ export default function GroupContactManagerScreen(props: IGroupContactManagerScr
               </View> 
             </TouchableOpacity>
           )
-
-          
         })}
+        {contacts.length === 0 &&
+          <View style={{flex: 1, alignItems: "center", marginTop: "50%"}}>
+            <View>
+              <Text style={{fontSize: 20}}>Contacts needed!</Text>
+            </View>
+            <View style={{marginTop: 20}}>
+              <Text style={{fontSize: 20}}>Use the Contacts action below</Text>
+            </View>
+          </View>
+        }
       </ScrollView>
-      <View style={{position: "absolute", bottom: 10, left: 10, right: 10, alignItems: "center"}}>
-        <View style={{width: 180, borderRadius: 50}}>
-          <Button title="Close" color="steelblue" onPress={handleClose} />
-        </View>
-      </View> 
+
+      {contacts.length > 0 &&
+        <View style={{position: "absolute", bottom: 10, left: 10, right: 10, alignItems: "center"}}>
+          <View style={{width: 180, borderRadius: 50}}>
+            <Button title="Close" color="steelblue" onPress={handleClose} />
+          </View>
+        </View> 
+      } 
     </SafeAreaView>
   )
 }

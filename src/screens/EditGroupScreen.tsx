@@ -93,7 +93,7 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
                   placeholder="Name"
                   value={group.name}
                   onChangeText={(s: string) => setGroup(prevState => ({...prevState, name: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
                 />
               </View>
             </View>
@@ -210,7 +210,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10
   },
   nameText: {
-    fontSize: 18
+    fontSize: 18,
+    color: "#424242"
   },
   addBtnAbsoluteContainer: {
     position: "absolute",

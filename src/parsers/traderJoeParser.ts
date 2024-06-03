@@ -72,13 +72,14 @@ function isPriceTraderJoe(price: string): string {
  *  1. split response lines to items and prices.
  *     Also cleaned up item names and skipped anything
  *     related to savings.
- *  2. for every price, find its closest item that is
- *     not located near according to its x axis
+ *  2. for every price, find its closest item
+ *     on the y axis that is not located near according
+ *     to its width on the x axis
  *  3. fill a backwards dictionary of prices with their
  *     closest items
  *  4. flip the dictionary. Items with multiple prices
  *     (original and discounted), chooses the discounted
- *     price.
+ *     price. (choosing is kinda unecessary for TraderJoes)
  * 
  * Context for Variebles:
  *  prices: [price, ycoor, xcoor, width][]

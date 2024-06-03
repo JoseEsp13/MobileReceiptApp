@@ -1,9 +1,4 @@
-/**
- * DefineGroupsScreen.tsx
- * 
- * Allows the user to configure the groups
- */
-// DefineGroupsScreen.tsx
+
 
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, SafeAreaView, ScrollView } from 'react-native';
@@ -64,7 +59,6 @@ export default function GroupsScreen(props: IGroupScreenProps) {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   title: {
     fontSize: 24,

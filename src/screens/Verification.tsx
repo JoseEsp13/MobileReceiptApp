@@ -1,93 +1,231 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, ScrollView, TextStyle, ViewStyle, SafeAreaView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated } from 'react-native';
 import { IParserResult } from '../parsers/IParser';
+import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
+import useAppContext from '../components/hooks/useAppContext';
+import { IGroup } from '../components/state/IFirebaseDocument';
 
 interface VerificationProps {
     parserResult: IParserResult;
 }
 
-interface InputValidity {
-    [key: string]: boolean | undefined;
-}
+// Helper function to calculate the total sum, excluding the "TOTAL" key
+const calculateTotalSum = (entries: [string, string][]): number => {
+    const totalSum = entries.reduce((sum, [key, value]) => {
+        if (key !== "TOTAL") {
+            return sum + (parseFloat(value) || 0);
+        }
+        return sum;
+    }, 0);
+    return parseFloat(totalSum.toFixed(2)); // Round the total to two decimal places
+};
 
 const Verification: React.FC<VerificationProps> = ({ parserResult }: VerificationProps) => {
-    const [itemNames, setItemNames] = useState<IParserResult>(parserResult);
-    const [inputValidity, setInputValidity] = useState<InputValidity>({});
+    const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
 
-    const handleTextChange = (text: string, key: string): void => {
-        const priceFloat: RegExp = /^[0-9]*(\.[0-9]{0,2})?$/;
-        if (priceFloat.test(text)) {
-            setItemNames((prevItemNames: IParserResult) => {
-                const updatedItemNames: IParserResult = { ...prevItemNames };
-                updatedItemNames[key] = parseFloat(text); // Convert text to a number
-                return updatedItemNames;
-            });
-            setInputValidity((prevValidity: InputValidity) => ({
-                ...prevValidity,
-                [key]: true,
-            }));
-        } else {
-            setInputValidity((prevValidity: InputValidity) => ({
-                ...prevValidity,
-                [key]: false,
-            }));
+    const [itemEntries, setItemEntries] = useState<[string, string][]>(initialEntries);
+    const [totalSum, setTotalSum] = useState<number>(calculateTotalSum(initialEntries));
+    const [deletedEntries, setDeletedEntries] = useState<[string, string][]>([]);
+    const [isPanelVisible, setIsPanelVisible] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState<IGroup | null>(null);
+    const [groupItems, setGroupItems] = useState<[string, string][]>([]); // State to hold items and prices for the selected group
+    const [editable, setEditable] = useState(true); // State to control the editability of TextInput fields
 
-            // Reset the invalid input state after 1 second
-            setTimeout(() => {
-                setInputValidity((prevValidity: InputValidity) => {
-                    const updatedValidity: InputValidity = { ...prevValidity };
-                    updatedValidity[key] = undefined; // Reset the validity state to undefined
-                    return updatedValidity;
-                });
-            }, 1000);
+    useEffect(() => {
+        setTotalSum(calculateTotalSum(itemEntries));
+        parserResult.TOTAL = parseFloat(totalSum.toFixed(2));
+    }, [itemEntries]);
+
+    useEffect(() => {
+        if (selectedGroup) {
+            const groupItemsFiltered = itemEntries.filter(([key]) =>
+                selectedGroup.contacts.some(contact => contact.name === key)
+            );
+            setGroupItems(groupItemsFiltered);
         }
+    }, [selectedGroup, itemEntries]);
+
+    const handleKeyChange = (text: string, index: number): void => {
+        setItemEntries((prevEntries) => {
+            const updatedEntries = [...prevEntries];
+            const [_, value] = updatedEntries[index];
+            updatedEntries[index] = [text, value];
+            return updatedEntries;
+        });
+    };
+
+    const handleValueChange = (text: string, index: number): void => {
+        setItemEntries((prevEntries) => {
+            const updatedEntries = [...prevEntries];
+            const [key, _] = updatedEntries[index];
+            updatedEntries[index] = [key, text];
+            return updatedEntries;
+        });
+    };
+
+    const addNewEntry = (): void => {
+        setItemEntries((prevEntries) => [...prevEntries, ["", "0"]]);
+    };
+
+    const deleteEntry = (index: number): void => {
+        setItemEntries((prevEntries) => {
+            const entryToDelete = prevEntries[index];
+            setDeletedEntries((prevDeleted) => [entryToDelete, ...prevDeleted]);
+            return prevEntries.filter((_, i) => i !== index);
+        });
+    };
+
+    const undoDelete = (): void => {
+        if (deletedEntries.length > 0) {
+            const [lastDeleted, ...restDeleted] = deletedEntries;
+            setItemEntries((prevEntries) => [...prevEntries, lastDeleted]);
+            setDeletedEntries(restDeleted);
+        }
+    };
+
+    const finalize = () => {
+        setEditable(false); // Set editable to false to disable all TextInput fields
     };
 
     return (
         <ScrollView style={styles.scrollContainer}>
             <View style={styles.container}>
+                {itemEntries.map(([key, value], index) => {
+                    if (key !== "TOTAL") {
+                        return (
+                            <View key={index} style={styles.row}>
+                                <View style={styles.item}>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={key}
+                                        onChangeText={(text) => handleKeyChange(text, index)}
+                                        editable={editable} // Use the editable state here
+                                    />
+                                </View>
+                                <View style={styles.item}>
+                                    <TextInput
+                                        style={styles.input}
+                                        value={value}
+                                        onChangeText={(text) => handleValueChange(text, index)}
+                                        keyboardType="default"
+                                        editable={editable} // Use the editable state here
+                                    />
+                                </View>
+                                <View style={styles.buttonItem}>
+                                    <Button title="-" onPress={() => deleteEntry(index)} disabled={!editable} />
+                                </View>
+                            </View>
+                        );
+                    }
+                    return null;
+                })}
                 <View style={styles.row}>
-                    <View style={styles.column}>
-                        {Object.keys(itemNames).map((key: string) => (
-                            <View key={key} style={styles.item}>
-                                <TextInput
-                                    style={[styles.input, inputValidity[key] === false && styles.invalidInput]}
-                                    value={key}
-                                    editable={true}
-                                />
-                            </View>
-                        ))}
+                    <View style={styles.item}>
+                        <Text style={styles.title}>TOTAL:</Text>
                     </View>
-                    <View style={styles.column}>
-                        {Object.keys(itemNames).map((key: string) => (
-                            <View key={key} style={styles.item}>
-                                <TextInput
-                                    style={[styles.input, inputValidity[key] === false && styles.invalidInput]}
-                                    value={itemNames[key].toString()}
-                                    onChangeText={(text) => handleTextChange(text, key)}
-                                    keyboardType="numeric"
-                                />
-                            </View>
-                        ))}
+                    <View style={styles.item}>
+                        <Text style={styles.title}>{totalSum.toFixed(2)}</Text>
                     </View>
                 </View>
+                <Button title="Add Item" onPress={addNewEntry} disabled={!editable} />
+                <Button title="Undo" onPress={undoDelete} disabled={deletedEntries.length === 0 || !editable} />
+                <Text style={styles.chooseGroupText}>Group:</Text>
+                {selectedGroup && (
+                    <View style={styles.chosenGroup}>
+                        <Text style={styles.chosenGroupText}>{selectedGroup.name}</Text>
+                    </View>
+                )}
+                
+                <View style={styles.panelButtonContainer}>
+                    <Button title="+" onPress={() => setIsPanelVisible(true)} />
+                </View>
+                <View style={styles.buttonContainer}>
+                    {selectedGroup && selectedGroup.contacts.map((contact, index) => (
+                        <View key={index}>
+                            <ThemedButton
+                                name='rick'
+                                textColor='gray'
+                                textSize={5}
+                                type='primary'
+                                raiseLevel={3}
+                                width={50}
+                                height={50}
+                                onPress={finalize} // Call finalize function here
+                            >
+                                {contact.name}
+                            </ThemedButton>
+                        </View>
+                    ))}
+                </View>
+                {/* Display item names and prices */}
+                {groupItems.length > 0 && (
+                    <View style={styles.subGroupContainer}>
+                        {groupItems.map(([key, value], index) => (
+                            <View key={index} style={styles.row}>
+                                <View style={styles.item}>
+                                    <Text style={styles.subGroupText}>{key}</Text>
+                                </View>
+                                <View style={styles.item}>
+                                    <Text style={styles.subGroupText}>{value}</Text>
+                                </View>
+                            </View>
+                        ))}
+                    </View>
+                )}
+                <SlideUpPanel isVisible={isPanelVisible} onClose={() => setIsPanelVisible(false)} setSelectedGroup={setSelectedGroup} />
             </View>
         </ScrollView>
     );
 };
 
-interface Styles {
-    scrollContainer: ViewStyle;
-    container: ViewStyle;
-    title: TextStyle;
-    row: ViewStyle;
-    column: ViewStyle;
-    item: ViewStyle;
-    input: TextStyle;
-    invalidInput: ViewStyle;
-}
 
-const styles = StyleSheet.create<Styles>({
+const SlideUpPanel: React.FC<{ isVisible: boolean; onClose: () => void; setSelectedGroup: React.Dispatch<React.SetStateAction<IGroup | null>> }> = ({
+    isVisible,
+    onClose,
+    setSelectedGroup,
+}) => {
+    const ctx = useAppContext();
+    const slideUpValue = useState(new Animated.Value(0))[0];
+
+    useEffect(() => {
+        if (isVisible) {
+            Animated.timing(slideUpValue, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        } else {
+            Animated.timing(slideUpValue, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
+        }
+    }, [isVisible, slideUpValue]);
+
+    const slideUpAnimation = {
+        transform: [
+            {
+                translateY: slideUpValue.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [500, 0],
+                }),
+            },
+        ],
+    };
+
+    return (
+        <Animated.View style={[styles.slideUpPanel, slideUpAnimation]}>
+            <ScrollView>
+                {ctx.user.groups.map((group, index) => (
+                    <Button key={index} title={group.name} onPress={() => { onClose(); setSelectedGroup(group); }} />
+                ))}
+            </ScrollView>
+        </Animated.View>
+    );
+};
+
+const styles = StyleSheet.create({
     scrollContainer: {
         flex: 1,
     },
@@ -97,16 +235,16 @@ const styles = StyleSheet.create<Styles>({
     },
     title: {
         fontSize: 24,
-        marginBottom: 16,
+        fontWeight: 'bold',
     },
     row: {
         flexDirection: 'row',
-    },
-    column: {
-        flex: 1,
+        alignItems: 'center',
+        marginBottom: 10,
     },
     item: {
-        marginBottom: 10,
+        flex: 1,
+        marginHorizontal: 5,
     },
     input: {
         height: 40,
@@ -114,17 +252,59 @@ const styles = StyleSheet.create<Styles>({
         borderWidth: 1,
         borderRadius: 4,
         paddingHorizontal: 8,
-        paddingVertical: 6,
         textAlign: 'center',
         fontSize: 12,
         fontWeight: 'bold',
-        color: 'coral',
-        backgroundColor: 'oldlace'
+        color: '#1f91ec',   // Blue color
     },
-    invalidInput: {
-        borderColor: 'red',
+    buttonContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap', // Allow buttons to wrap to the next line
+        justifyContent: 'space-around',
+        marginTop: 20,
     },
-    
+    buttonItem: {
+        marginHorizontal: 5,
+    },
+    chooseGroupText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginTop: 20,
+        textAlign: 'center',
+    },
+    panelButtonContainer: {
+        alignItems: 'center',
+    },
+    slideUpPanel: {
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'white',
+        borderTopLeftRadius: 10,
+        borderTopRightRadius: 10,
+        padding: 10,
+        elevation: 5,
+    },
+    chosenGroup: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    chosenGroupText: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginRight: 5,
+    },
+    subGroupContainer: {
+        marginTop: 10,
+        paddingHorizontal: 16,
+    },
+    subGroupText: {
+        fontSize: 14,
+        paddingVertical: 2,
+    },
 });
 
 export default Verification;

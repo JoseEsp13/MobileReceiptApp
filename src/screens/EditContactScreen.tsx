@@ -9,6 +9,7 @@ import Avatar from "../components/Avatar";
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
 import type { returnedResults } from 'reanimated-color-picker';
+import { TriangleColorPicker } from "react-native-color-picker";
 
 
 export default function EditContactScreen(props: IEditContactScreenProps) {
@@ -117,6 +118,21 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
             </View>
           </View>
           
+          <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
+            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+              <Icon name="color-palette-outline" size={25}></Icon>
+            </View>
+            <TriangleColorPicker
+              defaultColor={contact.bgColor}
+              oldColor={contact.bgColor}
+              onColorSelected={color => setContact(prevState => ({...prevState, bgColor: color}))}
+              style={{ width: 200, height: 200, left: 40 }}
+            />
+          </View>
+
+          <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
+            Press above button to select color 
+          </Text>
 
           <View style={{marginTop: 60, alignItems: "center"}}>
             <View style={{width: "60%", borderRadius: 50}}>

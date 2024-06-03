@@ -8,6 +8,7 @@ import Avatar from "../components/Avatar";
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import ColorPicker, { Panel3, Swatches, OpacitySlider, colorKit, Preview, SaturationSlider } from 'reanimated-color-picker';
 import type { returnedResults } from 'reanimated-color-picker';
+import { TriangleColorPicker, fromHsv } from "react-native-color-picker";
 
 
 export default function CreateContactScreen(props: ICreateContactScreenProps) {
@@ -43,7 +44,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
     }))
     setShowModal(false);
   }
-  return(
+  return (
     <>
       <SafeAreaView style={{flex: 1}}>
         <ScrollView>
@@ -58,8 +59,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
                 <Avatar name={contact.name} bgColor={contact.bgColor} color={contact.color} viewStyle={styles.avatarView} textStyle={styles.avatarText}/>
                 :
                 <Icon name="person-add" size={65} color={contact.color}></Icon>
-              }
-              
+              }    
             </View>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
 
@@ -114,11 +114,36 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
             </View>
           </View>
 
-          <View style={{marginTop: 60, alignItems: "center"}}>
+          {/* Brendan stuff */}
+          <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
+            <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
+              <Icon name="color-palette-outline" size={25}></Icon>
+            </View>
+            <View style={{justifyContent: "center", alignItems: "center", left: '20%'}}>
+              <TriangleColorPicker
+                defaultColor={contact.color}
+                oldColor={contact.color}
+                onColorSelected={color => setContact(prevState => ({...prevState, color: color}))}
+                style={{ width: 200, height: 200 }}
+              />
+            </View>
+          </View>
+
+          <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
+            Press above button to select color 
+          </Text>
+
+          <View style={{marginTop: 30, alignItems: "center"}}>
             <View style={{width: "60%", borderRadius: 50}}>
               <Button title="Save" color="steelblue" onPress={handleSave} />
             </View>
-          </View>  
+
+            <View style={{marginTop: 60, alignItems: "center"}}>
+              <View style={{width: "60%", borderRadius: 50}}>
+                <Button title="Save" color="steelblue" onPress={handleSave} />
+              </View>
+            </View>  
+          </View>
         </ScrollView>
       </SafeAreaView>
 

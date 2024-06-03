@@ -65,7 +65,7 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
 
   return (
     <SafeAreaView>
-      {parserResult && <Verification parserResult={parserResult} />}
+      {parserResult && <Verification parserResult={parserResult}/>}
     </SafeAreaView>
   );
 };

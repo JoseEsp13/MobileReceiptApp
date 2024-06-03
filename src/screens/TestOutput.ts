@@ -1,4 +1,4 @@
-import { memberSums, getCountOfItems } from "./Verification";
+import { memberSums, getCountOfItems } from "./Verification.tsx";
 
 
 const generateItemPrices = (numItems: number): number[] => {
@@ -10,11 +10,11 @@ const generateItemPrices = (numItems: number): number[] => {
     return itemPrices;
 }
 
-const generateMemberDict = (numMembers: number, numItems: number): (MemberDict, number, number) => {
+const generateMemberDict = (numMembers: number, numItems: number): [MemberDict: MemberDict, totalNumItems: number, priceTotal: number] => {
     let memberDict: MemberDict = {};
     let totalItemsAssigned = 0
     let itemPrices = generateItemPrices(numItems)
-    let priceSum = Math.sum(itemPrices)
+    let priceSum = itemPrices.reduce((a, b) => a + b, 0)
 
     for (var i = 0; i < numMembers; i++) {
         let itemDict: {[item: string]: number} = {};
@@ -27,24 +27,67 @@ const generateMemberDict = (numMembers: number, numItems: number): (MemberDict, 
         }
         memberDict["member#" + String(i)] = itemDict
     }
-    // console.log(totalItemsAssigned)
+    console.log(totalItemsAssigned)
+    return [memberDict, totalItemsAssigned, priceSum]
+};
 
-    return memberDict, totalItemsAssigned, priceSum
-}
+const manualCountTest = (): boolean => {
+    let memberDict: MemberDict = { 
+        "Darren": { "Milk": 1, "Cheese": 2, "Meat": 3 },
+        "Thomas": { "Meat": 3, "Cheese": 2, "IceCream": 4 },
+    };
 
-const testGetCountOfItems = (numberOfTests: number): boolean => {
-    for (var i = 0; i < numberOfTests; i++) {
-        let memberDict: MemberDict = generateMemberDict(i, i)
-        let itemDict = getCountOfItems(memberDict)
-        
+    
+    let itemCountDict = getCountOfItems(memberDict)
+    let manualDict: {[item: string]: number} = {"Milk": 1, "Cheese": 2, "Meat": 2, "IceCream": 1};
+
+    for (let key in itemCountDict) {
+        if (itemCountDict[key] == manualDict[key]) {
+            console.log("Passes manual Test for key=" + key)
+        } else {
+            console.log("Failed manual Test on key=" + key + " got count=" + String(itemCountDict[key]) + " but expected count=" + String(manualDict[key]))
+            return false
+        }
     }
+    return true
 }
+
+export const testGetCountOfItems = (numberOfTests: number): boolean => {
+    if (!manualCountTest()) {
+        return false
+    }
+
+    for (var i = 0; i < numberOfTests; i++) {
+        let generatedItems = generateMemberDict(i, i)
+        let memberDict: MemberDict = generatedItems[0]
+        
+        let itemCountDict = getCountOfItems(memberDict)
+        let sum = 0
+        console.log(memberDict)
+        console.log(itemCountDict)
+        for (let key in itemCountDict) {
+            sum += itemCountDict[key]
+        }
+        if (sum == generatedItems[1]) {
+            console.log("getCountOfItems passed test case #" + String(i))
+        } else {
+            console.log("getCountOfItems failed test case #" + String(i))
+            console.log("Expected item count=" + String(generatedItems[1]) + " got item count=" + String(sum))
+            return false
+        }
+    }
+    console.log("Passed all tests!")
+    return true
+}
+
+console.log(testGetCountOfItems(10))
 
 
 type MemberDict = { [member: string]: { [key: string]: number } };
 
 
 // Function to test the memberSums function
+/*
 function testMemberSums() {    
     describe('memberSums function', () => {
         let memberDict: MemberDict = { 
@@ -58,3 +101,4 @@ function testMemberSums() {
         });
     });
 }
+*/

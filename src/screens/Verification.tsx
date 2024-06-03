@@ -19,9 +19,9 @@ export const getCountOfItems = (memberDict: {[member: string]: {[key: string]: n
         let itemDict = memberDict[member] // item dictionary for an individual member
         for (let item in itemDict) {
             if (item in itemCountDict) {
-                itemCountDict[item] += itemCountDict[item] + 1
+                itemCountDict[item] = itemCountDict[item] + 1
             } else {
-                itemCountDict[item] = 0
+                itemCountDict[item] = 1
             }
         }
     }

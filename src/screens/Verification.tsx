@@ -47,7 +47,6 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [subGroupValues, setSubGroupValues] = useState<{ [key: string]: string }>({}); // State to keep track of subgroup values
     const [addedItems, setAddedItems] = useState<{ [contact: string]: Set<string> }>({}); // Track added items for each subgroup
     const [activeUser, setActiveUser] = useState<IContact>();
-    const [usersColors, setUsersColors] = useState<userItemsObj[]>([]);
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -156,13 +155,30 @@ const Verification = ({ parserResult }: VerificationProps) => {
         });
     };
 
+    const invertColor = (hex: string): string => {
+        const color = parseInt(hex.replace('#', ''), 16);
+        const invertedColor = 0xffffff - color;
+        const invertedHex = invertedColor.toString(16);
+        return `#${invertedHex.padStart(6, '0')}`;
+    }
+
     const handleBackgroundColor = (key: string) => {
-        if (activeUser) {
+        if (activeUser && addedItems[activeUser.name]) {
+            console.log(addedItems[activeUser.name]);
             if (addedItems[activeUser.name].has(key)) {
                 return activeUser.bgColor;
             }
         }
         return undefined;
+    }
+
+    const handleTextColor = (key: string) => {
+        if (activeUser && addedItems[activeUser.name]) {
+            if (addedItems[activeUser.name].has(key)) {
+                return invertColor(activeUser.bgColor);
+            }
+        }
+        return '#1f91ec';
     }
 
     return (
@@ -186,8 +202,13 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 <View style={{ flex: 1 }}>
                                 <TouchableOpacity 
                                     onPress={() => handleItemClick(key, value)} 
-                                    style={{ width: '100%', backgroundColor: handleBackgroundColor(key) }}>
-                                    <Text style={styles.input}>{`${key}: ${value}`}</Text>
+                                    style={{ width: '100%' }}>
+                                    <Text style={{
+                                        ...styles.input,
+                                        backgroundColor: handleBackgroundColor(key),
+                                        textAlignVertical: 'center',
+                                        color: handleTextColor(key)
+                                    }}>{`${key}: ${value}`}</Text>
                                 </TouchableOpacity>
                             </View>
                                 ) : (
@@ -346,13 +367,16 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 40,
+        paddingHorizontal: 8,
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 4,
-        paddingHorizontal: 8,
         textAlign: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 12,
         fontWeight: 'bold',
+        flex: 1,
         color: '#1f91ec',   // Blue color
     },
     buttonContainer: {

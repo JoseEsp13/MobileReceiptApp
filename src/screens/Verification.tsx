@@ -4,6 +4,7 @@ import { IParserResult } from '../parsers/IParser';
 import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
 import useAppContext from '../components/hooks/useAppContext';
 import { IGroup } from '../components/state/IFirebaseDocument';
+import { configureLayoutAnimationBatch } from 'react-native-reanimated/lib/typescript/reanimated2/core';
 
 interface VerificationProps {
     parserResult: IParserResult;
@@ -123,13 +124,24 @@ const Verification = ({ parserResult }: VerificationProps) => {
     };
 
     const finalize = () => {
-        setEditable(false); // Set editable to false to disable all TextInput fields
-        setIsFinalized(true); // Set the editing finalized state to true
+        setEditable(false); 
+        setIsFinalized(true);
     };
     const unfinalize = () => {
-        setEditable(true); // Set editable to true to enable all TextInput fields
-        setIsFinalized(false); // Set the editing finalized state to false
+        setEditable(true); 
+        setIsFinalized(false); 
+        setSubGroupValues((prevValues) => {
+            const updatedValues = { ...prevValues };
+            if (selectedGroup) {
+                selectedGroup.contacts.forEach(contact => {
+                    updatedValues[contact.name] = '0'; // Reset the value to '0' for each contact
+                });
+            }
+            return updatedValues;
+        });
     };
+    
+    
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -208,9 +220,10 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 raiseLevel={3}
                                 width={50}
                                 height={50}
+                                backgroundColor={contact.bgColor} // can either be the contacts back ground color or letter color
                                 onPress={() => handleSubGroupClick(contact.name)}
                             >
-                                {contact.name}
+                            <Text style={styles.subGroupText}></Text>
                             </ThemedButton>
                             <Text style={styles.subGroupText}>
                                 {contact.name}: ${subGroupValues[contact.name] || '0'}

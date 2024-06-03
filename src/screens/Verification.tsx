@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated } from 'react-native';
+import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated, TouchableOpacity } from 'react-native';
 import { IParserResult } from '../parsers/IParser';
 import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
 import useAppContext from '../components/hooks/useAppContext';
@@ -30,6 +30,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [selectedGroup, setSelectedGroup] = useState<IGroup | null>(null);
     const [groupItems, setGroupItems] = useState<[string, string][]>([]); // State to hold items and prices for the selected group
     const [editable, setEditable] = useState(true); // State to control the editability of TextInput fields
+    const [isFinalized, setIsFinalized] = useState(false); // State to track whether editing is finalized
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -85,6 +86,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
 
     const finalize = () => {
         setEditable(false); // Set editable to false to disable all TextInput fields
+        setIsFinalized(true); // Set the editing finalized state to true
     };
 
     return (
@@ -94,23 +96,33 @@ const Verification = ({ parserResult }: VerificationProps) => {
                     if (key !== "TOTAL") {
                         return (
                             <View key={index} style={styles.row}>
-                                <View style={styles.item}>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={key}
-                                        onChangeText={(text) => handleKeyChange(text, index)}
-                                        editable={editable} // Use the editable state here
-                                    />
-                                </View>
-                                <View style={styles.item}>
-                                    <TextInput
-                                        style={styles.input}
-                                        value={value}
-                                        onChangeText={(text) => handleValueChange(text, index)}
-                                        keyboardType="default"
-                                        editable={editable} // Use the editable state here
-                                    />
-                                </View>
+                                {!isFinalized && (
+                                    <View style={styles.item}>
+                                        <TextInput
+                                            style={styles.input}
+                                            value={key}
+                                            onChangeText={(text) => handleKeyChange(text, index)}
+                                            editable={!isFinalized && editable} // Allow editing until finalized
+                                        />
+                                    </View>
+                                )}
+                                {isFinalized ? (
+                                <View style={{ flex: 1 }}>
+                                <TouchableOpacity onPress={() => {
+                                }} style={{ width: '100%' }}>
+                                    <Text style={styles.input}>{`${key}: ${value}`}</Text>
+                                </TouchableOpacity>
+                            </View>
+                                ) : (
+                                    <View style={styles.item}>
+                                        <TextInput
+                                            style={styles.input}
+                                            value={value}
+                                            onChangeText={(text) => handleKeyChange(text, index)}
+                                            editable={!isFinalized && editable} // Allow editing until finalized
+                                        />
+                                    </View>
+                                )}
                                 <View style={styles.buttonItem}>
                                     <Button title="-" onPress={() => deleteEntry(index)} disabled={!editable} />
                                 </View>

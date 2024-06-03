@@ -1,6 +1,6 @@
 import { memberSums, getCountOfItems } from "./Verification.tsx";
 
-
+/* Generates an array of prices of quantity numItems as argument */
 const generateItemPrices = (numItems: number): number[] => {
     let itemPrices = [];
     for (var i = 0; i < numItems; i++) {
@@ -10,11 +10,15 @@ const generateItemPrices = (numItems: number): number[] => {
     return itemPrices;
 }
 
+/* Function to randomly generate a MemberDict with a specified number of members and items,
+ returns an array containing the MemberDict, totalNumberOfItems assigned to any user, and the totalPrice */
 const generateMemberDict = (numMembers: number, numItems: number): [MemberDict: MemberDict, totalNumItems: number, priceTotal: number] => {
+    console.log("Generating MemberDict")
     let memberDict: MemberDict = {};
     let totalItemsAssigned = 0
     let itemPrices = generateItemPrices(numItems)
-    let priceSum = itemPrices.reduce((a, b) => a + b, 0)
+    let itemsLogged: string[] = [];
+    let priceSum = 0
 
     for (var i = 0; i < numMembers; i++) {
         let itemDict: {[item: string]: number} = {};
@@ -22,15 +26,22 @@ const generateMemberDict = (numMembers: number, numItems: number): [MemberDict: 
             if (Math.random() < .5) {
                 // member gets the item by coinflip
                 totalItemsAssigned += 1
-                itemDict["item#" + String(j)] = itemPrices[j]
+                let key = "item#" + String(j)
+                itemDict[key] = itemPrices[j]
+                if (itemsLogged.includes(key)) {
+                    
+                } else {
+                    itemsLogged.push(key)
+                    priceSum += itemPrices[j]
+                }
             }
         }
         memberDict["member#" + String(i)] = itemDict
     }
-    console.log(totalItemsAssigned)
     return [memberDict, totalItemsAssigned, priceSum]
 };
 
+/* The manually built test cases for getCountOfItems */
 const manualCountTest = (): boolean => {
     let memberDict: MemberDict = { 
         "Darren": { "Milk": 1, "Cheese": 2, "Meat": 3 },
@@ -52,12 +63,13 @@ const manualCountTest = (): boolean => {
     return true
 }
 
-export const testGetCountOfItems = (numberOfTests: number): boolean => {
+/* Function that runs the manual tests for getCountOfItems and a specified number of randomly generated test */
+export const testGetCountOfItems = (numTests: number): boolean => {
     if (!manualCountTest()) {
         return false
     }
 
-    for (var i = 0; i < numberOfTests; i++) {
+    for (var i = 0; i < numTests; i++) {
         let generatedItems = generateMemberDict(i, i)
         let memberDict: MemberDict = generatedItems[0]
         
@@ -80,14 +92,40 @@ export const testGetCountOfItems = (numberOfTests: number): boolean => {
     return true
 }
 
+export const testGenMemberSums = (numTests: number): boolean => {
+    for (var i = 1; i <= numTests; i++) {
+        let generatedItems = generateMemberDict(i, i)
+        let memberDict: MemberDict = generatedItems[0]
+        let expectedSum = Number((generatedItems[2]).toFixed(2))
+        let memberCostDict = memberSums(memberDict)
+        let sum = 0
+        console.log("memberDict = ")
+        console.log(memberDict)
+        console.log("memberCostDict = ")
+        console.log(memberCostDict)
+        for (let key in memberCostDict) {
+            sum += memberCostDict[key]
+        }
+        sum = Number((sum).toFixed(2))
+        if (sum == expectedSum) {
+            console.log("memberSums passed test case #" + String(i))
+        } else {
+            console.log("memberSums failed test case #" + String(i))
+            console.log("Expected sum=" + String(expectedSum) + " instead got sum=" + String(sum))
+            return false
+        }
+    }
+    console.log("Passed all tests!")
+    return true
+} 
+
 console.log(testGetCountOfItems(10))
 
 
 type MemberDict = { [member: string]: { [key: string]: number } };
 
-
 // Function to test the memberSums function
-/*
+
 function testMemberSums() {    
     describe('memberSums function', () => {
         let memberDict: MemberDict = { 
@@ -101,4 +139,3 @@ function testMemberSums() {
         });
     });
 }
-*/

@@ -39,14 +39,33 @@ export const memberSums = (memberDict: {[member: string]: {[key: string]: number
     // if the price passed for each item is not split already:
     let itemCountDict = getCountOfItems(memberDict);
     
+    let itemsThatDontSplit: {[item: string]: number} = {}
+
     for (let member in memberDict) {
         let memberTotal = 0;
         let itemDict = memberDict[member];
         // fore each item in itemDict, memberTotal += item's price / item's count
-        for (let item in itemDict) {           
-            memberTotal += itemDict[item] / itemCountDict[item];   
+        for (let item in itemDict) {
+            let modCents = (Math.round(itemDict[item] * 100)) % itemCountDict[item]
+            if (modCents != 0) {
+                if (!itemsThatDontSplit.hasOwnProperty(item)) {
+                    itemsThatDontSplit[item] = modCents
+                }
+                let current = (Math.trunc((itemDict[item] / itemCountDict[item]) * 100) / 100)
+                console.log("modCents = " + String(modCents) + " and current= " + current)
+                
+                if (itemsThatDontSplit[item] > 0) {
+                    memberTotal += current + .01
+                    itemsThatDontSplit[item] -= 1;
+                } else {
+                    memberTotal += current
+                }
+                
+            } else {
+                memberTotal += Number((itemDict[item] / itemCountDict[item]).toFixed(2));
+            }
         }
-        outDict[member] = memberTotal;
+        outDict[member] = Number(memberTotal.toFixed(2));
     }
     // total = SUM(memberDict[member][item]/itemCountDict[item])
     return outDict

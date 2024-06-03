@@ -21,7 +21,7 @@ import { IParserResult } from '../parsers/IParser';
 import { IHomeStackParamList } from '../components/nav_stacks/HomeStackScreen';
 import Verification from './Verification';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { testGetCountOfItems } from './TestOutput.ts';
+import { testGetCountOfItems, testGenMemberSums } from './TestOutput.ts';
 
 interface ProcessImageScreenProps {
   navigation: IHomeStackParamList;
@@ -43,7 +43,8 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
     if (url) {
       try {
         // run a test here:
-        console.log(testGetCountOfItems(10))
+        // console.log(testGenMemberSums(10))
+
         // Send a request to Google's ML Kit
         const response_img = await MLKit.recognizeImage(url);
         // If the response contains data

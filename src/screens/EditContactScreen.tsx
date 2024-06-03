@@ -84,7 +84,7 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
                   placeholder="Name"
                   value={contact.name}
                   onChangeText={(s: string) => setContact(prevState => ({...prevState, name: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
                 />
               </View>
             </View>
@@ -98,7 +98,7 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
                   placeholder="Email"
                   value={contact.email}
                   onChangeText={(s: string) => setContact(prevState => ({...prevState, email: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
                 />
               </View>
             </View>
@@ -112,7 +112,7 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
                   placeholder="Phone"
                   value={contact.phoneNumber}
                   onChangeText={(s: string) => setContact(prevState => ({...prevState, phoneNumber: s}))}
-                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15}}
+                  style={{borderWidth: 1, marginHorizontal: 5, padding: 10, paddingLeft: 15, marginRight: 15, color: "#424242"}}
                 />
               </View>
             </View>

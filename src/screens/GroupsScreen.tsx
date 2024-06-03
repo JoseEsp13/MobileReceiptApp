@@ -38,6 +38,7 @@ export default function GroupsScreen(props: IGroupScreenProps) {
               </TouchableOpacity>
             ))}
           </ScrollView>
+          
           <TouchableOpacity style={styles.addBtnAbsoluteContainer} onPress={handleAddBtnOnPress}>
             <View style={styles.addBtn}>
               <Icon name="add" size={25} color="white"/>
@@ -165,9 +166,11 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     bottom: 25,
     right: 25,
-    height: 50,
-    width: 50,
-    backgroundColor: "steelblue"
+    height: 70,
+    width: 70,
+    backgroundColor: "steelblue",
+    elevation: 10,
+    shadowColor: '#52006A',
   },
   addBtn: {
     position: "relative",

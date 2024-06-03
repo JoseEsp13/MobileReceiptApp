@@ -19,7 +19,6 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
   const [showModal, setShowModal] = useState(false);
 
   const customSwatches = new Array(6).fill('#fff').map(() => colorKit.randomRgbColor().hex());
-
   const selectedColor = useSharedValue(props.route.params.contact.bgColor);
   const backgroundColorStyle = useAnimatedStyle(() => ({ backgroundColor: selectedColor.value }));
 
@@ -53,11 +52,11 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
   return (
     <>
      <SafeAreaView style={{flex: 1}}>
-        <ScrollView>
+        <ScrollView style={{marginBottom: 20}}>
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
               <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
-                <Icon name="color-palette" size={35}/>
+                <Icon name="color-palette" size={35} color="#ffa726"/>
               </TouchableOpacity>
             </View>
             <View style={{borderRadius: 100, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
@@ -133,13 +132,13 @@ export default function EditContactScreen(props: IEditContactScreenProps) {
           <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
             Press above button to select color 
           </Text>
-
-          <View style={{marginTop: 60, alignItems: "center"}}>
-            <View style={{width: "60%", borderRadius: 50}}>
-              <Button title="Save" color="steelblue" onPress={handleSave} />
-            </View>
-          </View>  
         </ScrollView>
+
+        <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
+          <View style={styles.floatingActionBtn}>
+            <Icon name="save" size={38} color="green"/>
+          </View>
+        </TouchableOpacity>
       </SafeAreaView>
 
       <Modal onRequestClose={() => setShowModal(false)} visible={showModal} animationType='slide'>
@@ -314,5 +313,26 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
 
     elevation: 5,
+  },
+  floatingActionBtnContainer: {
+    position: "absolute",
+    borderRadius: 60,
+    bottom: 25,
+    right: 25,
+    height: 70,
+    width: 70,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "white",
+    elevation: 10,
+    shadowColor: '#52006A',
+  },
+  floatingActionBtn: {
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    color: "white"
   }
 });

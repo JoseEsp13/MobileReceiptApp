@@ -51,7 +51,7 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
               <TouchableOpacity onPress={() => setShowModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
-                <Icon name="color-palette" size={35} color="#1976d2"/>
+                <Icon name="color-palette" size={35} color="#ffa726"/>
               </TouchableOpacity>
             </View>
             <View style={{borderRadius: 100, backgroundColor: contact.bgColor, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
@@ -114,7 +114,6 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
             </View>
           </View>
 
-          {/* Brendan stuff */}
           <View style={{ marginTop: 25, alignItems: "center", flexDirection: "row" }}>
             <View style={{justifyContent: "center", alignItems: "center", width: 40}}>
               <Icon name="color-palette-outline" size={25}></Icon>
@@ -132,19 +131,14 @@ export default function CreateContactScreen(props: ICreateContactScreenProps) {
           <Text style={{fontSize: 12, marginTop: 20, textAlign: "center"}}>
             Press above button to select color 
           </Text>
-
-          <View style={{marginTop: 30, alignItems: "center"}}>
-            <View style={{width: "60%", borderRadius: 50}}>
-              <Button title="Save" color="steelblue" onPress={handleSave} />
-            </View>
-
-            <View style={{marginTop: 60, alignItems: "center"}}>
-              <View style={{width: "60%", borderRadius: 50}}>
-                <Button title="Save" color="steelblue" onPress={handleSave} />
-              </View>
-            </View>  
-          </View>
         </ScrollView>
+
+        <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
+          <View style={styles.floatingActionBtn}>
+            <Icon name="save" size={38} color="green"/>
+          </View>
+        </TouchableOpacity>
+		
       </SafeAreaView>
 
       <Modal onRequestClose={() => setShowModal(false)} visible={showModal} animationType='slide'>
@@ -320,4 +314,25 @@ const styles = StyleSheet.create({
 
     elevation: 5,
   },
+  floatingActionBtnContainer: {
+    position: "absolute",
+    borderRadius: 60,
+    bottom: 25,
+    right: 25,
+    height: 70,
+    width: 70,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "white",
+    elevation: 10,
+    shadowColor: '#52006A',
+  },
+  floatingActionBtn: {
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    color: "white"
+  }
 })

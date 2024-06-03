@@ -66,7 +66,7 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
           <View style={{flexDirection: "row", justifyContent: "space-around", marginTop: 25}}>
             <View style={{width: 70, justifyContent: "center", alignItems: "center"}}>
               <TouchableOpacity onPress={() => setShowPaletteModal(true)} style={{backgroundColor: "white", borderRadius: 50, width: 60, height: 60, justifyContent: "center", alignItems: "center"}}>
-                <Icon name="color-palette" size={35} color="#1976d2"/>
+                <Icon name="color-palette" size={35} color="#ffa726"/>
               </TouchableOpacity>
             </View>
             <View style={{borderRadius: 100, justifyContent: "center", alignItems: "center", height: 110, width: 110}}>
@@ -127,12 +127,12 @@ export default function EditGroupScreen(props: IEditGroupScreenProps) {
             </View>
           </View>
         </ScrollView>
-        
-        <View style={{position: "absolute", bottom: 20, left: 10, right: 10, alignItems: "center"}}>
-          <View style={{width: "60%", borderRadius: 50}}>
-            <Button title="Save" color="steelblue" onPress={handleSave} />
+
+        <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleSave}>
+          <View style={styles.floatingActionBtn}>
+            <Icon name="save" size={38} color="green"/>
           </View>
-        </View>
+        </TouchableOpacity>
       </SafeAreaView>
 
       <Modal onRequestClose={() => setShowPaletteModal(false)} visible={showPaletteModal} animationType='slide'>
@@ -346,5 +346,26 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
 
     elevation: 5,
+  },
+  floatingActionBtnContainer: {
+    position: "absolute",
+    borderRadius: 60,
+    bottom: 25,
+    right: 25,
+    height: 70,
+    width: 70,
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "white",
+    elevation: 10,
+    shadowColor: '#52006A',
+  },
+  floatingActionBtn: {
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100%",
+    color: "white"
   }
 })

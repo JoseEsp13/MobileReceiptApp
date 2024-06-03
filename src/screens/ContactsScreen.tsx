@@ -43,13 +43,13 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
               </TouchableOpacity>
           ))}
           </ScrollView>
-          <TouchableOpacity style={styles.addBtnAbsoluteContainer} onPress={handleAddBtnOnPress}>
-            <View style={styles.addBtn}>
+
+          <TouchableOpacity style={styles.floatingActionBtnContainer} onPress={handleAddBtnOnPress}>
+            <View style={styles.floatingActionBtn}>
               <Icon name="add" size={25} color="white"/>
             </View>
           </TouchableOpacity>
         </>
-        
          :
         <View style={{flex: 1, alignItems: "center", marginTop: "50%"}}>
           <View>
@@ -60,7 +60,6 @@ export default function ContactsScreen(props: IContactsScreenTabProps) {
               <Text style={{color: "white", fontSize: 20}}>Add a contact</Text>
             </TouchableOpacity>
           </View>
-          
         </View>
       }   
     </SafeAreaView>
@@ -106,16 +105,18 @@ const styles = StyleSheet.create({
   nameText: {
     fontSize: 20
   },
-  addBtnAbsoluteContainer: {
+  floatingActionBtnContainer: {
     position: "absolute",
     borderRadius: 60,
     bottom: 25,
     right: 25,
-    height: 50,
-    width: 50,
-    backgroundColor: "steelblue"
+    height: 70,
+    width: 70,
+    backgroundColor: "steelblue",
+    elevation: 10,
+    shadowColor: '#52006A',
   },
-  addBtn: {
+  floatingActionBtn: {
     position: "relative",
     display: "flex",
     justifyContent: "center",

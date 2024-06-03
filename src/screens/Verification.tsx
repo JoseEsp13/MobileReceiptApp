@@ -3,10 +3,19 @@ import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated, Toucha
 import { IParserResult } from '../parsers/IParser';
 import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
 import useAppContext from '../components/hooks/useAppContext';
-import { IGroup } from '../components/state/IFirebaseDocument';
+import { IContact, IGroup } from '../components/state/IFirebaseDocument';
 
 interface VerificationProps {
     parserResult: IParserResult;
+}
+
+interface userItemsObj {
+    user: IContact;
+    items: string[];
+}
+
+interface usersObj {
+    [key: string]: userItemsObj;
 }
 
 // Helper function to calculate the total sum, excluding the "TOTAL" key
@@ -31,6 +40,8 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [groupItems, setGroupItems] = useState<[string, string][]>([]); // State to hold items and prices for the selected group
     const [editable, setEditable] = useState(true); // State to control the editability of TextInput fields
     const [isFinalized, setIsFinalized] = useState(false); // State to track whether editing is finalized
+    const [activeUser, setActiveUser] = useState<IContact>();
+    const [usersColors, setUsersColors] = useState<userItemsObj[]>([]);
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -84,10 +95,15 @@ const Verification = ({ parserResult }: VerificationProps) => {
         }
     };
 
-    const finalize = () => {
+    const finalize = (newUser: IContact) => {
         setEditable(false); // Set editable to false to disable all TextInput fields
         setIsFinalized(true); // Set the editing finalized state to true
+        setActiveUser(newUser);
     };
+
+    const handleUserColorItem = () => {
+
+    }
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -108,8 +124,9 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 )}
                                 {isFinalized ? (
                                 <View style={{ flex: 1 }}>
-                                <TouchableOpacity onPress={() => {
-                                }} style={{ width: '100%' }}>
+                                <TouchableOpacity 
+                                    onPress={() => {}} 
+                                    style={{ width: '100%' }}>
                                     <Text style={styles.input}>{`${key}: ${value}`}</Text>
                                 </TouchableOpacity>
                             </View>
@@ -162,7 +179,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 raiseLevel={3}
                                 width={50}
                                 height={50}
-                                onPress={finalize} // Call finalize function here
+                                onPress={() => finalize(contact)} // Call finalize function here
                             >
                                 {contact.name}
                             </ThemedButton>

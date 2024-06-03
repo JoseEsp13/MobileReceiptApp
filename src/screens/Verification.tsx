@@ -31,6 +31,9 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [groupItems, setGroupItems] = useState<[string, string][]>([]); // State to hold items and prices for the selected group
     const [editable, setEditable] = useState(true); // State to control the editability of TextInput fields
     const [isFinalized, setIsFinalized] = useState(false); // State to track whether editing is finalized
+    const [clickedSubGroup, setClickedSubGroup] = useState<string | null>(null); // State to keep track of clicked subgroup
+    const [subGroupValues, setSubGroupValues] = useState<{ [key: string]: string }>({}); // State to keep track of subgroup values
+    const [addedItems, setAddedItems] = useState<{ [subGroupName: string]: Set<string> }>({}); // Track added items for each subgroup
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -64,6 +67,41 @@ const Verification = ({ parserResult }: VerificationProps) => {
         });
     };
 
+    const handleItemClick = (key: string, value: string): void => {
+        if (clickedSubGroup) {
+            setSubGroupValues((prevValues) => {
+                const currentValue = parseFloat(prevValues[clickedSubGroup] || '0');
+                const itemValue = parseFloat(value);
+                let newValue;
+                const addedItemsForSubGroup = new Set(addedItems[clickedSubGroup] || []);
+
+                if (addedItemsForSubGroup.has(key)) {
+                    newValue = (currentValue - itemValue).toFixed(2); // Subtract the value if already added
+                    addedItemsForSubGroup.delete(key);
+                } else {
+                    newValue = (currentValue + itemValue).toFixed(2); // Add the value if not added
+                    addedItemsForSubGroup.add(key);
+                }
+
+                setAddedItems((prevAddedItems) => ({
+                    ...prevAddedItems,
+                    [clickedSubGroup]: addedItemsForSubGroup
+                }));
+
+                return {
+                    ...prevValues,
+                    [clickedSubGroup]: newValue
+                };
+            });
+        }
+    };
+
+    const handleSubGroupClick = (subGroupName: string): void => {
+        console.log(`Clicked subgroup: ${subGroupName}`);
+        setClickedSubGroup(subGroupName);
+        finalize();
+    };
+
     const addNewEntry = (): void => {
         setItemEntries((prevEntries) => [...prevEntries, ["", "0"]]);
     };
@@ -88,6 +126,10 @@ const Verification = ({ parserResult }: VerificationProps) => {
         setEditable(false); // Set editable to false to disable all TextInput fields
         setIsFinalized(true); // Set the editing finalized state to true
     };
+    const unfinalize = () => {
+        setEditable(true); // Set editable to true to enable all TextInput fields
+        setIsFinalized(false); // Set the editing finalized state to false
+    };
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -107,18 +149,17 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                     </View>
                                 )}
                                 {isFinalized ? (
-                                <View style={{ flex: 1 }}>
-                                <TouchableOpacity onPress={() => {
-                                }} style={{ width: '100%' }}>
-                                    <Text style={styles.input}>{`${key}: ${value}`}</Text>
-                                </TouchableOpacity>
-                            </View>
+                                    <View style={{ flex: 1 }}>
+                                        <TouchableOpacity onPress={() => handleItemClick(key, value)} style={{ width: '100%' }}>
+                                            <Text style={styles.input}>{`${key}: ${value}`}</Text>
+                                        </TouchableOpacity>
+                                    </View>
                                 ) : (
                                     <View style={styles.item}>
                                         <TextInput
                                             style={styles.input}
                                             value={value}
-                                            onChangeText={(text) => handleKeyChange(text, index)}
+                                            onChangeText={(text) => handleValueChange(text, index)}
                                             editable={!isFinalized && editable} // Allow editing until finalized
                                         />
                                     </View>
@@ -141,6 +182,11 @@ const Verification = ({ parserResult }: VerificationProps) => {
                 </View>
                 <Button title="Add Item" onPress={addNewEntry} disabled={!editable} />
                 <Button title="Undo" onPress={undoDelete} disabled={deletedEntries.length === 0 || !editable} />
+                {isFinalized && (
+                    <View style={styles.goBackButtonContainer}>
+                        <Button title="Go Back" onPress={unfinalize} />
+                    </View>
+                )}
                 <Text style={styles.chooseGroupText}>Group:</Text>
                 {selectedGroup && (
                     <View style={styles.chosenGroup}>
@@ -153,7 +199,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
                 </View>
                 <View style={styles.buttonContainer}>
                     {selectedGroup && selectedGroup.contacts.map((contact, index) => (
-                        <View key={index}>
+                        <View key={index} style={styles.subGroupContainer}>
                             <ThemedButton
                                 name='rick'
                                 textColor='gray'
@@ -162,10 +208,13 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 raiseLevel={3}
                                 width={50}
                                 height={50}
-                                onPress={finalize} // Call finalize function here
+                                onPress={() => handleSubGroupClick(contact.name)}
                             >
                                 {contact.name}
                             </ThemedButton>
+                            <Text style={styles.subGroupText}>
+                                {contact.name}: ${subGroupValues[contact.name] || '0'}
+                            </Text>
                         </View>
                     ))}
                 </View>
@@ -317,6 +366,13 @@ const styles = StyleSheet.create({
         fontSize: 14,
         paddingVertical: 2,
     },
+    clearSubGroupContainer: {
+        marginTop: 16,
+    },
+    goBackButtonContainer: {
+        marginTop: 20,
+        alignItems: 'center',
+    }
 });
 
 export default Verification;

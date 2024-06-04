@@ -4,7 +4,6 @@ import { IParserResult } from '../parsers/IParser';
 import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
 import useAppContext from '../components/hooks/useAppContext';
 import { IGroup } from '../components/state/IFirebaseDocument';
-import { configureLayoutAnimationBatch } from 'react-native-reanimated/lib/typescript/reanimated2/core';
 
 interface VerificationProps {
     parserResult: IParserResult;
@@ -23,7 +22,7 @@ const calculateTotalSum = (entries: [string, string][]): number => {
 
 const Verification = ({ parserResult }: VerificationProps) => {
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
-
+    
     const [itemEntries, setItemEntries] = useState<[string, string][]>(initialEntries);
     const [totalSum, setTotalSum] = useState<number>(calculateTotalSum(initialEntries));
     const [deletedEntries, setDeletedEntries] = useState<[string, string][]>([]);
@@ -34,7 +33,8 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [isFinalized, setIsFinalized] = useState(false); // State to track whether editing is finalized
     const [clickedSubGroup, setClickedSubGroup] = useState<string | null>(null); // State to keep track of clicked subgroup
     const [subGroupValues, setSubGroupValues] = useState<{ [key: string]: string }>({}); // State to keep track of subgroup values
-    const [addedItems, setAddedItems] = useState<{ [subGroupName: string]: Set<string> }>({}); // Track added items for each subgroup
+    const [addedItems, setAddedItems] = useState<{ [subGroupName: string]: { [itemName: string]: number } }>({}); // Track added items for each subgroup
+    const [addedItemsHistory, setAddedItemsHistory] = useState<{ [contactName: string]: { [itemName: string]: number } }[]>([]);
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -68,34 +68,47 @@ const Verification = ({ parserResult }: VerificationProps) => {
         });
     };
 
-    const handleItemClick = (key: string, value: string): void => {
-        if (clickedSubGroup) {
-            setSubGroupValues((prevValues) => {
-                const currentValue = parseFloat(prevValues[clickedSubGroup] || '0');
-                const itemValue = parseFloat(value);
-                let newValue;
-                const addedItemsForSubGroup = new Set(addedItems[clickedSubGroup] || []);
 
-                if (addedItemsForSubGroup.has(key)) {
-                    newValue = (currentValue - itemValue).toFixed(2); // Subtract the value if already added
-                    addedItemsForSubGroup.delete(key);
-                } else {
-                    newValue = (currentValue + itemValue).toFixed(2); // Add the value if not added
-                    addedItemsForSubGroup.add(key);
-                }
+const handleItemClick = (key: string, value: string): void => {
+    if (clickedSubGroup) {
+        setSubGroupValues((prevValues) => {
+            const currentValue = parseFloat(prevValues[clickedSubGroup] || '0');
+            const itemValue = parseFloat(value);
 
-                setAddedItems((prevAddedItems) => ({
-                    ...prevAddedItems,
-                    [clickedSubGroup]: addedItemsForSubGroup
-                }));
+            let newValue;
+            const currentAddedItems = { ...addedItems[clickedSubGroup] } || {}; // Clone the current dictionary to avoid mutating the state directly
 
-                return {
-                    ...prevValues,
-                    [clickedSubGroup]: newValue
-                };
-            });
-        }
-    };
+            if (currentAddedItems[key]) {
+                newValue = (currentValue - currentAddedItems[key]).toFixed(2); // Subtract the value if already added
+                delete currentAddedItems[key];
+            } else {
+                newValue = (currentValue + itemValue).toFixed(2); // Add the value if not added
+                currentAddedItems[key] = itemValue;
+            }
+
+            // Log the currentAddedItems for debugging
+            console.log('Current Added Items:', currentAddedItems);
+
+            // Update the addedItems state
+            setAddedItems((prevAddedItems) => ({
+                ...prevAddedItems,
+                [clickedSubGroup]: currentAddedItems
+            }));
+
+            // Store the currentAddedItems in the addedItemsHistory state
+            setAddedItemsHistory((prevHistory) => ({
+                ...prevHistory,
+                [clickedSubGroup]: currentAddedItems
+            }));
+
+            return {
+                ...prevValues,
+                [clickedSubGroup]: newValue
+            };
+        });
+    }
+};
+    
 
     const handleSubGroupClick = (subGroupName: string): void => {
         console.log(`Clicked subgroup: ${subGroupName}`);
@@ -127,6 +140,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
         setEditable(false); 
         setIsFinalized(true);
     };
+
     const unfinalize = () => {
         setEditable(true); 
         setIsFinalized(false); 
@@ -140,8 +154,6 @@ const Verification = ({ parserResult }: VerificationProps) => {
             return updatedValues;
         });
     };
-    
-    
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -199,16 +211,14 @@ const Verification = ({ parserResult }: VerificationProps) => {
                         <Button title="Go Back" onPress={unfinalize} />
                     </View>
                 )}
-                <Text style={styles.chooseGroupText}>Group:</Text>
+                <View style={styles.panelButtonContainer}>
+                    <Button title="Group" onPress={() => setIsPanelVisible(true)} />
+                </View>
                 {selectedGroup && (
                     <View style={styles.chosenGroup}>
                         <Text style={styles.chosenGroupText}>{selectedGroup.name}</Text>
                     </View>
                 )}
-                
-                <View style={styles.panelButtonContainer}>
-                    <Button title="+" onPress={() => setIsPanelVisible(true)} />
-                </View>
                 <View style={styles.buttonContainer}>
                     {selectedGroup && selectedGroup.contacts.map((contact, index) => (
                         <View key={index} style={styles.subGroupContainer}>
@@ -223,11 +233,11 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 backgroundColor={contact.bgColor} // can either be the contacts back ground color or letter color
                                 onPress={() => handleSubGroupClick(contact.name)}
                             >
-                            <Text style={styles.subGroupText}></Text>
+                                <Text style={styles.subGroupText}></Text>
                             </ThemedButton>
                             <Text style={styles.subGroupText}>
                                 {contact.name}: ${subGroupValues[contact.name] || '0'}
-                            </Text>
+                                </Text>
                         </View>
                     ))}
                 </View>
@@ -251,7 +261,6 @@ const Verification = ({ parserResult }: VerificationProps) => {
         </ScrollView>
     )
 };
-
 
 const SlideUpPanel: React.FC<{ isVisible: boolean; onClose: () => void; setSelectedGroup: React.Dispatch<React.SetStateAction<IGroup | null>> }> = ({
     isVisible,
@@ -389,3 +398,4 @@ const styles = StyleSheet.create({
 });
 
 export default Verification;
+

@@ -91,6 +91,8 @@ const initializeDefaultDict = (group: IGroup): { [key: string]: any } => {
     }, {} as { [key: string]: any });
 };
 
+let MASTERDICT: {[name: string]: string} = {}
+
 const Verification = ({ parserResult }: VerificationProps) => {
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
     
@@ -179,7 +181,7 @@ const handleItemClick = (key: string, value: string): void => {
             }));
             
 
-            newValue = resetSubGroupValues(clickedSubGroup, currentAddedItems)
+            newValue = resetSubGroupValues(clickedSubGroup, currentAddedItems)[clickedSubGroup]
             
             // Store the currentAddedItems in the addedItemsHistory state
             setAddedItemsHistory((prevHistory) => ({
@@ -211,6 +213,7 @@ const handleItemClick = (key: string, value: string): void => {
             memberDictString[member] = String(memberDict[member])
         }
         setSubGroupValues(memberDictString)
+        MASTERDICT = memberDictString
         return memberDictString
     }
     
@@ -395,7 +398,7 @@ const handleItemClick = (key: string, value: string): void => {
                                 <Text style={styles.subGroupText}></Text>
                             </ThemedButton>
                             <Text style={styles.subGroupText}>
-                                {contact.name}: ${subGroupValues[contact.name] || '0'}
+                                {contact.name}: ${MASTERDICT[contact.name] || '0'}
                                 </Text>
                         </View>
                     ))}
@@ -409,7 +412,7 @@ const handleItemClick = (key: string, value: string): void => {
                                     <Text style={styles.subGroupText}>{key}</Text>
                                 </View>
                                 <View style={styles.item}>
-                                    <Text style={styles.subGroupText}>{memberTotal[key]}</Text>
+                                    <Text style={styles.subGroupText}>{subGroupValues[key]}</Text>
                                 </View>
                             </View>
                         ))}

@@ -84,6 +84,13 @@ const calculateTotalSum = (entries: [string, string][]): number => {
     return parseFloat(totalSum.toFixed(2)); // Round the total to two decimal places
 };
 
+const initializeDefaultDict = (group: IGroup): { [key: string]: any } => {
+    return group.contacts.reduce((acc, contact) => {
+        acc[contact.name] = null; // Set default value to null or any other value you prefer
+        return acc;
+    }, {} as { [key: string]: any });
+};
+
 const Verification = ({ parserResult }: VerificationProps) => {
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
     
@@ -99,6 +106,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [subGroupValues, setSubGroupValues] = useState<{ [key: string]: string }>({}); // State to keep track of subgroup values
     const [addedItems, setAddedItems] = useState<{ [subGroupName: string]: { [itemName: string]: number } }>({}); // Track added items for each subgroup
     const [addedItemsHistory, setAddedItemsHistory] = useState<{ [contactName: string]: { [itemName: string]: number } }[]>([]);
+    const [defaultDict, setDefaultDict] = useState<{[key: string]: any}>({}); // New state for the default dictionary
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -111,8 +119,12 @@ const Verification = ({ parserResult }: VerificationProps) => {
                 selectedGroup.contacts.some(contact => contact.name === key)
             );
             setGroupItems(groupItemsFiltered);
+            const defaultDict = initializeDefaultDict(selectedGroup);
+            setDefaultDict(defaultDict);
+            console.log("Updated Default Dictionary:", defaultDict); // Add this line to log the new dictionary
         }
     }, [selectedGroup, itemEntries]);
+    
 
     const handleKeyChange = (text: string, index: number): void => {
         setItemEntries((prevEntries) => {
@@ -133,52 +145,80 @@ const Verification = ({ parserResult }: VerificationProps) => {
     };
 
 
-const handleItemClick = (key: string, value: string): void => {
-    if (clickedSubGroup) {
-        setSubGroupValues((prevValues) => {
-            const currentValue = parseFloat(prevValues[clickedSubGroup] || '0');
-            const itemValue = parseFloat(value);
+    const handleItemClick = (key: string, value: string): void => {
+        if (clickedSubGroup) {
+            setSubGroupValues((prevValues) => {
+                const currentValue = parseFloat(prevValues[clickedSubGroup] || '0');
+                const itemValue = parseFloat(value);
+    
+                let newValue;
+                const currentAddedItems = { ...addedItems[clickedSubGroup] } || {}; // Clone the current dictionary to avoid mutating the state directly
+    
+                if (currentAddedItems[key]) {
+                    newValue = (currentValue - currentAddedItems[key]).toFixed(2); // Subtract the value if already added
+                    delete currentAddedItems[key];
+                } else {
+                    newValue = (currentValue + itemValue).toFixed(2); // Add the value if not added
+                    currentAddedItems[key] = itemValue;
+                }
+    
+                // Update the addedItems state
+                setAddedItems((prevAddedItems) => ({
+                    ...prevAddedItems,
+                    [clickedSubGroup]: currentAddedItems
+                }));
+    
+                // Store the currentAddedItems in the addedItemsHistory state
+                setAddedItemsHistory((prevHistory) => ({
+                    ...prevHistory,
+                    [clickedSubGroup]: currentAddedItems
+                }));
+    
+                // Update the default dictionary with the current added items for the clicked subgroup
+                setDefaultDict((prevDefaultDict) => ({
+                    ...prevDefaultDict,
+                    [clickedSubGroup]: currentAddedItems
+                }));
+    
+                // Log the default dictionary with current added items for the subgroup
+                const defaultDictWithCurrentAddedItems = { ...defaultDict };
+                defaultDictWithCurrentAddedItems[clickedSubGroup] = currentAddedItems;
+                console.log('Default Dictionary with Current Added Items:', defaultDictWithCurrentAddedItems);
 
-            let newValue;
-            const currentAddedItems = { ...addedItems[clickedSubGroup] } || {}; // Clone the current dictionary to avoid mutating the state directly
-
-            if (currentAddedItems[key]) {
-                newValue = (currentValue - currentAddedItems[key]).toFixed(2); // Subtract the value if already added
-                delete currentAddedItems[key];
-            } else {
-                newValue = (currentValue + itemValue).toFixed(2); // Add the value if not added
-                currentAddedItems[key] = itemValue;
-            }
-
-            // Log the currentAddedItems for debugging
-            console.log('Current Added Items:', currentAddedItems);
-
-            // Update the addedItems state
-            setAddedItems((prevAddedItems) => ({
-                ...prevAddedItems,
-                [clickedSubGroup]: currentAddedItems
-            }));
-
-            // Store the currentAddedItems in the addedItemsHistory state
-            setAddedItemsHistory((prevHistory) => ({
-                ...prevHistory,
-                [clickedSubGroup]: currentAddedItems
-            }));
-
-            return {
-                ...prevValues,
-                [clickedSubGroup]: newValue
-            };
-        });
-    }
-};
+                return {
+                    ...prevValues,
+                    [clickedSubGroup]: newValue
+                };
+            });
+        }
+    };
+    
+    
+    
     
 
     const handleSubGroupClick = (subGroupName: string): void => {
         console.log(`Clicked subgroup: ${subGroupName}`);
         setClickedSubGroup(subGroupName);
         finalize();
+
+        // Append currentAddedItems values to respective subgroup
+        if (clickedSubGroup && addedItems[clickedSubGroup]) {
+            const updatedValues = { ...subGroupValues };
+            for (const itemName in addedItems[clickedSubGroup]) {
+                if (addedItems[clickedSubGroup].hasOwnProperty(itemName)) {
+                    const itemValue = addedItems[clickedSubGroup][itemName];
+                    const currentValue = parseFloat(updatedValues[subGroupName] || '0');
+                    const newValue = (currentValue + itemValue).toFixed(2);
+                    updatedValues[subGroupName] = newValue;
+                }
+            }
+            setSubGroupValues(updatedValues);
+            console.log("Updated Default Dictionary:", updatedValues); // Add this line to log the updated default dictionary
+        }
     };
+
+
 
     const addNewEntry = (): void => {
         setItemEntries((prevEntries) => [...prevEntries, ["", "0"]]);

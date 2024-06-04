@@ -3,7 +3,7 @@ import { StyleSheet, View, TextInput, ScrollView, Text, Button, Animated, Toucha
 import { IParserResult } from '../parsers/IParser';
 import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
 import useAppContext from '../components/hooks/useAppContext';
-import { IGroup } from '../components/state/IFirebaseDocument';
+import { IContact, IGroup } from '../components/state/IFirebaseDocument';
 import { configureLayoutAnimationBatch } from 'react-native-reanimated/lib/typescript/reanimated2/core';
 import { isColor } from 'react-native-reanimated';
 
@@ -97,7 +97,8 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [isFinalized, setIsFinalized] = useState(false); // State to track whether editing is finalized
     const [clickedSubGroup, setClickedSubGroup] = useState<string | null>(null); // State to keep track of clicked subgroup
     const [subGroupValues, setSubGroupValues] = useState<{ [key: string]: string }>({}); // State to keep track of subgroup values
-    const [addedItems, setAddedItems] = useState<{ [subGroupName: string]: Set<string> }>({}); // Track added items for each subgroup
+    const [addedItems, setAddedItems] = useState<{ [contact: string]: Set<string> }>({}); // Track added items for each subgroup
+    const [activeUser, setActiveUser] = useState<IContact>();
 
     useEffect(() => {
         setTotalSum(calculateTotalSum(itemEntries));
@@ -160,9 +161,10 @@ const Verification = ({ parserResult }: VerificationProps) => {
         }
     };
 
-    const handleSubGroupClick = (subGroupName: string): void => {
-        console.log(`Clicked subgroup: ${subGroupName}`);
-        setClickedSubGroup(subGroupName);
+    const handleSubGroupClick = (contact: IContact): void => {
+        console.log(`Clicked subgroup: ${contact.name}`);
+        setClickedSubGroup(contact.name);
+        setActiveUser(contact);
         finalize();
     };
 
@@ -187,9 +189,10 @@ const Verification = ({ parserResult }: VerificationProps) => {
     };
 
     const finalize = () => {
-        setEditable(false); 
-        setIsFinalized(true);
+        setEditable(false); // Set editable to false to disable all TextInput fields
+        setIsFinalized(true); // Set the editing finalized state to true
     };
+
     const unfinalize = () => {
         setEditable(true); 
         setIsFinalized(false); 
@@ -203,8 +206,32 @@ const Verification = ({ parserResult }: VerificationProps) => {
             return updatedValues;
         });
     };
-    
-    
+
+    const invertColor = (hex: string): string => {
+        const color = parseInt(hex.replace('#', ''), 16);
+        const invertedColor = 0xffffff - color;
+        const invertedHex = invertedColor.toString(16);
+        return `#${invertedHex.padStart(6, '0')}`;
+    }
+
+    const handleBackgroundColor = (key: string) => {
+        if (activeUser && addedItems[activeUser.name]) {
+            console.log(addedItems[activeUser.name]);
+            if (addedItems[activeUser.name].has(key)) {
+                return activeUser.bgColor;
+            }
+        }
+        return undefined;
+    }
+
+    const handleTextColor = (key: string) => {
+        if (activeUser && addedItems[activeUser.name]) {
+            if (addedItems[activeUser.name].has(key)) {
+                return invertColor(activeUser.bgColor);
+            }
+        }
+        return '#1f91ec';
+    }
 
     return (
         <ScrollView style={styles.scrollContainer}>
@@ -224,11 +251,18 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                     </View>
                                 )}
                                 {isFinalized ? (
-                                    <View style={{ flex: 1 }}>
-                                        <TouchableOpacity onPress={() => handleItemClick(key, value)} style={{ width: '100%' }}>
-                                            <Text style={styles.input}>{`${key}: ${value}`}</Text>
-                                        </TouchableOpacity>
-                                    </View>
+                                <View style={{ flex: 1 }}>
+                                <TouchableOpacity 
+                                    onPress={() => handleItemClick(key, value)} 
+                                    style={{ width: '100%' }}>
+                                    <Text style={{
+                                        ...styles.input,
+                                        backgroundColor: handleBackgroundColor(key),
+                                        textAlignVertical: 'center',
+                                        color: handleTextColor(key)
+                                    }}>{`${key}: ${value}`}</Text>
+                                </TouchableOpacity>
+                            </View>
                                 ) : (
                                     <View style={styles.item}>
                                         <TextInput
@@ -284,7 +318,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
                                 width={50}
                                 height={50}
                                 backgroundColor={contact.bgColor} // can either be the contacts back ground color or letter color
-                                onPress={() => handleSubGroupClick(contact.name)}
+                                onPress={() => handleSubGroupClick(contact)}
                             >
                             <Text style={styles.subGroupText}></Text>
                             </ThemedButton>
@@ -385,13 +419,16 @@ const styles = StyleSheet.create({
     },
     input: {
         height: 40,
+        paddingHorizontal: 8,
         borderColor: 'gray',
         borderWidth: 1,
         borderRadius: 4,
-        paddingHorizontal: 8,
         textAlign: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
         fontSize: 12,
         fontWeight: 'bold',
+        flex: 1,
         color: '#1f91ec',   // Blue color
     },
     buttonContainer: {

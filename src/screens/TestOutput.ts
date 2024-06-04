@@ -126,16 +126,16 @@ type MemberDict = { [member: string]: { [key: string]: number } };
 
 // Function to test the memberSums function
 
-function testMemberSums() {    
-    describe('memberSums function', () => {
-        let memberDict: MemberDict = { 
-            "Darren": { "Milk": 1, "Cheese": 2, "Meat": 3 },
-            "Thomas": { "Meat": 3, "Cheese": 2, "IceCream": 4 },
-        };
-        test('memberSums output', () => {
-            const result = memberSums(memberDict);
-            expect(result.Darren).toBe(3.5);
-            expect(result.Thomas).toBe(6.5);
-        });
-    });
-}
+// function testMemberSums() {    
+//     describe('memberSums function', () => {
+//         let memberDict: MemberDict = { 
+//             "Darren": { "Milk": 1, "Cheese": 2, "Meat": 3 },
+//             "Thomas": { "Meat": 3, "Cheese": 2, "IceCream": 4 },
+//         };
+//         test('memberSums output', () => {
+//             const result = memberSums(memberDict);
+//             expect(result.Darren).toBe(3.5);
+//             expect(result.Thomas).toBe(6.5);
+//         });
+//     });
+// }

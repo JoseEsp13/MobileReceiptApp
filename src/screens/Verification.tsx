@@ -84,6 +84,13 @@ const calculateTotalSum = (entries: [string, string][]): number => {
     return parseFloat(totalSum.toFixed(2)); // Round the total to two decimal places
 };
 
+const initializeDefaultDict = (group: IGroup): { [key: string]: any } => {
+    return group.contacts.reduce((acc, contact) => {
+        acc[contact.name] = null; // Set default value to null or any other value you prefer
+        return acc;
+    }, {} as { [key: string]: any });
+};
+
 const Verification = ({ parserResult }: VerificationProps) => {
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
     
@@ -99,6 +106,7 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [subGroupValues, setSubGroupValues] = useState<{ [key: string]: string }>({}); // State to keep track of subgroup values
     const [addedItems, setAddedItems] = useState<{ [contact: string]: { [itemName: string]: number } }>({}); // Track added items for each subgroup
     const [addedItemsHistory, setAddedItemsHistory] = useState<{ [contactName: string]: { [itemName: string]: number } }[]>([]);
+    const [defaultDict, setDefaultDict] = useState<{[key: string]: any}>({}); // New state for the default dictionary
     const [activeUser, setActiveUser] = useState<IContact>();
 
     useEffect(() => {
@@ -112,8 +120,12 @@ const Verification = ({ parserResult }: VerificationProps) => {
                 selectedGroup.contacts.some(contact => contact.name === key)
             );
             setGroupItems(groupItemsFiltered);
+            const defaultDict = initializeDefaultDict(selectedGroup);
+            setDefaultDict(defaultDict);
+            console.log("Updated Default Dictionary:", defaultDict); // Add this line to log the new dictionary
         }
     }, [selectedGroup, itemEntries]);
+    
 
     const handleKeyChange = (text: string, index: number): void => {
         setItemEntries((prevEntries) => {
@@ -176,11 +188,29 @@ const handleItemClick = (key: string, value: string): void => {
     
 
     const handleSubGroupClick = (contact: IContact): void => {
-        console.log(`Clicked subgroup: ${contact.name}`);
-        setClickedSubGroup(contact.name);
+        const subGroupName = contact.name;
+        console.log(`Clicked subgroup: ${subGroupName}`);
+        setClickedSubGroup(subGroupName);
         setActiveUser(contact);
         finalize();
+
+        // Append currentAddedItems values to respective subgroup
+        if (clickedSubGroup && addedItems[clickedSubGroup]) {
+            const updatedValues = { ...subGroupValues };
+            for (const itemName in addedItems[clickedSubGroup]) {
+                if (addedItems[clickedSubGroup].hasOwnProperty(itemName)) {
+                    const itemValue = addedItems[clickedSubGroup][itemName];
+                    const currentValue = parseFloat(updatedValues[subGroupName] || '0');
+                    const newValue = (currentValue + itemValue).toFixed(2);
+                    updatedValues[subGroupName] = newValue;
+                }
+            }
+            setSubGroupValues(updatedValues);
+            console.log("Updated Default Dictionary:", updatedValues); // Add this line to log the updated default dictionary
+        }
     };
+
+
 
     const addNewEntry = (): void => {
         setItemEntries((prevEntries) => [...prevEntries, ["", "0"]]);

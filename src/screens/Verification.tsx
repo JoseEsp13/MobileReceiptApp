@@ -4,10 +4,74 @@ import { IParserResult } from '../parsers/IParser';
 import AwesomeButton, { ThemedButton } from "react-native-really-awesome-button";
 import useAppContext from '../components/hooks/useAppContext';
 import { IGroup } from '../components/state/IFirebaseDocument';
+import { configureLayoutAnimationBatch } from 'react-native-reanimated/lib/typescript/reanimated2/core';
+import { isColor } from 'react-native-reanimated';
 
 interface VerificationProps {
     parserResult: IParserResult;
 }
+
+/* Calculates the total count of each item across the entire memberDict, and returns a dictionary containing said count
+*/
+export const getCountOfItems = (memberDict: {[member: string]: {[key: string]: number}}): {[item: string]: number} => {
+    let itemCountDict: {[item: string]: number} = {};
+    
+    for (let member in memberDict) {
+        let itemDict = memberDict[member] // item dictionary for an individual member
+        for (let item in itemDict) {
+            if (item in itemCountDict) {
+                itemCountDict[item] = itemCountDict[item] + 1
+            } else {
+                itemCountDict[item] = 1
+            }
+        }
+    }
+    return itemCountDict;
+}
+
+/* Function to calculate the amount each member should pay
+ * @param dict: A dictionary containing the names of the members and their respective items and prices
+ * Is a dictionary containing names of members as keys and a dictionary of {item_name, item_price} as value
+ * For every member in the dict, take their respective dict and sum the prices/values of all the items and assign to the member
+ */ 
+export const memberSums = (memberDict: {[member: string]: {[key: string]: number}}): {[member: string]: number} => {
+    // final dictionary containing member and their respective total to be returned
+    let outDict: {[member: string]: number} = {};
+    // if the price passed for each item is not split already:
+    let itemCountDict = getCountOfItems(memberDict);
+    
+    let itemsThatDontSplit: {[item: string]: number} = {}
+
+    for (let member in memberDict) {
+        let memberTotal = 0;
+        let itemDict = memberDict[member];
+        // fore each item in itemDict, memberTotal += item's price / item's count
+        for (let item in itemDict) {
+            let modCents = (Math.round(itemDict[item] * 100)) % itemCountDict[item]
+            if (modCents != 0) {
+                if (!itemsThatDontSplit.hasOwnProperty(item)) {
+                    itemsThatDontSplit[item] = modCents
+                }
+                let current = (Math.trunc((itemDict[item] / itemCountDict[item]) * 100) / 100)
+                // console.log("modCents = " + String(modCents) + " and current= " + current)
+                
+                if (itemsThatDontSplit[item] > 0) {
+                    memberTotal += current + .01
+                    itemsThatDontSplit[item] -= 1;
+                } else {
+                    memberTotal += current
+                }
+                
+            } else {
+                memberTotal += Number((itemDict[item] / itemCountDict[item]).toFixed(2));
+            }
+        }
+        outDict[member] = Number(memberTotal.toFixed(2));
+    }
+    // total = SUM(memberDict[member][item]/itemCountDict[item])
+    return outDict
+}
+
 
 // Helper function to calculate the total sum, excluding the "TOTAL" key
 const calculateTotalSum = (entries: [string, string][]): number => {

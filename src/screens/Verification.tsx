@@ -231,7 +231,7 @@ const handleItemClick = (key: string, value: string): void => {
     const handleBackgroundColor = (key: string) => {
         if (activeUser && addedItems[activeUser.name]) {
             console.log(addedItems[activeUser.name]);
-            if (addedItems[activeUser.name].has(key)) {
+            if (key in addedItems[activeUser.name]) {
                 return activeUser.bgColor;
             }
         }
@@ -240,7 +240,7 @@ const handleItemClick = (key: string, value: string): void => {
 
     const handleTextColor = (key: string) => {
         if (activeUser && addedItems[activeUser.name]) {
-            if (addedItems[activeUser.name].has(key)) {
+            if (key in addedItems[activeUser.name]) {
                 return invertColor(activeUser.bgColor);
             }
         }

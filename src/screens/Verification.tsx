@@ -108,8 +108,10 @@ const Verification = ({ parserResult }: VerificationProps) => {
     const [addedItemsHistory, setAddedItemsHistory] = useState<{ [contactName: string]: { [itemName: string]: number } }[]>([]);
     const [defaultDict, setDefaultDict] = useState<{[key: string]: any}>({}); // New state for the default dictionary
     const [activeUser, setActiveUser] = useState<IContact>();
+    const [memberTotal, setMemberTotal] = useState<{ [key: string]: string }>({}); // contains the actual member totals
 
     useEffect(() => {
+
         setTotalSum(calculateTotalSum(itemEntries));
         parserResult.TOTAL = parseFloat(totalSum.toFixed(2));
     }, [itemEntries]);
@@ -154,6 +156,8 @@ const handleItemClick = (key: string, value: string): void => {
 
             let newValue;
             const currentAddedItems = { ...addedItems[clickedSubGroup] } || {}; // Clone the current dictionary to avoid mutating the state directly
+            // console.log('printing currentAddedItems')
+            // console.log(currentAddedItems)
 
             if (currentAddedItems[key]) {
                 newValue = (currentValue - currentAddedItems[key]).toFixed(2); // Subtract the value if already added
@@ -162,29 +166,54 @@ const handleItemClick = (key: string, value: string): void => {
                 newValue = (currentValue + itemValue).toFixed(2); // Add the value if not added
                 currentAddedItems[key] = itemValue;
             }
+            console.log("Newvalue = " + newValue)
 
             // Log the currentAddedItems for debugging
             console.log('Current Added Items:', currentAddedItems);
+            //resetSubGroupValues()
 
             // Update the addedItems state
             setAddedItems((prevAddedItems) => ({
                 ...prevAddedItems,
                 [clickedSubGroup]: currentAddedItems
             }));
+            
 
+            newValue = resetSubGroupValues(clickedSubGroup, currentAddedItems)
+            
             // Store the currentAddedItems in the addedItemsHistory state
             setAddedItemsHistory((prevHistory) => ({
                 ...prevHistory,
                 [clickedSubGroup]: currentAddedItems
             }));
+            
 
                 return {
                     ...prevValues,
                     [clickedSubGroup]: newValue
                 };
             });
+
         }
+        
     };
+
+    const resetSubGroupValues = (clickedSubGroup: string, toAdd: { [x: string]: number; }): {[name: string]: string} => {
+        let inputDict = addedItems
+        inputDict[clickedSubGroup] = toAdd
+        
+        let memberDict = memberSums(inputDict)
+        console.log("BEANSSSSSS")
+        console.log(addedItems)
+        console.log(memberDict)
+        let memberDictString: {[name: string]: string} = {}
+        for (let member in memberDict) {
+            memberDictString[member] = String(memberDict[member])
+        }
+        setSubGroupValues(memberDictString)
+        return memberDictString
+    }
+    
     
 
     const handleSubGroupClick = (contact: IContact): void => {
@@ -193,8 +222,8 @@ const handleItemClick = (key: string, value: string): void => {
         setClickedSubGroup(subGroupName);
         setActiveUser(contact);
         finalize();
-
         // Append currentAddedItems values to respective subgroup
+        /*
         if (clickedSubGroup && addedItems[clickedSubGroup]) {
             const updatedValues = { ...subGroupValues };
             for (const itemName in addedItems[clickedSubGroup]) {
@@ -208,6 +237,7 @@ const handleItemClick = (key: string, value: string): void => {
             setSubGroupValues(updatedValues);
             console.log("Updated Default Dictionary:", updatedValues); // Add this line to log the updated default dictionary
         }
+        */
     };
 
 
@@ -260,7 +290,7 @@ const handleItemClick = (key: string, value: string): void => {
 
     const handleBackgroundColor = (key: string) => {
         if (activeUser && addedItems[activeUser.name]) {
-            console.log(addedItems[activeUser.name]);
+            // console.log(addedItems[activeUser.name]);
             if (key in addedItems[activeUser.name]) {
                 return activeUser.bgColor;
             }
@@ -379,7 +409,7 @@ const handleItemClick = (key: string, value: string): void => {
                                     <Text style={styles.subGroupText}>{key}</Text>
                                 </View>
                                 <View style={styles.item}>
-                                    <Text style={styles.subGroupText}>{value}</Text>
+                                    <Text style={styles.subGroupText}>{memberTotal[key]}</Text>
                                 </View>
                             </View>
                         ))}

@@ -207,9 +207,9 @@ const handleItemClick = (key: string, value: string): void => {
         inputDict[clickedSubGroup] = toAdd
         
         let memberDict = memberSums(inputDict)
-        console.log("BEANSSSSSS")
-        console.log(addedItems)
-        console.log(memberDict)
+        // console.log("BEANSSSSSS")
+        // console.log(addedItems)
+        // console.log(memberDict)
         let memberDictString: {[name: string]: string} = {}
         for (let member in memberDict) {
             memberDictString[member] = String(memberDict[member])

@@ -1,5 +1,7 @@
 # Awesome Receipt App
 
+React Native receipt app for android that takes a picture of a receipt and splits it accordingly amongst a group of people. Currently we support receipts for Costco, Safeway, Trader Joes, and McDonalds + additional receipts with reduced accuracy.
+
 ## React Native Install Instructions:
 
 Official Docs: https://reactnative.dev/docs/environment-setup

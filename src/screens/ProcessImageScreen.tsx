@@ -44,6 +44,8 @@ export const ProcessImageScreen = (props: ProcessImageScreenProps) => {
       try {
         // run a test here:
         // console.log(testGenMemberSums(10))
+        // console.log(testGetCountOfItems(10))
+        // console.log(testChecksum(10))
 
         // Send a request to Google's ML Kit
         const response_img = await MLKit.recognizeImage(url);

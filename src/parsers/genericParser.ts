@@ -32,23 +32,21 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
   let item_dict: {[key: string]: number} = {};
   let inUrl = url;
   // Puts a little message for user
-  /*ToastAndroid.showWithGravity(
-    "Please crop the image",
+  ToastAndroid.showWithGravity(
+    "Please crop the image starting from the first item to the total",
     ToastAndroid.LONG,
     ToastAndroid.TOP
   );
+
+  function convertToNumber(input: string): number {
+    let number = Number(input.replace(/[^0-9\.\-]/g, ''));
+    return number;
+  }
   /* pairItems()
   * Returns an [Item, Item] array where and Item contains an item and the xcord
   */
-
-  function convertToNumber(input: string): number {
-    // Remove non-numeric characters and convert to number
-    let number = Number(input.replace(/[^0-9\.]/g, ''));
-    return number;
-  }
-
   function pairItems(items: Item[]): Array<[Item, Item]> {
-    // Sort items by number
+    // Sort items by y-coordinate
     items.sort((a, b) => a.ycord - b.ycord);
 
     // Calculate the mean
@@ -64,7 +62,7 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
         // Skip items that have already been paired
         if (usedItems.has(items[i])) continue;
 
-        // Calculate the difference between the current number and the next one
+        // Calculate the difference between the current item and the next one
         let diff = items[i + 1].ycord - items[i].ycord;
 
         // If the difference is less than or equal to the standard deviation, pair the items
@@ -76,7 +74,6 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
     }
     return pairs;
   }
-
   // Function which checks how similar two strings are
   const similar = (str1: string, str2: string, threshold = 0.6) => {
     let dist: number = distance(str1, str2);
@@ -87,17 +84,13 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
 
   const postProcess = (response: ITextRecognitionResponse): { [key: string]: number } | undefined => {
     let items: Item[] = [];
-    let num_dict: {[key: string]: number} = {};
     let dict: { [key: string]: string } = {};
-    const Price = /^\$?\d+(\.\d+)?\s?[A-Z]{0,2}$/
-    const NegativePrice = /^-\$?\d+(\.\d+)?\s?[A-Z]{0,2}$/;
+    const Price = /^-?\$?\d+(\.\d+)?\s?[A-Z]{0,2}$/
     const ItemNumber = /^\d{4,}$/;
     const RandomLetter = /^[a-zA-Z]$/;
-    const IgnoreWords = /SUBTOTAL|VISA|ITEM|LB/;
-    const SynonymTotal = /TOTAL|BALANCE|PAY/;
+    const IgnoreWords = /SUBTOTAL|VISA|ITEM|LB|SAVE|@|^MEAT$|GROCERY/;
     const DuplicateItems = /^\d+\s?.\s?[\$S]?\d+\.\d{0,2}$/;
-    const UselessCharacters = /@/;
-
+    const SynonymTotal = /TOTAL|BALANCE|PAY/;
     for (let i = response.blocks.length - 1; i >= 0; i--) {
       for (let j = response.blocks[i].lines.length - 1; j >= 0; j--) {
         let item = response.blocks[i].lines[j];
@@ -105,7 +98,9 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
         let ycord = item.rect.top;
         let xcord = item.rect.left;
         let width = item.rect.width;
-        // console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);  // This line tells me everyhing I need
+        
+        text = text.replace(SynonymTotal, 'TOTAL');
+        console.log(`${text.padEnd(30)} ${xcord.toString().padStart(10)} ${ycord.toString().padStart(10)} ${width.toString().padStart(10)}`);  // This line tells me everyhing I need
         if (!ItemNumber.test(text) && !RandomLetter.test(text) && !DuplicateItems.test(text)) { 
           items.push({ text, ycord: ycord, xcord: xcord, width: width });
         }
@@ -116,6 +111,9 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
     items.sort((a, b) => a.xcord - b.xcord);
     
     let pairs = pairItems(items);
+    // for (let pair of pairs) {
+    //   console.log(`Pair: [${pair[0].text}, ${pair[1].text}]`);
+    // }
 
     // Assigns the dictionary values, if the first value of pair[i], i.e [Item, Item] where pair[0] is a price, it swaps basically.
     for (let pair of pairs) {
@@ -137,10 +135,12 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
         item_dict[key] = convertToNumber(dict[key]);
       }
       else {
+        // console.log(`Ignoring ${key}`)
         delete dict[key];
       }
     }
     // To print out the dictionary
+    // console.log("Dictionary");
     // for (let key in item_dict) {
     //   console.log(`${key.padEnd(30)}:${item_dict[key]}`);
     // }
@@ -162,4 +162,3 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
   }
   return item_dict;
 }
-

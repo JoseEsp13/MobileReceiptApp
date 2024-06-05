@@ -130,6 +130,8 @@ npm start
 
 Let Metro Bundler run in its own terminal. Open a new terminal inside your React Native project folder. Run the following:
 
+npm run android
+
 This is one way to run your app - you can also run it directly from within Android Studio.
 
 That's it!

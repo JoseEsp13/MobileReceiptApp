@@ -119,6 +119,9 @@ Click "Next" then "Finish" to create your AVD. At this point you should be able 
 ## Start Development Server
 
 ### Running your React Native application
+Before running your server check if you have packages installed by running:
+
+npm install
 
 #### Step 1: Start Metro
 

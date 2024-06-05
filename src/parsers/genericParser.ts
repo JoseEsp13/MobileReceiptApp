@@ -33,7 +33,7 @@ export async function parseGeneric(url: string): Promise<{[key: string]: number}
   let inUrl = url;
   // Puts a little message for user
   ToastAndroid.showWithGravity(
-    "Please crop the image",
+    "Please crop the image starting from the first item to the total",
     ToastAndroid.LONG,
     ToastAndroid.TOP
   );

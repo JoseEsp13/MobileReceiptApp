@@ -9,21 +9,10 @@ import DocumentScanner from 'react-native-document-scanner-plugin';
 import { DemoButton } from '../components/ui/DemoButton';
 import routes, { IHomeScreenTabProps } from '../routes';
 import useAppContext from '../components/hooks/useAppContext';
-import messaging from '@react-native-firebase/messaging';
 
 
 export default function HomeScreen(props: IHomeScreenTabProps) {
   
-  const ctx = useAppContext();
-
-  /*useEffect(() => {
-    const unsubscribe = messaging().onMessage(async remoteMessage => {
-      Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
-    });
-
-    return unsubscribe;
-  }, []);*/
-
   const scanDocument = async () => {
     const { scannedImages } = await DocumentScanner.scanDocument({
       maxNumDocuments: 1
@@ -50,8 +39,8 @@ export default function HomeScreen(props: IHomeScreenTabProps) {
         </DemoButton>
       </View>
       <View style={{height: 60, marginTop: 100}}>
-        <DemoButton key="Dev Logout" onPress={() => props.navigation.navigate(routes.LOGOUT_SCREEN)}>
-          {'Dev Logout'}
+        <DemoButton key="Logout" onPress={() => props.navigation.navigate(routes.LOGOUT_SCREEN)}>
+          {'Logout'}
         </DemoButton>
       </View>
     </View>

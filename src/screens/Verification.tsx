@@ -21,6 +21,8 @@ const calculateTotalSum = (entries: [string, string][]): number => {
 };
 
 const Verification = ({ parserResult }: VerificationProps) => {
+
+    
     const initialEntries: [string, string][] = Object.entries(parserResult).map(([key, value]) => [key, value.toString()]);
 
     const [itemEntries, setItemEntries] = useState<[string, string][]>(initialEntries);

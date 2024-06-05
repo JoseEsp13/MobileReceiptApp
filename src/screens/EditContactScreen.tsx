@@ -307,8 +307,7 @@ const styles = StyleSheet.create({
     right: 25,
     height: 70,
     width: 70,
-    borderWidth: 1,
-    shadowColor: '#52006A',
+    elevation: 10
   },
   floatingActionBtn: {
     position: "relative",

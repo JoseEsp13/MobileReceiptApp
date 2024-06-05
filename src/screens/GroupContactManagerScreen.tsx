@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
   viewRow: {
     flexDirection: "row",
     height: 70,
-    marginBottom: 5,
+    marginBottom: 10,
     borderRadius: 10,
     paddingHorizontal: 10
   },

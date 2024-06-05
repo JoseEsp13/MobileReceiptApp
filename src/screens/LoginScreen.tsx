@@ -3,11 +3,13 @@ import { Alert, Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, Vie
 import logo from "../assets/logo.png"
 import routes, { ILoginStackScreenProps } from '../routes'
 import useAppContext from '../components/hooks/useAppContext';
+import useIsDarkColorTheme from '../components/hooks/useIsDarkColorTheme';
 
 
 export default function LoginScreen(props: ILoginStackScreenProps) {
 
   const ctx = useAppContext();
+  const isDark = useIsDarkColorTheme();
   const [email, setEmail] =  useState("");
   const [password, setPassword] =  useState("");
 
@@ -16,50 +18,58 @@ export default function LoginScreen(props: ILoginStackScreenProps) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, {backgroundColor: isDark ? "black" : "white"}]}>
       <Image source={logo} style={styles.image} resizeMode='contain' />
-      <Text style={styles.title}>Awesome Receipt App</Text>
-      <View style={styles.inputView}>
-        <TextInput 
-          style={styles.input} 
-          placeholder='EMAIL' 
-          value={email} 
-          onChangeText={setEmail} 
-          autoCorrect={false}
-          autoCapitalize='none'
-          inputMode="email"
-          keyboardType="email-address"
-          textContentType="emailAddress"
-        />
-        <TextInput 
-          style={styles.input} 
-          placeholder='PASSWORD' 
-          secureTextEntry 
-          value={password} 
-          onChangeText={setPassword} 
-          autoCorrect={false}
-          autoCapitalize='none'
-          textContentType="newPassword"
-        />
-      </View>
-      <View style={styles.rememberView}>
+      <Text style={[styles.title, {color: isDark ? "#eeeeee" : "#424242"}]}>Awesome Receipt App</Text>
+
+      <View style={{backgroundColor: isDark ? "#212121" : "white", paddingTop: 20, paddingBottom: 20, paddingHorizontal: 15, borderRadius: 15, marginHorizontal: 20}}>
         <View>
-          <Pressable onPress={() => Alert.alert("Forget Password!")}>
-            <Text style={styles.forgetText}>Forgot Password?</Text>
-          </Pressable>
+          <TextInput
+            style={[styles.input, {borderColor: "#424242", color: isDark ? "#eeeeee" : "#424242"}]}
+            placeholder='EMAIL'
+            placeholderTextColor={isDark ? "#eeeeee" : "#424242"}
+            value={email} 
+            onChangeText={setEmail} 
+            autoCorrect={false}
+            autoCapitalize='none'
+            inputMode="email"
+            keyboardType="email-address"
+            textContentType="emailAddress"
+          />
+        </View>
+        <View>
+          <TextInput
+            style={[styles.input, {borderColor: "#424242", color: isDark ? "#eeeeee" : "#424242"}]}
+            placeholder='PASSWORD'
+            placeholderTextColor={isDark ? "#eeeeee" : "#424242"} 
+            secureTextEntry 
+            value={password} 
+            onChangeText={setPassword} 
+            autoCorrect={false}
+            autoCapitalize='none'
+            textContentType="newPassword"
+          />
+        </View>
+
+        <View style={styles.rememberView}>
+          <View>
+            <Pressable onPress={() => Alert.alert("Forget Password!")}>
+              <Text style={[styles.forgetText, {color: isDark ? "#eeeeee" : "#424242"}]}>Forgot Password?</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
 
       <View style={styles.buttonView}>
         <Pressable style={styles.button} onPress={handleLoginClick}>
-          <Text style={styles.buttonText}>LOGIN</Text>
+          <Text style={[styles.buttonText, {color: isDark ? "#eeeeee" : "#424242"}]}>LOGIN</Text>
         </Pressable>
       </View>
 
       <View style={styles.footerText}>
-        <Text style={{marginRight: 5}}>Don't Have Account?</Text>
+        <Text style={{marginRight: 5, color: isDark ? "#eeeeee" : "#424242"}}>Don't Have Account?</Text>
         <Pressable>
-          <Text onPress={() => props.navigation.navigate(routes.SIGNUP_SCREEN)}>Sign Up</Text>
+          <Text style={{color: isDark ? "#eeeeee" : "#424242"}} onPress={() => props.navigation.navigate(routes.SIGNUP_SCREEN)}>Sign Up</Text>
         </Pressable> 
       </View>
       
@@ -72,6 +82,7 @@ const styles = StyleSheet.create({
   container : {
     alignItems : "center",
     paddingTop: 70,
+    flex: 1
   },
   image : {
     height : 160,
@@ -82,28 +93,23 @@ const styles = StyleSheet.create({
     fontWeight : "bold",
     textTransform : "uppercase",
     textAlign: "center",
-    paddingVertical : 40,
-  },
-  inputView : {
-    gap : 15,
-    width : "100%",
-    paddingHorizontal : 40,
-    marginBottom  :5
+    paddingVertical : 30
   },
   input : {
-    height : 50,
-    paddingHorizontal : 20,
+    height : 60,
     borderWidth : 1,
-    borderRadius: 7
+    borderRadius: 7,
+    marginBottom: 15,
+    padding: 10,
+    paddingLeft: 20
   },
   rememberView : {
     width : "100%",
-    paddingHorizontal : 50,
+    paddingHorizontal : 20,
     justifyContent: "flex-end",
     alignItems : "center",
     flexDirection : "row",
-    marginBottom : 8,
-    marginTop: 10
+    marginTop: 5
   },
   switch :{
     flexDirection : "row",
@@ -138,7 +144,6 @@ const styles = StyleSheet.create({
   optionsText : {
     textAlign : "center",
     paddingVertical : 10,
-    color : "gray",
     fontSize : 13,
     marginBottom : 6
   },
@@ -156,7 +161,6 @@ const styles = StyleSheet.create({
   footerText : {
     display: "flex",
     flexDirection: "row",
-    marginTop: 25,  
-    color : "gray",
+    marginTop: 25
   }
 })

@@ -1,6 +1,6 @@
-import auth, { FirebaseAuthTypes } from '@react-native-firebase/auth';
+import auth from '@react-native-firebase/auth';
 import storage, { FirebaseStorageTypes } from '@react-native-firebase/storage';
-import firestore, { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import firestore from '@react-native-firebase/firestore';
 import { IUser } from './IFirebaseDocument';
 import utility from '../util/utility';
 
@@ -10,8 +10,9 @@ const createAuthenticatedUserAsync = async (email: string, password: string, nam
   return await auth()
     .createUserWithEmailAndPassword(email, password)
     .then(async credential => {
-      console.log('User authentication created');
 
+      // Authentication created. 
+      // Attempt to add a user data entry
       const newUser: IUser = {
         uid: credential.user.uid,
         contacts: [],

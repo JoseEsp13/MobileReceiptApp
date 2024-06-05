@@ -6,7 +6,6 @@
 import React from 'react';
 import {DarkTheme, DefaultTheme, NavigationContainer} from '@react-navigation/native';
 import AppState from './src/components/state/AppState';
-import NavigatorDrawer from './src/NavigatorDrawer';
 import { useColorScheme } from 'react-native';
 import NavigatorBottomTabs from './src/NavigatorBottomTabs';
 

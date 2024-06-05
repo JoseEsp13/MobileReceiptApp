@@ -341,8 +341,7 @@ const styles = StyleSheet.create({
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    height: "100%",
-    color: "white"
+    height: "100%"
   },
   floatingActionBtnContainer: {
     position: "absolute",
@@ -351,7 +350,6 @@ const styles = StyleSheet.create({
     right: 25,
     height: 70,
     width: 70,
-    borderWidth: 1,
     elevation: 10
   },
   floatingActionBtn: {

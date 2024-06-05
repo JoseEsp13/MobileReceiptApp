@@ -304,7 +304,6 @@ const styles = StyleSheet.create({
     right: 25,
     height: 70,
     width: 70,
-    borderWidth: 1,
     elevation: 10
   },
   floatingActionBtn: {

@@ -6,6 +6,14 @@ export interface IUser {
   groups: IGroup[]
 }
 
+export interface IGroup {
+  id: number,
+  name: string,
+  bgColor: string,
+  color: string,
+  contacts: IContact[]
+}
+
 export interface IContact {
   id: number,
   name: string,
@@ -13,12 +21,4 @@ export interface IContact {
   phoneNumber: string,
   color: string,
   bgColor: string,
-}
-
-export interface IGroup {
-  id: number,
-  name: string,
-  bgColor: string,
-  color: string,
-  contacts: IContact[]
 }
